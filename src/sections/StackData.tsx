@@ -47,8 +47,8 @@ const StackData: React.FC = () => {
   };
   
   const [stackData, setStackData] = useState<StackDataType & { sourceType: SourceType }>(
-    formData.stack_data 
-      ? { ...formData.stack_data, sourceType: SourceType.POINT } 
+    formData.stack_data
+      ? { ...defaultStackData, ...formData.stack_data, sourceType: SourceType.POINT }
       : defaultStackData
   );
 
@@ -68,9 +68,58 @@ const StackData: React.FC = () => {
     }));
   };
 
+  /* ──────────────────────────────────────────────────────────────
+   * keep-list for every source-type
+   * ──────────────────────────────────────────────────────────── */
+  const allowedFields: Record<SourceType, (keyof StackDataType)[]> = {
+    [SourceType.POINT]: [
+      'rate', 'height', 'diam', 'temp_k', 'vel', 'flow_rate',
+      'rate_unit', 'height_unit', 'diam_unit', 'temp_unit',
+      'vel_unit', 'flow_rate_unit'
+    ],
+    [SourceType.CAPPED_POINT]: [
+      'rate', 'height', 'diam', 'temp_k', 'vel', 'flow_rate',
+      'rate_unit', 'height_unit', 'diam_unit', 'temp_unit',
+      'vel_unit', 'flow_rate_unit'
+    ],
+    [SourceType.HORIZONTAL_POINT]: [
+      'rate', 'height', 'diam', 'temp_k', 'vel', 'flow_rate',
+      'rate_unit', 'height_unit', 'diam_unit', 'temp_unit',
+      'vel_unit', 'flow_rate_unit'
+    ],
+    [SourceType.FLARE]: [
+      'rate', 'height', 'heat_release_rate', 'heat_loss_fraction'
+    ],
+    [SourceType.VOLUME]: [
+      'rate', 'release_height_agl',
+      'initial_lateral_dimension', 'initial_vertical_dimension'
+    ],
+    [SourceType.RECTANGULAR_AREA]: [
+      'rate', 'release_height_agl', 'length', 'width', 'vertical_dimension'
+    ],
+    [SourceType.CIRCULAR_AREA]: [
+      'rate', 'release_height_agl',
+      'radius', 'num_vertices', 'vertical_dimension'
+    ]
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    updateFormData('stack_data', stackData);
+
+    /** keep only the fields needed for the chosen source-type */
+    const { sourceType, ...rest } = stackData;
+    const core = allowedFields[sourceType].reduce<Record<string, unknown>>(
+      (obj, k) => {
+        if (rest[k] !== undefined) obj[k as string] = rest[k];
+        return obj;
+      },
+      {}
+    );
+
+    /* add the source type the API requires */
+    const payload = { source_type: sourceType, ...core };
+
+    updateFormData('stack_data', payload as StackDataType);
     navigate('/building-data');
   };
 
@@ -261,7 +310,7 @@ const StackData: React.FC = () => {
               label="Heat release rate"
               name="heat_release_rate"
               type="number"
-              value={stackData.heat_release_rate}
+              value={stackData.heat_release_rate ?? 0}
               onChange={handleChange}
               required
             />
@@ -269,7 +318,7 @@ const StackData: React.FC = () => {
               label="Heat loss fraction (0–1)"
               name="heat_loss_fraction"
               type="number"
-              value={stackData.heat_loss_fraction}
+              value={stackData.heat_loss_fraction ?? 0}
               onChange={handleChange}
               min={0}
               max={1}
