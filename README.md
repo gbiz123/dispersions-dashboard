@@ -25,7 +25,7 @@ A modern React-based web interface for the AERSCREEN air quality modeling tool. 
 ### Installation
 
 1. Clone this repository :
-    git clone https://github.com/your-username/aerscreen-app.git cd aerscreen-app
+    git clone https://github.com/michaelzeboth/aerscreen-react-ui.git || cd aerscreen-app
 
 2. Install dependencies : 
     npm install
