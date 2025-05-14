@@ -1,0 +1,115 @@
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import FormField from '../components/forms/FormField';
+import SectionContainer from '../components/SectionContainer';
+import { useRunContext } from '../context/RunContext';
+import { OtherInputs as OtherInputsType } from '../types/api';
+import { DistanceUnit, RuralUrban } from '../types/enums';
+
+const OtherInputs: React.FC = () => {
+  const { formData, updateFormData } = useRunContext();
+  const navigate = useNavigate();
+  
+  // Default values
+  const defaultOtherInputs: OtherInputsType = {
+    min_dist_ambient: 1,
+    min_dist_ambient_unit: DistanceUnit.METERS,
+    urban_population: 0,
+    is_fumigation: false,
+    // cast to ensure both sides use the same enum type
+    rural_urban: RuralUrban.RURAL as RuralUrban
+  };
+  
+  // Initialize state with existing data or defaults
+  const [otherInputs, setOtherInputs] = useState<OtherInputsType>(
+    formData.other_inputs || defaultOtherInputs
+  );
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value, type } = e.target;
+    
+    if (type === 'checkbox') {
+      const checked = (e.target as HTMLInputElement).checked;
+      setOtherInputs(prev => ({
+        ...prev,
+        [name]: checked
+      }));
+    } else {
+      setOtherInputs(prev => ({
+        ...prev,
+        [name]: name.includes('min_dist') || name.includes('population') 
+          ? parseFloat(value) || 0 
+          : value
+      }));
+    }
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    updateFormData('other_inputs', otherInputs);
+    navigate('/debug');
+  };
+
+  // Distance units options
+  const distanceUnits = [
+    { value: DistanceUnit.METERS, label: 'Meters (m)' },
+    { value: DistanceUnit.FEET, label: 'Feet (ft)' }
+  ];
+
+  const ruralUrbanOptions = [
+    { value: RuralUrban.RURAL, label: 'Rural' },
+    { value: RuralUrban.URBAN, label: 'Urban' }
+  ];
+
+  return (
+    <SectionContainer
+      title="Other Inputs"
+      onSubmit={handleSubmit}
+      nextSection="/debug"
+      nextSectionLabel="Debug"
+      previousSection={formData.terrain_data?.use_discrete_receptors ? '/discrete-receptors' : '/terrain-data'}
+    >
+      <div className="space-y-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Rural / Urban dropdown */}
+          <FormField
+            label="Area Type"
+            name="rural_urban"
+            type="select"
+            value={otherInputs.rural_urban}
+            onChange={handleChange}
+            options={ruralUrbanOptions}
+            required
+          />
+          <FormField
+            label="Minimum Distance to Ambient Air"
+            name="min_dist_ambient"
+            type="number"
+            value={otherInputs.min_dist_ambient}
+            onChange={handleChange}
+            required
+          />
+          <FormField
+            label="Distance Unit"
+            name="min_dist_ambient_unit"
+            type="select"
+            value={otherInputs.min_dist_ambient_unit}
+            onChange={handleChange}
+            options={distanceUnits}
+            required
+          />
+          
+          <FormField
+            label="Urban Population"
+            name="urban_population"
+            type="number"
+            value={otherInputs.urban_population || 0}
+            onChange={handleChange}
+          />
+        </div>
+      </div>
+    </SectionContainer>
+  );
+};
+
+export default OtherInputs;
