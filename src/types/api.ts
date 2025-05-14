@@ -122,6 +122,11 @@ export interface StackData {
   temp_unit: string;
   vel_unit: string;
   flow_rate_unit: string;
+  source_type?: string;
+  heat_release_rate?: number;  heat_loss_fraction?: number;
+  release_height_agl?: number; initial_lateral_dimension?: number; initial_vertical_dimension?: number;
+  length?: number; width?: number; vertical_dimension?: number;
+  radius?: number; num_vertices?: number;
 }
 
 // Building Data
