@@ -6,7 +6,7 @@ interface SectionContainerProps {
   children: ReactNode;
   onSubmit: (e: React.FormEvent) => void;
   nextSection: string;
-  nextSectionLabel: string;
+  nextSectionLabel?: string;
   previousSection?: string;
 }
 
@@ -15,16 +15,22 @@ const SectionContainer: React.FC<SectionContainerProps> = ({
   children,
   onSubmit,
   nextSection,
-  nextSectionLabel,
+  nextSectionLabel = 'Next',
   previousSection
 }) => {
   const navigate = useNavigate();
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    onSubmit?.(e);
+    if (nextSection) navigate(nextSection);
+  };
 
   return (
     <div className="bg-white shadow-md rounded-lg p-6 my-6">
       <h2 className="text-2xl font-bold mb-6 text-gray-800">{title}</h2>
       
-      <form onSubmit={onSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-4">
         {children}
         
         <div className="flex justify-between mt-8 pt-4 border-t">

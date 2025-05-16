@@ -13,11 +13,17 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const location = useLocation();
   const [pageTitle, setPageTitle] = useState('Dashboard');
 
+  // 👉 helper to turn "surface-roughness" → "Surface Roughness"
+  const toTitle = (slug: string) =>
+    slug
+      .split('-')
+      .map(s => s.charAt(0).toUpperCase() + s.slice(1))
+      .join(' ');
+
   // Update page title based on current route
   useEffect(() => {
     const path = location.pathname;
-    
-    // Map routes to readable titles
+
     const titleMap: Record<string, string> = {
       '/': 'Dashboard',
       '/stack-data': 'Stack Parameters',
@@ -28,11 +34,28 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       '/other-inputs': 'Additional Parameters',
       '/fumigation': 'Fumigation Settings',
       '/results': 'Analysis Results',
-      '/debug': 'Debug Information'
+      '/debug': 'Debug Information',
+      '/aersurface/basic-info': 'Basic Info',
+      '/aersurface/surface-roughness': 'Surface Roughness',
+      '/aersurface/meteorology': 'Meteorology',
+      '/aersurface/land-cover': 'Land Cover',
+      '/aersurface/temporal-frequency': 'Temporal Frequency',
+      '/aersurface/sectors': 'Sectors',
+      '/aersurface/run': 'Run AERSURFACE'
     };
-    
+
+    // If not in map and under /aersurface, derive from last segment
+    if (path.startsWith('/aersurface') && !titleMap[path]) {
+      const last = path.split('/').filter(Boolean).pop() || '';
+      titleMap[path] = toTitle(last);
+    }
+
     setPageTitle(titleMap[path] || 'AERSCREEN');
   }, [location]);
+
+  // 👉 decide which product name to show
+  const isAersurface = /^\/aersurface(\/|$)/i.test(location.pathname);
+  const appName = isAersurface ? 'AERSURFACE' : 'AERSCREEN';
 
   // Handle sidebar collapse state from Navigation component
   const handleSidebarCollapse = (collapsed: boolean) => {
@@ -55,8 +78,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           <div className="px-6 py-4 flex items-center justify-between">
             <div>
               <h1 className="text-2xl font-semibold text-gray-800">{pageTitle}</h1>
-              <div className="flex items-center text-sm text-gray-500 mt-1">
-                <span>AERSCREEN</span>
+              <div className="text-sm text-gray-500 mt-1 flex items-center">
+                <span>{appName}</span>
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 mx-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                 </svg>

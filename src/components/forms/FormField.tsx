@@ -1,12 +1,18 @@
 import React from 'react';
 
+export interface SelectOption {
+  value: string | number;
+  label: string;
+  disabled?: boolean;
+}
+
 interface FormFieldProps {
   label: string;
   name: string;
   type: 'number' | 'text' | 'select';
   value?: string | number;
   onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void;
-  options?: { value: string | number; label: string }[];
+  options?: SelectOption[];
   required?: boolean;
   disabled?: boolean;
   min?: number;
@@ -15,6 +21,7 @@ interface FormFieldProps {
   error?: string;
   onBlur?: (e: React.FocusEvent<HTMLInputElement | HTMLSelectElement>) => void;
   className?: string;
+  maxLength?: number;
 }
 
 const FormField: React.FC<FormFieldProps> = ({
@@ -25,13 +32,14 @@ const FormField: React.FC<FormFieldProps> = ({
   onChange,
   options = [],
   onBlur,
+  maxLength,
   required = false,
   className = '',
   disabled = false,
 }) => {
   if (type === 'select') {
     return (
-      <div>
+      <div className={className}>
         <label className="block text-sm font-medium mb-1">
           {label}{required && ' *'}
         </label>
@@ -39,11 +47,12 @@ const FormField: React.FC<FormFieldProps> = ({
           name={name}
           value={value}
           onChange={onChange}
+          onBlur={onBlur}
           disabled={disabled}
           className="block w-full border rounded px-2 py-1"
         >
           {options?.map(o => (
-            <option key={o.value} value={o.value}>
+            <option key={o.value} value={o.value} disabled={o.disabled}>
               {o.label}
             </option>
           ))}
@@ -65,6 +74,7 @@ const FormField: React.FC<FormFieldProps> = ({
         step={type === 'number' ? 'any' : undefined}
         required={required}
         disabled={disabled}
+        maxLength={maxLength}
         className="block w-full border rounded px-2 py-1"
       />
     </div>

@@ -1,4 +1,3 @@
-
 export enum TemperatureUnit {
   CELSIUS = 'C',
   FAHRENHEIT = 'F',
@@ -106,6 +105,85 @@ export interface AerscreenRequest {
   other_inputs?: OtherInputs;
   fumigation?: Fumigation;
   debug?: Debug;
+}
+
+export interface Row {
+  id: number;
+  type: string;
+  value: number;
+}
+
+export interface LandCoverRow {
+  data_source: 'User-provided' | 'NLCD';
+  year: number;                                 // 1900-current
+  type: 'NLCD Land Cover' | 'Percent impervious' | 'Percent canopy';
+  file?: string;                                // uploaded file key / path (only when User-provided)
+}
+// Temporal-frequency definitions
+export type Season = 'Winter' | 'Spring' | 'Summer' | 'Autumn';
+export type Month =
+  | 'Jan' | 'Feb' | 'Mar' | 'Apr' | 'May' | 'Jun'
+  | 'Jul' | 'Aug' | 'Sep' | 'Oct' | 'Nov' | 'Dec';
+
+export interface TfAnnualOrMonthly {
+  freq: 'Annual' | 'Monthly';
+  seasons: Record<Season, Month | null>;
+}
+
+export interface TfSeasonal {
+  freq: 'Seasonal';
+  overrides: Season[];      // max 4, one per season
+}
+
+export type TemporalFrequency = TfAnnualOrMonthly | TfSeasonal;
+
+/* ────────────────────────────  Sectors  ──────────────────────────── */
+export type AirportOption = 'Airport' | 'Not airport' | 'Varying airport';
+export type SectorMode    = 'Even sizes' | 'Custom sizes';
+
+export interface EvenSectors {
+  mode: 'Even sizes';
+  count: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 16;
+  airport: AirportOption;
+}
+
+export interface CustomSector {
+  start: number;          // 0-360
+  end: number;            // 0-360
+  airport: AirportOption;
+}
+
+export interface CustomSectors {
+  mode: 'Custom sizes';
+  sectors: CustomSector[];        // max 12, validated in UI
+}
+
+export type Sectors = EvenSectors | CustomSectors;
+/* ──────────────────────────────────────────────────────────────────── */
+
+export interface AersurfaceRequest {
+  basic_info: {
+    title1: string;
+    title2: string;
+    location: 'Primary' | 'Secondary';
+    debug: 'EFFRAD' | 'GRID' | 'TIFF' | 'All';
+  };
+  surface_roughness: { method: 'ZORAD' | 'ZOEFF'; zo_radius?: number };
+  meteorology: {
+    coord_units: 'UTM' | 'LatLon';
+    easting?: number;
+    northing?: number;
+    latitude?: number;
+    longitude?: number;
+    datum: 'NAD27' | 'NAD83';
+    anem_height: number;
+    surface_moisture: 'Wet' | 'Dry' | 'Average';
+    snow_cover: 'Snow' | 'No snow';
+    arid_condition?: 'Arid' | 'Non-arid';
+  };
+  land_cover: LandCoverRow[];
+  temporal_frequency: TemporalFrequency;
+  sectors: Sectors;
 }
 
 // Stack Data
