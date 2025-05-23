@@ -7,6 +7,8 @@ import { BuildingData as BuildingDataType } from '../types/api';
 import { DistanceUnit } from '../types/enums';
 import { validateBuildingData } from '../utils/validation';
 import { InformationCircleIcon } from '@heroicons/react/24/outline';
+import InfoSection from '../components/InfoSection';
+import Tooltip from '../components/Tooltip';
 
 const BuildingData: React.FC = () => {
   const { formData, updateFormData } = useRunContext();
@@ -180,21 +182,25 @@ const BuildingData: React.FC = () => {
       nextSectionLabel="Makemet Data"
       previousSection="/stack-data"
     >
+      <InfoSection content="Info section: Configure building parameters for downwash analysis. Building downwash can significantly affect pollutant dispersion near structures." />
+      
       {/* Single container with better spacing */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
         {/* Checkbox with better tooltip positioning */}
         <div className="flex items-center mb-6">
-          <label className="inline-flex items-center cursor-pointer">
-            <input
-              disabled={false}
-              type="checkbox"
-              name="has_building"
-              checked={buildingData.has_building}
-              onChange={handleChange}
-              className="checkbox checkbox-primary h-5 w-5"
-            />
-            <span className="ml-3 text-base font-medium">Building Downwash Considered</span>
-          </label>
+          <Tooltip content="Dummy tooltip: Enable if your source is near a building">
+            <label className="inline-flex items-center cursor-pointer">
+              <input
+                disabled={false}
+                type="checkbox"
+                name="has_building"
+                checked={buildingData.has_building}
+                onChange={handleChange}
+                className="checkbox checkbox-primary h-5 w-5"
+              />
+              <span className="ml-3 text-base font-medium">Building Downwash Considered</span>
+            </label>
+          </Tooltip>
           <div className="ml-2 group relative">
             <InformationCircleIcon className="h-5 w-5 text-gray-400 hover:text-blue-500 cursor-help" />
             <div className="opacity-0 group-hover:opacity-100 absolute z-10 w-64 p-3 text-sm bg-gray-800 text-white rounded shadow-lg -translate-x-1/2 left-1/2 bottom-full mb-2">
@@ -288,6 +294,7 @@ const BuildingData: React.FC = () => {
                           min={0.1}
                           step={0.1}
                           required
+                          tooltip="Dummy tooltip: Enter the height of the building"
                         />
                         <FormField
                           label="Unit"
@@ -297,6 +304,7 @@ const BuildingData: React.FC = () => {
                           onChange={handleChange}
                           options={distanceUnits}
                           required
+                          tooltip="Dummy tooltip: Select the unit for building height"
                         />
                       </div>
                     </div>

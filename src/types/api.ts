@@ -47,7 +47,8 @@ export enum LandUseType {
   FOREST = 'forest',
   WATER = 'water',
   DESERT = 'desert',
-  RURAL = 'Rural'
+  RURAL = 'Rural',
+  USE_AERSURFACE = 'USE_AERSURFACE'  // Add this line
 }
 
 /**
@@ -67,6 +68,12 @@ export enum TerrainFileType {
   DTED = 'DTED',
   GEO_TIFF = 'GEO_TIFF',   // Geo-referenced TIFF
   ASCII_GRID = 'ASCII_GRID'  // ESRI ASCII grid
+}
+
+/* ───────────── Terrain source options (upload vs national map) ─────────── */
+export enum TerrainSource {
+  UPLOAD_FILE  = 'upload_file',
+  NATIONAL_MAP = 'national_map'
 }
 
 export interface RunInfo {
@@ -231,12 +238,12 @@ export interface MakemetData {
   anem_height_unit: DistanceUnit;
   surface_profile: SurfaceProfile;
   climate_type: ClimateType;
-  // Added fields
   land_use_type: LandUseType;
   albedo: number;
   bowen_ratio: number;
   roughness_length: number;
-  surface_characteristics_file: File | null;
+  surface_characteristics_file?: File | null;
+  aersurface_run_id?: number;  // Add this field
 }
 
 // Terrain Data
@@ -260,6 +267,7 @@ export interface TerrainInputFiles {
   file_type: TerrainFileType; 
   units: UnitSystem;
   file: File | null;
+  terrain_source: TerrainSource;
 }
 
 // Discrete Receptors

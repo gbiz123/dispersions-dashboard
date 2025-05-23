@@ -82,6 +82,8 @@ export const validateTerrainData = (data: AerscreenRequest['terrain_data']) => {
 export const validateTerrainInputFiles = (data: AerscreenRequest['terrain_input_files']) => {
   if (!data) return true; // Optional section
   
+  if (data.terrain_source === 'national_map') return true; // <-- add
+
   // NAD Datum is required if providing terrain input files
   return !!data.nad_datum;
 };

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import FormField from '../components/forms/FormField';
 import SectionContainer from '../components/SectionContainer';
+import InfoSection from '../components/InfoSection';
 import { useRunContext } from '../context/RunContext';
 import { OtherInputs as OtherInputsType } from '../types/api';
 import { DistanceUnit, RuralUrban } from '../types/enums';
@@ -65,21 +66,23 @@ const OtherInputs: React.FC = () => {
     <SectionContainer
       title="Other Inputs"
       onSubmit={handleSubmit}
-      nextSection="/debug"
-      nextSectionLabel="Debug"
-      previousSection={formData.terrain_data?.use_discrete_receptors ? '/discrete-receptors' : '/terrain-data'}
+      nextSection={otherInputs.is_fumigation ? '/fumigation' : '/debug'}
+      nextSectionLabel={otherInputs.is_fumigation ? 'Fumigation' : 'Debug'}
+      previousSection="/discrete-receptors"
     >
-      <div className="space-y-4">
+      <InfoSection content="Info section: Configure additional modeling parameters including urban/rural classification and minimum distances for regulatory compliance." />
+      
+      <div className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {/* Rural / Urban dropdown */}
           <FormField
-            label="Area Type"
+            label="Rural or Urban?"
             name="rural_urban"
             type="select"
             value={otherInputs.rural_urban}
             onChange={handleChange}
             options={ruralUrbanOptions}
             required
+            tooltip="Dummy tooltip: Select whether the area is rural or urban"
           />
           <FormField
             label="Minimum Distance to Ambient Air"
@@ -88,6 +91,7 @@ const OtherInputs: React.FC = () => {
             value={otherInputs.min_dist_ambient}
             onChange={handleChange}
             required
+            tooltip="Dummy tooltip: Enter the minimum distance to ambient air boundary"
           />
           <FormField
             label="Distance Unit"
@@ -97,6 +101,7 @@ const OtherInputs: React.FC = () => {
             onChange={handleChange}
             options={distanceUnits}
             required
+            tooltip="Dummy tooltip: Select the unit for distance"
           />
           
           <FormField
@@ -105,6 +110,7 @@ const OtherInputs: React.FC = () => {
             type="number"
             value={otherInputs.urban_population || 0}
             onChange={handleChange}
+            tooltip="Dummy tooltip: Enter the urban population if applicable"
           />
         </div>
       </div>

@@ -2,6 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { v4 as uuid } from 'uuid';
 import SectionContainer from '../components/SectionContainer';
 import FormField from '../components/forms/FormField';
+import InfoSection from '../components/InfoSection';
 import { useAersurface } from '../context/AersurfaceContext';
 import { EvenSectors, CustomSectors, Sectors } from '../types/api';
 
@@ -171,6 +172,8 @@ const SectorEditor: React.FC = () => {
       nextSection="/aersurface/run"
       nextSectionLabel="Run AERSURFACE"
     >
+      <InfoSection content="Info section: Define wind sectors for surface characteristic calculations. Sectors allow different surface parameters based on wind direction." />
+      
       {/* mode selector */}
       <FormField
         label="Sectors"
@@ -182,6 +185,7 @@ const SectorEditor: React.FC = () => {
           { value: 'Even sizes', label: 'Even sizes' },
           { value: 'Custom sizes', label: 'Custom sizes' }
         ]}
+        tooltip="Dummy tooltip: Choose between evenly-sized or custom wind sectors"
       />
 
       {/* Even sizes */}
@@ -197,6 +201,7 @@ const SectorEditor: React.FC = () => {
               value: n,
               label: String(n)
             }))}
+            tooltip="Dummy tooltip: Select how many wind sectors to create"
           />
           <FormField
             label="Airport"
@@ -205,6 +210,7 @@ const SectorEditor: React.FC = () => {
             value={state.airport}
             onChange={e => setEven('airport', e.target.value as Airport)}
             options={airportOpts}
+            tooltip="Dummy tooltip: Specify if the site is an airport"
           />
         </div>
       )}
@@ -225,6 +231,7 @@ const SectorEditor: React.FC = () => {
                 onChange={e =>
                   updateSector(row.id, 'start', e.target.value === '' ? '' : parseFloat(e.target.value))
                 }
+                tooltip="Dummy tooltip: Enter the starting angle for this sector"
               />
               <FormField
                 label="End °"
@@ -237,6 +244,7 @@ const SectorEditor: React.FC = () => {
                 onChange={e =>
                   updateSector(row.id, 'end', e.target.value === '' ? '' : parseFloat(e.target.value))
                 }
+                tooltip="Dummy tooltip: Enter the ending angle for this sector"
               />
               <FormField
                 label="Airport"
@@ -245,6 +253,7 @@ const SectorEditor: React.FC = () => {
                 value={row.airport}
                 onChange={e => updateSector(row.id, 'airport', e.target.value as Airport)}
                 options={airportOpts}
+                tooltip="Dummy tooltip: Specify if this sector includes an airport"
               />
               <button
                 type="button"

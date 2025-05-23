@@ -5,6 +5,8 @@ import SectionContainer from '../components/SectionContainer';
 import { useRunContext } from '../context/RunContext';
 import { DiscreteReceptors as DiscreteReceptorsType, Receptor } from '../types/api';
 import { DistanceUnit } from '../types/enums';
+import InfoSection from '../components/InfoSection';
+import Tooltip from '../components/Tooltip';
 
 const DiscreteReceptors: React.FC = () => {
   const { formData, updateFormData } = useRunContext();
@@ -106,16 +108,20 @@ const DiscreteReceptors: React.FC = () => {
       nextSectionLabel="Other Inputs"
       previousSection="/terrain-data"
     >
+      <InfoSection content="Info section: Define specific receptor locations for detailed concentration calculations. Discrete receptors allow you to model impacts at specific points of interest." />
+      
       <div className="space-y-6">
         {/* NEW: checkbox */}
-        <label className="flex items-center space-x-2">
-          <input
-            type="checkbox"
-            checked={useDiscrete}
-            onChange={() => setUseDiscrete(!useDiscrete)}
-          />
-          <span>Use discrete receptors here</span>
-        </label>
+        <Tooltip content="Dummy tooltip: Enable to add specific receptor locations">
+          <label className="flex items-center space-x-2">
+            <input
+              type="checkbox"
+              checked={useDiscrete}
+              onChange={() => setUseDiscrete(!useDiscrete)}
+            />
+            <span>Use discrete receptors here</span>
+          </label>
+        </Tooltip>
 
         <div
           className={
@@ -157,6 +163,7 @@ const DiscreteReceptors: React.FC = () => {
                   value={receptor.x}
                   onChange={(e) => handleChange(index, e)}
                   required
+                  tooltip="Dummy tooltip: Enter the X coordinate of the receptor"
                 />
                 <FormField
                   label="X Unit"
@@ -166,6 +173,7 @@ const DiscreteReceptors: React.FC = () => {
                   onChange={(e) => handleChange(index, e)}
                   options={distanceUnits}
                   required
+                  tooltip="Dummy tooltip: Select the unit for X coordinate"
                 />
 
                 <FormField
@@ -175,6 +183,7 @@ const DiscreteReceptors: React.FC = () => {
                   value={receptor.y}
                   onChange={(e) => handleChange(index, e)}
                   required
+                  tooltip="Dummy tooltip: Enter the Y coordinate of the receptor"
                 />
                 <FormField
                   label="Y Unit"
@@ -184,6 +193,7 @@ const DiscreteReceptors: React.FC = () => {
                   onChange={(e) => handleChange(index, e)}
                   options={distanceUnits}
                   required
+                  tooltip="Dummy tooltip: Select the unit for Y coordinate"
                 />
 
                 <FormField
@@ -192,6 +202,7 @@ const DiscreteReceptors: React.FC = () => {
                   type="number"
                   value={receptor.elevation || 0}
                   onChange={(e) => handleChange(index, e)}
+                  tooltip="Dummy tooltip: Enter the elevation of the receptor"
                 />
                 <FormField
                   label="Elevation Unit"
@@ -200,6 +211,7 @@ const DiscreteReceptors: React.FC = () => {
                   value={receptor.elevation_unit || DistanceUnit.METERS}
                   onChange={(e) => handleChange(index, e)}
                   options={distanceUnits}
+                  tooltip="Dummy tooltip: Select the unit for elevation"
                 />
               </div>
             </div>

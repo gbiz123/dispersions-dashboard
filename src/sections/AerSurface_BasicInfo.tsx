@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import SectionContainer from '../components/SectionContainer';
 import FormField from '../components/forms/FormField';
 import { useAersurface } from '../context/AersurfaceContext';
+import InfoSection from '../components/InfoSection';
 
 const BasicInfo: React.FC = () => {
   const { formData, update } = useAersurface();
@@ -38,9 +39,27 @@ const BasicInfo: React.FC = () => {
       previousSection="/"
       nextSectionLabel="Surface Roughness"
     >
+      <InfoSection content="Info section: Provide basic information about your AERSURFACE analysis including project titles and debugging options." />
+      
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <FormField label="Title 1" name="title1" type="text" value={state.title1} onChange={handle} maxLength={200}/>
-        <FormField label="Title 2" name="title2" type="text" value={state.title2} onChange={handle} maxLength={200}/>
+        <FormField 
+          label="Title 1" 
+          name="title1" 
+          type="text" 
+          value={state.title1} 
+          onChange={handle} 
+          maxLength={200}
+          tooltip="Dummy tooltip: Enter the main title for this analysis"
+        />
+        <FormField 
+          label="Title 2" 
+          name="title2" 
+          type="text" 
+          value={state.title2} 
+          onChange={handle} 
+          maxLength={200}
+          tooltip="Dummy tooltip: Enter a subtitle or additional description"
+        />
         <FormField
           label="Location"
           name="location"
@@ -51,6 +70,7 @@ const BasicInfo: React.FC = () => {
             { value: 'Primary', label: 'Primary' },
             { value: 'Secondary', label: 'Secondary' },
           ]}
+          tooltip="Dummy tooltip: Select the location type"
         />
         <FormField
           label="Debug Mode"
@@ -64,6 +84,7 @@ const BasicInfo: React.FC = () => {
             { value: 'TIFF', label: 'TIFF' },
             { value: 'All', label: 'All' },
           ]}
+          tooltip="Dummy tooltip: Select debug output options"
         />
       </div>
     </SectionContainer>

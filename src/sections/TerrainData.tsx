@@ -4,7 +4,7 @@ import FormField from '../components/forms/FormField';
 import SectionContainer from '../components/SectionContainer';
 import { useRunContext } from '../context/RunContext';
 import { TerrainData as TerrainDataType, TerrainInputFiles } from '../types/api';
-import { DistanceUnit, TerrainType, NADDatum, TerrainFileType } from '../types/enums';
+import { DistanceUnit, TerrainType, NADDatum, TerrainFileType, TerrainSource } from '../types/enums';
 import { UnitSystem } from '../types/api';
 
 const TerrainData: React.FC = () => {
@@ -30,7 +30,8 @@ const TerrainData: React.FC = () => {
     probe_dist_unit: DistanceUnit.METERS,
     file_type: TerrainFileType.DEM,
     units: UnitSystem.METRIC,
-    file: null
+    file: null,
+    terrain_source: TerrainSource.UPLOAD_FILE
   };
   
   // Initialize state with existing data or defaults
@@ -61,6 +62,15 @@ const TerrainData: React.FC = () => {
   
   const handleTerrainFilesChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
+
+    if (name === 'terrain_source') {
+      setTerrainInputFiles(prev => ({
+        ...prev,
+        terrain_source: value as TerrainSource,
+        file: null // clear any previously chosen file
+      }));
+      return;
+    }
 
     if (type === 'file') {
       const file = (e.target as HTMLInputElement).files?.[0] ?? null;
@@ -124,6 +134,12 @@ const TerrainData: React.FC = () => {
   const unitSystemOptions = [
     { value: UnitSystem.METRIC, label: 'Metric' },
     { value: UnitSystem.ENGLISH, label: 'English' }
+  ];
+
+  // Terrain source options
+  const terrainSourceOptions = [
+    { value: TerrainSource.UPLOAD_FILE, label: 'Upload terrain file' },
+    { value: TerrainSource.NATIONAL_MAP, label: 'Pull from national map' }
   ];
 
   return (
@@ -209,79 +225,92 @@ const TerrainData: React.FC = () => {
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <FormField
-                label="US County ID"
-                name="us_county"
-                type="text"
-                value={terrainInputFiles.us_county || ''}
-                onChange={handleTerrainFilesChange}
-              />
-              
-              <FormField
-                label="US State"
-                name="us_state"
-                type="text"
-                value={terrainInputFiles.us_state || ''}
-                onChange={handleTerrainFilesChange}
-              />
-              
-              <FormField
-                label="NAD Datum"
-                name="nad_datum"
+                label="Terrain source"
+                name="terrain_source"
                 type="select"
-                value={terrainInputFiles.nad_datum || ''}
+                value={terrainInputFiles.terrain_source}
                 onChange={handleTerrainFilesChange}
-                options={nadDatumOptions}
-                required
-              />
-              
-              <FormField
-                label="Probe Distance"
-                name="probe_dist"
-                type="number"
-                value={terrainInputFiles.probe_dist || 0}
-                onChange={handleTerrainFilesChange}
-              />
-              
-              <FormField
-                label="Probe Distance Unit"
-                name="probe_dist_unit"
-                type="select"
-                value={terrainInputFiles.probe_dist_unit || ''}
-                onChange={handleTerrainFilesChange}
-                options={distanceUnits}
+                options={terrainSourceOptions}
               />
 
-              <div className="col-span-1 md:col-span-2">
-                <label className="block text-sm font-medium mb-1">
-                  Upload Terrain File
-                </label>
-                <input
-                  type="file"
-                  accept=".dem,.dted,.tif,.tiff"
-                  onChange={handleTerrainFilesChange}
-                  className="block w-full text-sm"
-                />
-              </div>
+              {terrainInputFiles.terrain_source === TerrainSource.UPLOAD_FILE && (
+                <>
+                  <FormField
+                    label="US County ID"
+                    name="us_county"
+                    type="text"
+                    value={terrainInputFiles.us_county || ''}
+                    onChange={handleTerrainFilesChange}
+                  />
+                  
+                  <FormField
+                    label="US State"
+                    name="us_state"
+                    type="text"
+                    value={terrainInputFiles.us_state || ''}
+                    onChange={handleTerrainFilesChange}
+                  />
+                  
+                  <FormField
+                    label="NAD Datum"
+                    name="nad_datum"
+                    type="select"
+                    value={terrainInputFiles.nad_datum || ''}
+                    onChange={handleTerrainFilesChange}
+                    options={nadDatumOptions}
+                    required
+                  />
+                  
+                  <FormField
+                    label="Probe Distance"
+                    name="probe_dist"
+                    type="number"
+                    value={terrainInputFiles.probe_dist || 0}
+                    onChange={handleTerrainFilesChange}
+                  />
+                  
+                  <FormField
+                    label="Probe Distance Unit"
+                    name="probe_dist_unit"
+                    type="select"
+                    value={terrainInputFiles.probe_dist_unit || ''}
+                    onChange={handleTerrainFilesChange}
+                    options={distanceUnits}
+                  />
 
-              <FormField
-                label="File Type"
-                name="file_type"
-                type="select"
-                value={terrainInputFiles.file_type || ''}
-                onChange={handleTerrainFilesChange}
-                options={fileTypeOptions}
-                required={!!terrainInputFiles.file}
-              />
+                  <div className="col-span-1 md:col-span-2">
+                    <label className="block text-sm font-medium mb-1">
+                      Upload Terrain File
+                    </label>
+                    <input
+                      type="file"
+                      accept=".dem,.dted,.tif,.tiff"
+                      onChange={handleTerrainFilesChange}
+                      className="block w-full text-sm"
+                    />
+                  </div>
 
-              <FormField
-                label="Units"
-                name="units"
-                type="select"
-                value={terrainInputFiles.units || ''}
-                onChange={handleTerrainFilesChange}
-                options={unitSystemOptions}
-                required={!!terrainInputFiles.file}
-              />
+                  <FormField
+                    label="File Type"
+                    name="file_type"
+                    type="select"
+                    value={terrainInputFiles.file_type || ''}
+                    onChange={handleTerrainFilesChange}
+                    options={fileTypeOptions}
+                    required={!!terrainInputFiles.file}
+                  />
+
+                  <FormField
+                    label="Units"
+                    name="units"
+                    type="select"
+                    value={terrainInputFiles.units || ''}
+                    onChange={handleTerrainFilesChange}
+                    options={unitSystemOptions}
+                    required={!!terrainInputFiles.file}
+                  />
+                </>
+              )}
             </div>
           </>
         )}

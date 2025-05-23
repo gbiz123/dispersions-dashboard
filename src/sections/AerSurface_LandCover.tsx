@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { v4 as uuid } from 'uuid';
 import SectionContainer from '../components/SectionContainer';
 import FormField from '../components/forms/FormField';
+import InfoSection from '../components/InfoSection';
 import { useAersurface } from '../context/AersurfaceContext';
 import { LandCoverRow } from '../types/api';
 
@@ -73,12 +74,14 @@ const LandCover: React.FC = () => {
 
   return (
     <SectionContainer
-      title="🏞️ Land Cover"
+      title="🗺️ Land Cover"
       onSubmit={submit}
       nextSection="/aersurface/temporal-frequency"
       previousSection="/aersurface/meteorology"
       nextSectionLabel="Temporal Frequency"
     >
+      <InfoSection content="Info section: Specify land cover data sources for surface characteristic calculations. Land cover affects surface roughness, albedo, and Bowen ratio." />
+      
       <div className="space-y-6">
         {rows.map((row, idx) => (
           <div
@@ -96,6 +99,7 @@ const LandCover: React.FC = () => {
                 { value: 'User-provided', label: 'User-provided' },
                 { value: 'NLCD', label: 'Pull from NLCD' }
               ]}
+              tooltip="Dummy tooltip: Select the source of land cover data"
             />
 
             {/* Year */}
@@ -106,6 +110,7 @@ const LandCover: React.FC = () => {
               value={row.year}
               onChange={e => updateRow(row.id, 'year', parseInt(e.target.value, 10))}
               options={years}
+              tooltip="Dummy tooltip: Select the year of the land cover data"
             />
 
             {/* Type */}
@@ -120,6 +125,7 @@ const LandCover: React.FC = () => {
                 { value: 'Percent impervious', label: 'Percent impervious' },
                 { value: 'Percent canopy', label: 'Percent canopy' }
               ]}
+              tooltip="Dummy tooltip: Select the type of land cover data"
             />
 
             {/* File upload or remove button */}

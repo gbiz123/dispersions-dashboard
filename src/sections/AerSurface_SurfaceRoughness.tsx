@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import SectionContainer from '../components/SectionContainer';
 import FormField from '../components/forms/FormField';
 import { useAersurface } from '../context/AersurfaceContext';
+import InfoSection from '../components/InfoSection';
 
 type RoughnessState = {
   method: 'ZORAD' | 'ZOEFF';
@@ -36,6 +37,8 @@ const SurfaceRoughness: React.FC = () => {
       previousSection="/aersurface/basic-info"
       nextSectionLabel="Meteorology"
     >
+      <InfoSection content="Info section: Configure surface roughness calculation methods. Surface roughness affects wind profiles and turbulence in the atmospheric boundary layer." />
+      
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <FormField
           label="Surface Roughness Method"
@@ -47,6 +50,7 @@ const SurfaceRoughness: React.FC = () => {
             { value: 'ZORAD', label: 'ZORAD' },
             { value: 'ZOEFF', label: 'ZOEFF' },
           ]}
+          tooltip="Dummy tooltip: Select the method for calculating surface roughness"
         />
 
         {state.method === 'ZORAD' && (
@@ -58,6 +62,7 @@ const SurfaceRoughness: React.FC = () => {
             step={0.1}
             value={state.zo_radius ?? 1.0}
             onChange={handle}
+            tooltip="Dummy tooltip: Enter the radius for ZORAD calculations"
           />
         )}
       </div>

@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import SectionContainer from '../components/SectionContainer';
 import FormField from '../components/forms/FormField';
 import { useAersurface } from '../context/AersurfaceContext';
+import MapSelector from '../components/MapSelector';
+import InfoSection from '../components/InfoSection';
 
 type CoordUnits = 'UTM' | 'LatLon';
 
@@ -53,6 +55,9 @@ const Meteorology: React.FC = () => {
     });
   };
 
+  const clearPin = () =>
+    set(prev => ({ ...prev, latitude: undefined, longitude: undefined }));
+
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
     update('meteorology', state);
@@ -66,6 +71,8 @@ const Meteorology: React.FC = () => {
       previousSection="/aersurface/surface-roughness"
       nextSectionLabel="Land Cover"
     >
+      <InfoSection content="Info section: Configure meteorological measurement location and surface conditions. These parameters affect atmospheric stability and turbulence calculations." />
+      
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Coordinate units selector */}
         <FormField
@@ -78,6 +85,7 @@ const Meteorology: React.FC = () => {
             { value: 'UTM', label: 'UTM' },
             { value: 'LatLon', label: 'Latitude/Longitude' }
           ]}
+          tooltip="Dummy tooltip: Select the coordinate system for meteorological station location"
         />
 
         {/* Datum */}
@@ -91,6 +99,7 @@ const Meteorology: React.FC = () => {
             { value: 'NAD27', label: 'NAD27' },
             { value: 'NAD83', label: 'NAD83' }
           ]}
+          tooltip="Dummy tooltip: Select the geodetic datum for coordinates"
         />
 
         {/* Coordinates */}
@@ -103,6 +112,7 @@ const Meteorology: React.FC = () => {
               value={state.easting ?? 0}
               onChange={handle}
               required
+              tooltip="Dummy tooltip: Enter the UTM easting coordinate"
             />
             <FormField
               label="Northing"
@@ -111,6 +121,7 @@ const Meteorology: React.FC = () => {
               value={state.northing ?? 0}
               onChange={handle}
               required
+              tooltip="Dummy tooltip: Enter the UTM northing coordinate"
             />
           </>
         ) : (
@@ -122,6 +133,7 @@ const Meteorology: React.FC = () => {
               value={state.latitude ?? 0}
               onChange={handle}
               required
+              tooltip="Dummy tooltip: Enter the latitude in decimal degrees"
             />
             <FormField
               label="Longitude"
@@ -130,6 +142,7 @@ const Meteorology: React.FC = () => {
               value={state.longitude ?? 0}
               onChange={handle}
               required
+              tooltip="Dummy tooltip: Enter the longitude in decimal degrees"
             />
           </>
         )}
@@ -145,6 +158,7 @@ const Meteorology: React.FC = () => {
           value={state.anem_height}
           onChange={handle}
           required
+          tooltip="Dummy tooltip: Enter the height of the anemometer above ground"
         />
 
         {/* Surface moisture */}
@@ -159,6 +173,7 @@ const Meteorology: React.FC = () => {
             { value: 'Dry', label: 'Dry' },
             { value: 'Average', label: 'Average' }
           ]}
+          tooltip="Dummy tooltip: Select the typical surface moisture conditions"
         />
 
         {/* Snow cover */}
@@ -172,6 +187,7 @@ const Meteorology: React.FC = () => {
             { value: 'Snow', label: 'Snow' },
             { value: 'No snow', label: 'No snow' }
           ]}
+          tooltip="Dummy tooltip: Indicate whether snow cover is typically present"
         />
 
         {/* Arid condition – always visible, disabled unless snow cover = No snow */}
@@ -186,7 +202,29 @@ const Meteorology: React.FC = () => {
             { value: 'Arid', label: 'Arid' },
             { value: 'Non-arid', label: 'Non-arid' }
           ]}
+          tooltip="Dummy tooltip: Specify if the area has arid climate conditions"
         />
+
+        {/* Map ‑ only when using Lat/Lon */}
+        {state.coord_units === 'LatLon' && (
+          <div className="col-span-1 md:col-span-2 flex flex-col items-center space-y-4">
+            <MapSelector
+              latitude={state.latitude ?? null}
+              longitude={state.longitude ?? null}
+              onPositionChange={(lat, lng) =>
+                set(prev => ({ ...prev, latitude: lat, longitude: lng }))
+              }
+            />
+
+            <button
+              type="button"
+              onClick={clearPin}
+              className="text-red-600 text-sm underline"
+            >
+              Clear pin
+            </button>
+          </div>
+        )}
       </div>
     </SectionContainer>
   );

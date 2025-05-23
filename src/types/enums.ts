@@ -4,6 +4,11 @@ export enum DistanceUnit {
   FEET = 'feet'
 }
 
+export enum TerrainSource {
+  UPLOAD_FILE   = 'upload_file',
+  NATIONAL_MAP  = 'national_map'
+}
+
 export enum RuralUrban {
   RURAL = 'rural',
   URBAN = 'urban'

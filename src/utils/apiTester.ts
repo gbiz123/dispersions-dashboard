@@ -1,6 +1,6 @@
 import { runService } from '../services/runService';
 import { resultService } from '../services/resultService';
-import { AerscreenRequest, TemperatureUnit, VelocityUnit, DistanceUnit, SurfaceProfile, ClimateType, LandUseType, RuralUrban } from '../types/api';
+import { AerscreenRequest, TemperatureUnit, VelocityUnit, DistanceUnit, SurfaceProfile, ClimateType, LandUseType, RuralUrban, TerrainSource, TerrainFileType, UnitSystem } from '../types/api';
 
 // Sample data
 const sampleRequest: AerscreenRequest = {
@@ -56,9 +56,10 @@ const sampleRequest: AerscreenRequest = {
     nad_datum: 'NAD83',
     probe_dist: 1000,
     probe_dist_unit: 'meters',
-    file_type: 'unknown' as any,   // TODO: replace with valid value from TerrainInputFiles
-    units: 'meters' as any,        // TODO: replace with valid value from TerrainInputFiles
-    file: null as any              // TODO: provide a File or appropriate object when available
+    file_type: TerrainFileType.DEM,   // valid enum value
+    units: UnitSystem.METRIC,         // valid enum value
+    file: null,
+    terrain_source: TerrainSource.UPLOAD_FILE   // ← NEW ­required field
   },
   other_inputs: {
     min_dist_ambient: 100,

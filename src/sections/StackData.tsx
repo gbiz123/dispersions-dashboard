@@ -2,6 +2,7 @@ import React, { useState, useEffect, Fragment } from 'react';
 import { useNavigate } from 'react-router-dom';
 import FormField from '../components/forms/FormField';
 import SectionContainer from '../components/SectionContainer';
+import InfoSection from '../components/InfoSection';
 import { useRunContext } from '../context/RunContext';
 import { StackData as StackDataType } from '../types/api';
 import { DistanceUnit, VelocityUnit, FlowRateUnit, TemperatureUnit, EmissionRateUnit } from '../types/enums';
@@ -16,6 +17,54 @@ enum SourceType {
   CIRCULAR_AREA = 'circular_area'
 }
 
+const makeDefaults = (t: SourceType): Partial<StackDataType> => {
+  switch (t) {
+    case SourceType.FLARE:
+      return {
+        rate: 0,
+        height: 0,
+        heat_release_rate: 0,
+        heat_loss_fraction: 0.55,
+      };
+    case SourceType.VOLUME:
+      return {
+        rate: 0,
+        release_height_agl: 0,
+        initial_lateral_dimension: 0,
+        initial_vertical_dimension: 0,
+      };
+    case SourceType.RECTANGULAR_AREA:
+      return {
+        rate: 0,
+        release_height_agl: 0,
+        width: 0,
+        length: 0,
+        vertical_dimension: 0,
+      };
+    case SourceType.CIRCULAR_AREA:
+      return {
+        rate: 0,
+        release_height_agl: 0,
+        radius: 0,
+        num_vertices: 20,
+        vertical_dimension: 0,
+      };
+    /* point-like sources share the same five groups of fields */
+    default:
+      return {
+        rate: 0,
+        height: 0,
+        diam: 0,
+        temp_k: 0,
+        vel: 0,
+        flow_rate: 0,
+      };
+  }
+};
+
+/* ------------------------------------------------------------------ */
+/* component                                                          */
+/* ------------------------------------------------------------------ */
 const StackData: React.FC = () => {
   const { formData, updateFormData } = useRunContext();
   const navigate = useNavigate();
@@ -52,19 +101,42 @@ const StackData: React.FC = () => {
       : defaultStackData
   );
 
+  /* ------------- change handler ----------------------------------- */
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
+
+    /* when user switches the sourceType, reset to clean defaults */
+    if (name === 'sourceType') {
+      const newType = value as SourceType;
+
+      // create a brand-new state object that satisfies the full type
+      setStackData({
+        ...defaultStackData,          // ← full template (all required keys)
+        ...makeDefaults(newType),     // ← type-specific minimal set
+        sourceType: newType           // ← finally update the selector
+      });
+
+      return;
+    }
+
+    /* numeric sanitation (unchanged) */
+    const sanitised =
+      name === 'heat_loss_fraction'
+        ? Math.max(0.0001, Math.min(1, parseFloat(value) || 0))
+        : value;
+
     setStackData(prev => ({
       ...prev,
-      [name]: name.includes('rate') || name.includes('height') || name.includes('diam') || 
-              name.includes('temp') || name.includes('vel') || name.includes('flow') || 
-              name.includes('heat_release_rate') || name.includes('heat_loss_fraction') || 
-              name.includes('release_height_agl') || name.includes('initial_lateral_dimension') || 
-              name.includes('initial_vertical_dimension') || name.includes('length') || 
-              name.includes('width') || name.includes('vertical_dimension') || 
-              name.includes('radius') || name.includes('num_vertices')
-                ? parseFloat(value) || 0 
-                : value
+      [name]:
+        /* list of numeric fields */
+        [
+          'rate', 'height', 'diam', 'temp_k', 'vel', 'flow_rate',
+          'heat_release_rate', 'heat_loss_fraction', 'release_height_agl',
+          'initial_lateral_dimension', 'initial_vertical_dimension',
+          'length', 'width', 'vertical_dimension', 'radius', 'num_vertices',
+        ].includes(name)
+          ? parseFloat(sanitised as string) || 0
+          : sanitised,
     }));
   };
 
@@ -106,7 +178,16 @@ const StackData: React.FC = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    /** keep only the fields needed for the chosen source-type */
+    /* ② validation for flare – heat-loss-fraction must be 0 < x ≤ 1 */
+    if (
+      stackData.sourceType === SourceType.FLARE &&
+      (stackData.heat_loss_fraction! <= 0 || stackData.heat_loss_fraction! > 1)
+    ) {
+      alert('Heat-loss fraction must be greater than 0 and less or equal 1.');
+      return;
+    }
+
+    // -------- existing payload build --------
     const { sourceType, ...rest } = stackData;
     const core = allowedFields[sourceType].reduce<Record<string, unknown>>(
       (obj, k) => {
@@ -115,8 +196,6 @@ const StackData: React.FC = () => {
       },
       {}
     );
-
-    /* add the source type the API requires */
     const payload = { source_type: sourceType, ...core };
 
     updateFormData('stack_data', payload as StackDataType);
@@ -169,6 +248,8 @@ const StackData: React.FC = () => {
       nextSection="/building-data"
       nextSectionLabel="Building Data"
     >
+      <InfoSection content="Info section: Configure your emission source parameters including type, dimensions, and emission characteristics. Select the appropriate source type and provide all required measurements." />
+      
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <FormField
           label="Source Type"
@@ -178,6 +259,7 @@ const StackData: React.FC = () => {
           onChange={handleChange}
           options={sourceTypeOptions}
           required
+          tooltip="Dummy tooltip: Select the type of emission source you are modeling"
         />
         <div className="md:col-span-1"></div>
         
@@ -190,6 +272,7 @@ const StackData: React.FC = () => {
               value={stackData.rate}
               onChange={handleChange}
               required
+              tooltip="Dummy tooltip: Enter the emission rate of the pollutant"
             />
             <FormField
               label="Emission Rate Unit"
@@ -199,6 +282,7 @@ const StackData: React.FC = () => {
               onChange={handleChange}
               options={emissionRateUnits}
               required
+              tooltip="Dummy tooltip: Select the unit for emission rate"
             />
             <FormField
               label="Stack Height"
@@ -207,6 +291,7 @@ const StackData: React.FC = () => {
               value={stackData.height}
               onChange={handleChange}
               required
+              tooltip="Dummy tooltip: Enter the height of the stack above ground level"
             />
             <FormField
               label="Stack Height Unit"
@@ -216,6 +301,7 @@ const StackData: React.FC = () => {
               onChange={handleChange}
               options={distanceUnits}
               required
+              tooltip="Dummy tooltip: Select the unit for stack height"
             />
             <FormField
               label="Stack Diameter"
@@ -224,6 +310,7 @@ const StackData: React.FC = () => {
               value={stackData.diam}
               onChange={handleChange}
               required
+              tooltip="Dummy tooltip: Enter the internal diameter of the stack"
             />
             <FormField
               label="Stack Diameter Unit"
@@ -233,6 +320,7 @@ const StackData: React.FC = () => {
               onChange={handleChange}
               options={distanceUnits}
               required
+              tooltip="Dummy tooltip: Select the unit for stack diameter"
             />
             <FormField
               label="Stack Gas Exit Temperature"
@@ -241,6 +329,7 @@ const StackData: React.FC = () => {
               value={stackData.temp_k}
               onChange={handleChange}
               required
+              tooltip="Dummy tooltip: Enter the temperature of the gas exiting the stack"
             />
             <FormField
               label="Temperature Unit"
@@ -250,6 +339,7 @@ const StackData: React.FC = () => {
               onChange={handleChange}
               options={temperatureUnits}
               required
+              tooltip="Dummy tooltip: Select the unit for temperature"
             />
             <FormField
               label="Stack Gas Exit Velocity"
@@ -258,6 +348,7 @@ const StackData: React.FC = () => {
               value={stackData.vel}
               onChange={handleChange}
               required
+              tooltip="Dummy tooltip: Enter the velocity of gas exiting the stack"
             />
             <FormField
               label="Velocity Unit"
@@ -267,6 +358,7 @@ const StackData: React.FC = () => {
               onChange={handleChange}
               options={velocityUnits}
               required
+              tooltip="Dummy tooltip: Select the unit for velocity"
             />
             <FormField
               label="Stack Gas Exit Flow Rate"
@@ -275,6 +367,7 @@ const StackData: React.FC = () => {
               value={stackData.flow_rate}
               onChange={handleChange}
               required
+              tooltip="Dummy tooltip: Enter the volumetric flow rate of gas"
             />
             <FormField
               label="Flow Rate Unit"
@@ -284,6 +377,7 @@ const StackData: React.FC = () => {
               onChange={handleChange}
               options={flowRateUnits}
               required
+              tooltip="Dummy tooltip: Select the unit for flow rate"
             />
           </Fragment>
         )}
