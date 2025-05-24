@@ -168,6 +168,7 @@ export interface CustomSectors {
 export type Sectors = EvenSectors | CustomSectors;
 /* ──────────────────────────────────────────────────────────────────── */
 
+// Aersurface Request Type
 export interface AersurfaceRequest {
   basic_info: {
     title1: string;
@@ -191,6 +192,127 @@ export interface AersurfaceRequest {
   land_cover: LandCoverRow[];
   temporal_frequency: TemporalFrequency;
   sectors: Sectors;
+}
+
+// Aermod Request Type
+export interface AermodRequest {
+  run_info: {
+    project_description: string;
+    run_option: 'CONC' | 'DEPOS' | 'DDEP' | 'WDEP';
+    start_year: number;
+    end_year: number;
+    latitude: number | null;
+    longitude: number | null;
+    state: string;
+    pollutants: {
+      NO2: boolean;
+      SO2: boolean;
+      PM25: boolean;
+      PM10: boolean;
+      LEAD: boolean;
+      CO: boolean;
+      OTHER: boolean;
+    };
+  };
+  sources: {
+    method: 'manual' | 'upload' | 'previous';
+    data?: SourceData[];
+    uploaded_file?: string;
+    previous_run_id?: string;
+  };
+  fence_line: {
+    enabled: boolean;
+    points: Array<{
+      id: string;
+      x_coordinate: number;
+      y_coordinate: number;
+      elevation: number;
+    }>;
+    receptor_height: number;
+    spacing: number;
+  };
+  building_file: {
+    enabled: boolean;
+    file?: File;
+    filename?: string;
+    use_existing: boolean;
+    existing_filename?: string;
+  };
+  receptor_grids: {
+    grids: Array<{
+      id: string;
+      name: string;
+      enabled: boolean;
+      x_start: number;
+      x_end: number;
+      x_spacing: number;
+      y_start: number;
+      y_end: number;
+      y_spacing: number;
+      elevation: number;
+      height: number;
+    }>;
+  };
+  climate: {
+    seasonal_category: 'ANNUAL' | 'SPRING' | 'SUMMER' | 'AUTUMN' | 'WINTER' | 'CUSTOM';
+    precipitation_category: 'WET' | 'DRY' | 'AVERAGE' | 'CUSTOM';
+    custom_seasons?: {
+      spring_start: number;
+      summer_start: number;
+      autumn_start: number;
+      winter_start: number;
+    };
+    custom_precipitation?: {
+      wet_threshold: number;
+      dry_threshold: number;
+    };
+  };
+  meteorology: {
+    adj_u: boolean;
+    source_type: 'onsite' | 'previous_run' | 'default_station';
+    onsite_data?: {
+      latitude: number;
+      longitude: number;
+      elevation?: number;
+      station_name?: string;
+    };
+    previous_run_id?: string;
+    default_station?: {
+      station_id: string;
+      station_name: string;
+    };
+  };
+  run_configuration: {
+    run_title: string;
+    run_description: string;
+    output_options: {
+      include_summary: boolean;
+      include_detailed: boolean;
+      include_plots: boolean;
+      include_statistics: boolean;
+    };
+    advanced_options: {
+      max_hours: number;
+      convergence_criteria: number;
+      debug_mode: boolean;
+    };
+  };
+}
+
+// Aermod Source Data Type
+interface SourceData {
+  id: string;
+  name: string;
+  type: 'POINT' | 'AREA' | 'VOLUME' | 'LINE';
+  x_coordinate: number;
+  y_coordinate: number;
+  base_elevation: number;
+  stack_height?: number;
+  stack_diameter?: number;
+  exit_velocity?: number;
+  exit_temperature?: number;
+  emission_rate: number;
+  pollutant: string;
 }
 
 // Stack Data

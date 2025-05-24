@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useRunContext } from '../context/RunContext';
 import { useModule } from '../context/ModuleContext';
 import {
@@ -14,7 +14,10 @@ import {
   AdjustmentsHorizontalIcon,
   PlayCircleIcon,
   Bars3Icon,
-} from '@heroicons/react/24/outline';   // <-- has .d.ts
+  HomeIcon,
+  BeakerIcon,
+  MapIcon,
+} from '@heroicons/react/24/outline';
 
 // Add props interface with onCollapse callback
 interface NavigationProps {
@@ -27,7 +30,7 @@ const aerscreenGroups = [
     items: [
       { path: '/stack-data',      label: 'Stack Data',            icon: <FireIcon               className="h-5 w-5" /> },
       { path: '/building-data',   label: 'Building Data',         icon: <BuildingOffice2Icon    className="h-5 w-5" /> },
-      { path: '/makemet-data',    label: 'Makemet Data',          icon: <CloudIcon              className="h-5 w-5" /> }, // pick any neutral icon
+      { path: '/makemet-data',    label: 'Makemet Data',          icon: <CloudIcon              className="h-5 w-5" /> },
       { path: '/terrain-data',    label: 'Terrain Data',          icon: <ChartBarIcon           className="h-5 w-5" /> },
     ],
   },
@@ -73,23 +76,52 @@ const aersurfaceGroups = [
   },
 ];
 
+const aerModGroups = [
+  {
+    title: 'Input Parameters',
+    items: [
+      { path: '/aermod/run-info',        label: 'Run Info',           icon: <Squares2X2Icon            className="h-5 w-5" /> },
+      { path: '/aermod/sources',         label: 'Sources',            icon: <FireIcon                  className="h-5 w-5" /> },
+      { path: '/aermod/fence-line',      label: 'Fence Line',         icon: <MapPinIcon                className="h-5 w-5" /> },
+      { path: '/aermod/building-file',   label: 'Building File',      icon: <BuildingOffice2Icon       className="h-5 w-5" /> },
+      { path: '/aermod/receptor-grids',  label: 'Receptor Grids',     icon: <Squares2X2Icon            className="h-5 w-5" /> },
+    ],
+  },
+  {
+    title: 'Advanced Settings',
+    items: [
+      { path: '/aermod/climate',         label: 'Climate',            icon: <CloudIcon                 className="h-5 w-5" /> },
+      { path: '/aermod/meteorology',     label: 'Meteorology',        icon: <AdjustmentsHorizontalIcon className="h-5 w-5" /> },
+    ],
+  },
+  {
+    title: 'Run & Results',
+    items: [
+      { path: '/aermod/run',             label: 'Run AERMOD',         icon: <PlayCircleIcon            className="h-5 w-5" /> },
+      { path: '/aermod/results',         label: 'Results',            icon: <ChartBarIcon              className="h-5 w-5" /> },
+    ],
+  },
+];
+
 const Navigation: React.FC<NavigationProps> = ({ onCollapse }) => {
   const { isRunning } = useRunContext();
   const location = useLocation();
+  const navigate = useNavigate();
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const { module, toggle } = useModule();
-  const [menuOpen, setMenuOpen] = useState(false);     // ⬅️ drop-down flag
+  const { module, setModule, toggle } = useModule();
+  const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
   const navigationGroups =
-    module === 'AERSCREEN' ? aerscreenGroups : aersurfaceGroups;
+    module === 'AERSCREEN' ? aerscreenGroups :
+    module === 'AERSURFACE' ? aersurfaceGroups :
+    aerModGroups
 
   // Notify parent component when collapse state changes
   const handleToggleCollapse = () => {
     const newCollapsedState = !isCollapsed;
     setIsCollapsed(newCollapsedState);
 
-    // Call the onCollapse prop if provided
     if (onCollapse) {
       onCollapse(newCollapsedState);
     }
@@ -105,8 +137,30 @@ const Navigation: React.FC<NavigationProps> = ({ onCollapse }) => {
   }, [menuOpen]);
 
   /* choose module */
-  const chooseModule = (target: 'AERSCREEN' | 'AERSURFACE') => {
-    if (target !== module) toggle();  // Context only exposes toggle()
+  const chooseModule = (target: 'AERSCREEN' | 'AERSURFACE' | 'AERMOD') => {
+    if (target !== module) {
+      setModule(target);
+      
+      // Navigate to the default route for each module
+      switch (target) {
+        case 'AERSCREEN':
+          navigate('/stack-data');
+          break;
+        case 'AERSURFACE':
+          navigate('/aersurface/basic-info');
+          break;
+        case 'AERMOD':
+          navigate('/aermod/run-info');
+          break;
+        default:
+          navigate('/');
+      }
+    }
+    setMenuOpen(false);
+  };
+
+  const handleDashboardClick = () => {
+    navigate('/dashboard');
     setMenuOpen(false);
   };
 
@@ -122,55 +176,107 @@ const Navigation: React.FC<NavigationProps> = ({ onCollapse }) => {
           </div>
           {!isCollapsed && <h1 className="text-xl font-bold tracking-wide text-white">{module}</h1>}
         </div>
-        <button
-          onClick={handleToggleCollapse}
-          className="p-1.5 rounded-md bg-gray-700 hover:bg-gray-600 transition-colors text-gray-300"
-        >
-          {isCollapsed ? (
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 5l7 7-7 7M5 5l7 7-7 7" />
-            </svg>
-          ) : (
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
-            </svg>
-          )}
-        </button>
+        
+        <div className="flex items-center space-x-2">
+          <button
+            onClick={handleToggleCollapse}
+            className="p-1.5 rounded-md bg-gray-700 hover:bg-gray-600 transition-colors text-gray-300"
+          >
+            {isCollapsed ? (
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 5l7 7-7 7M5 5l7 7-7 7" />
+              </svg>
+            ) : (
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
+              </svg>
+            )}
+          </button>
 
-        {/* hamburger */}
-        <button
-          onClick={() => setMenuOpen(o => !o)}
-          title="Select module"
-          className="p-1.5 rounded-md bg-gray-700 hover:bg-gray-600 transition-colors text-gray-300"
-        >
-          <Bars3Icon className="h-5 w-5" />
-        </button>
+          {/* hamburger */}
+          <button
+            onClick={() => setMenuOpen(o => !o)}
+            title="Select module"
+            className="p-1.5 rounded-md bg-gray-700 hover:bg-gray-600 transition-colors text-gray-300"
+          >
+            <Bars3Icon className="h-5 w-5" />
+          </button>
+        </div>
 
         {/* drop-down */}
         {menuOpen && (
           <div
             ref={menuRef}
-            className="absolute right-4 top-12 w-40 bg-gray-800 border border-gray-700 rounded-md
+            className="absolute right-4 top-12 w-44 bg-gray-800 border border-gray-700 rounded-md
                        shadow-lg z-50 divide-y divide-gray-700"
           >
             <button
+              onClick={handleDashboardClick}
+              className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-700 flex items-center space-x-2 ${
+                location.pathname === '/dashboard' ? 'text-blue-400' : 'text-gray-200'
+              }`}
+            >
+              <HomeIcon className="h-4 w-4" />
+              <span>Dashboard</span>
+            </button>
+            <button
               onClick={() => chooseModule('AERSCREEN')}
-              className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-700 ${
+              className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-700 flex items-center space-x-2 ${
                 module === 'AERSCREEN' ? 'text-blue-400' : 'text-gray-200'
               }`}
             >
-              AERSCREEN
+              <BeakerIcon className="h-4 w-4" />
+              <span>AERSCREEN</span>
             </button>
             <button
               onClick={() => chooseModule('AERSURFACE')}
-              className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-700 ${
+              className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-700 flex items-center space-x-2 ${
                 module === 'AERSURFACE' ? 'text-blue-400' : 'text-gray-200'
               }`}
             >
-              AERSURFACE
+              <MapIcon className="h-4 w-4" />
+              <span>AERSURFACE</span>
+            </button>
+            <button
+              onClick={() => chooseModule('AERMOD')}
+              className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-700 flex items-center space-x-2 ${
+                module === 'AERMOD' ? 'text-blue-400' : 'text-gray-200'
+              }`}
+            >
+              <CloudIcon className="h-4 w-4" />
+              <span>AERMOD</span>
             </button>
           </div>
         )}
+      </div>
+
+      {/* Dashboard Quick Access - Always visible */}
+      <div className="px-3 py-2 border-b border-gray-700">
+        <Link
+          to="/dashboard"
+          className={`group flex items-center ${isCollapsed ? 'justify-center' : 'justify-start'} ${
+            location.pathname === '/dashboard'
+              ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md'
+              : 'text-gray-300 hover:bg-gray-700/60'
+          } rounded-md px-3 py-2 transition-all duration-200 relative ${isCollapsed ? 'mx-auto w-12' : 'w-full'}`}
+        >
+          <span className={`flex items-center ${location.pathname === '/dashboard' ? 'text-white' : 'text-gray-400'}`}>
+            <HomeIcon className="h-5 w-5" />
+          </span>
+
+          {isCollapsed && (
+            <div className="absolute left-full rounded-md px-2 py-1 ml-6 bg-gray-800 text-sm font-medium text-white w-auto min-w-max 
+                            opacity-0 translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-200 invisible group-hover:visible z-50 shadow-lg">
+              Dashboard
+            </div>
+          )}
+
+          {!isCollapsed && (
+            <span className={`ml-3 ${location.pathname === '/dashboard' ? 'font-medium' : ''}`}>
+              Dashboard
+            </span>
+          )}
+        </Link>
       </div>
 
       {/* Status indicator for running analysis */}
@@ -201,7 +307,6 @@ const Navigation: React.FC<NavigationProps> = ({ onCollapse }) => {
                   onClick={e => {
                     if (isDisabled) {
                       e.preventDefault();
-                      // Using a tooltip library would be better, but for now:
                       alert('Please wait for the current run to complete.');
                     }
                   }}

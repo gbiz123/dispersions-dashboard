@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Navigation from './Navigation';
 import { useRunContext } from '../context/RunContext';
 import { useLocation } from 'react-router-dom';
+import { useModule } from '../context/ModuleContext';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -11,6 +12,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const { isRunning } = useRunContext();
   const location = useLocation();
+  const { module } = useModule();
   const [pageTitle, setPageTitle] = useState('Dashboard');
 
   // 👉 helper to turn "surface-roughness" → "Surface Roughness"
@@ -26,6 +28,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
     const titleMap: Record<string, string> = {
       '/': 'Dashboard',
+      // AERSCREEN routes
       '/stack-data': 'Stack Parameters',
       '/building-data': 'Building Configuration',
       '/makemet-data': 'Meteorological Data',
@@ -35,27 +38,47 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       '/fumigation': 'Fumigation Settings',
       '/results': 'Analysis Results',
       '/debug': 'Debug Information',
+      // AERSURFACE routes
       '/aersurface/basic-info': 'Basic Info',
       '/aersurface/surface-roughness': 'Surface Roughness',
       '/aersurface/meteorology': 'Meteorology',
       '/aersurface/land-cover': 'Land Cover',
       '/aersurface/temporal-frequency': 'Temporal Frequency',
       '/aersurface/sectors': 'Sectors',
-      '/aersurface/run': 'Run AERSURFACE'
+      '/aersurface/run': 'Run AERSURFACE',
+      // AERMOD routes
+      '/aermod/run-info': 'Run Info',
+      '/aermod/sources': 'Sources',
+      '/aermod/receptors': 'Receptors',
+      '/aermod/meteorology': 'Meteorology',
+      '/aermod/terrain': 'Terrain',
+      '/aermod/run': 'Run AERMOD',
+      '/aermod/results': 'Results'
     };
 
-    // If not in map and under /aersurface, derive from last segment
-    if (path.startsWith('/aersurface') && !titleMap[path]) {
+    // If not in map and under /aersurface or /aermod, derive from last segment
+    if ((path.startsWith('/aersurface') || path.startsWith('/aermod')) && !titleMap[path]) {
       const last = path.split('/').filter(Boolean).pop() || '';
       titleMap[path] = toTitle(last);
     }
 
-    setPageTitle(titleMap[path] || 'AERSCREEN');
+    setPageTitle(titleMap[path] || 'Dashboard');
   }, [location]);
 
-  // 👉 decide which product name to show
-  const isAersurface = /^\/aersurface(\/|$)/i.test(location.pathname);
-  const appName = isAersurface ? 'AERSURFACE' : 'AERSCREEN';
+  // 👉 Get the current app name based on module context
+  const getAppName = () => {
+    switch (module) {
+      case 'AERSURFACE':
+        return 'AERSURFACE';
+      case 'AERMOD':
+        return 'AERMOD';
+      case 'AERSCREEN':
+      default:
+        return 'AERSCREEN';
+    }
+  };
+
+  const appName = getAppName();
 
   // Handle sidebar collapse state from Navigation component
   const handleSidebarCollapse = (collapsed: boolean) => {
@@ -107,20 +130,12 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           
           {/* Footer */}
           <div className="mt-6 text-center text-xs text-gray-500">
-            <p>AERSCREEN Analysis Tool &copy; {new Date().getFullYear()}</p>
+            <p>{appName} Analysis Tool &copy; {new Date().getFullYear()}</p>
           </div>
         </div>
       </main>
     </div>
   );
 };
-
-// Add this to your global CSS or as a style tag in your HTML
-// <style>
-//   .bg-grid-pattern {
-//     background-image: radial-gradient(#cbd5e1 1px, transparent 1px);
-//     background-size: 20px 20px;
-//   }
-// </style>
 
 export default Layout;
