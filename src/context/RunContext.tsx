@@ -1,41 +1,38 @@
-import React, { createContext, useState, useContext, ReactNode } from 'react';
-import { AerscreenRequest } from '../types/api';
+import React, { createContext, useContext, useState, useCallback } from 'react';
 
 interface RunContextType {
-  runId: string | null;
-  setRunId: (id: string | null) => void;
-  formData: Partial<AerscreenRequest>;
-  updateFormData: <K extends keyof AerscreenRequest>(section: K, data: AerscreenRequest[K]) => void;
+  formData: any;
+  updateFormData: (section: string, data: any) => void;
   isRunning: boolean;
   setIsRunning: (running: boolean) => void;
+  runId: string;
+  setRunId: (id: string) => void;
 }
 
 const RunContext = createContext<RunContextType | undefined>(undefined);
 
-export const RunProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [runId, setRunId] = useState<string | null>(null);
-  const [formData, setFormData] = useState<Partial<AerscreenRequest>>({});
-  const [isRunning, setIsRunning] = useState<boolean>(false);
+export const RunProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [formData, setFormData] = useState<any>({});
+  const [isRunning, setIsRunning] = useState(false);
+  const [runId, setRunId] = useState<string>('');
 
-  const updateFormData = <K extends keyof AerscreenRequest>(
-    section: K,
-    data: AerscreenRequest[K]
-  ) => {
-    setFormData(prev => ({
+  // Memoize the updateFormData function to prevent infinite loops
+  const updateFormData = useCallback((section: string, data: any) => {
+    setFormData((prev: any) => ({
       ...prev,
       [section]: data
     }));
-  };
+  }, []);
 
   return (
     <RunContext.Provider
       value={{
-        runId,
-        setRunId,
         formData,
         updateFormData,
         isRunning,
-        setIsRunning
+        setIsRunning,
+        runId,
+        setRunId,
       }}
     >
       {children}
@@ -43,10 +40,10 @@ export const RunProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   );
 };
 
-export const useRunContext = (): RunContextType => {
+export const useRunContext = () => {
   const context = useContext(RunContext);
-  if (context === undefined) {
-    throw new Error('useRunContext must be used within a RunProvider');
+  if (!context) {
+    throw new Error('useRunContext must be used within RunProvider');
   }
   return context;
 };

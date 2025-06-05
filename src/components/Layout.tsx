@@ -3,6 +3,7 @@ import Navigation from './Navigation';
 import { useRunContext } from '../context/RunContext';
 import { useLocation } from 'react-router-dom';
 import { useModule } from '../context/ModuleContext';
+import TeamSelector from './TeamSelector';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -28,6 +29,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
     const titleMap: Record<string, string> = {
       '/': 'Dashboard',
+      '/dashboard': 'Dashboard',
+      '/team-management': 'Team Management',
       // AERSCREEN routes
       '/stack-data': 'Stack Parameters',
       '/building-data': 'Building Configuration',
@@ -110,13 +113,18 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               </div>
             </div>
             
-            {/* Running indicator in header */}
-            {isRunning && (
-              <div className="bg-blue-50 text-blue-700 rounded-full px-3 py-1 text-sm font-medium flex items-center border border-blue-200">
-                <div className="h-2 w-2 bg-blue-500 rounded-full mr-2 animate-pulse"></div>
-                Analysis in Progress
-              </div>
-            )}
+            <div className="flex items-center space-x-4">
+              {/* Team Selector */}
+              <TeamSelector />
+              
+              {/* Running indicator in header */}
+              {isRunning && (
+                <div className="bg-blue-50 text-blue-700 rounded-full px-3 py-1 text-sm font-medium flex items-center border border-blue-200">
+                  <div className="h-2 w-2 bg-blue-500 rounded-full mr-2 animate-pulse"></div>
+                  Analysis in Progress
+                </div>
+              )}
+            </div>
           </div>
         </div>
         

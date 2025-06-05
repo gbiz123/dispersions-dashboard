@@ -2,10 +2,11 @@ import React, { useState, useEffect, Fragment } from 'react';
 import { useNavigate } from 'react-router-dom';
 import FormField from '../components/forms/FormField';
 import SectionContainer from '../components/SectionContainer';
-import InfoSection from '../components/InfoSection';
 import { useRunContext } from '../context/RunContext';
+import { useAerscreen } from '../context/AerscreenContext';
 import { StackData as StackDataType } from '../types/api';
 import { DistanceUnit, VelocityUnit, FlowRateUnit, TemperatureUnit, EmissionRateUnit } from '../types/enums';
+import LoadingOverlay from '../components/LoadingOverlay';
 
 enum SourceType {
   POINT = 'point',
@@ -67,6 +68,7 @@ const makeDefaults = (t: SourceType): Partial<StackDataType> => {
 /* ------------------------------------------------------------------ */
 const StackData: React.FC = () => {
   const { formData, updateFormData } = useRunContext();
+  const { isLoadingRunData } = useAerscreen();
   const navigate = useNavigate();
   
   const defaultStackData: StackDataType & { sourceType: SourceType } = {
@@ -241,6 +243,10 @@ const StackData: React.FC = () => {
   const isPointLike = (t: SourceType) =>
     [SourceType.POINT, SourceType.CAPPED_POINT, SourceType.HORIZONTAL_POINT].includes(t);
 
+  if (isLoadingRunData) {
+    return <LoadingOverlay message="Loading previous run data..." />;
+  }
+
   return (
     <SectionContainer
       title="Stack Data"
@@ -248,8 +254,6 @@ const StackData: React.FC = () => {
       nextSection="/building-data"
       nextSectionLabel="Building Data"
     >
-      <InfoSection content="Info section: Configure your emission source parameters including type, dimensions, and emission characteristics. Select the appropriate source type and provide all required measurements." />
-      
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <FormField
           label="Source Type"

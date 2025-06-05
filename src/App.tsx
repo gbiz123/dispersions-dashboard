@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { RunProvider } from './context/RunContext';
 import { AersurfaceProvider } from './context/AersurfaceContext';
 import { AermodProvider } from './context/AermodContext';
+import { AerscreenProvider } from './context/AerscreenContext';
 import Layout from './components/Layout';
 import AerSurfaceBasicInfo from './sections/AerSurface_BasicInfo';
 import AerSurfaceRoughness from './sections/AerSurface_SurfaceRoughness';
@@ -23,6 +24,8 @@ import AermodRun from './sections/AerMod_Run';
 import AermodResults from './sections/AerMod_Results';
 
 import { ModuleProvider, useModule } from './context/ModuleContext';
+import { TeamProvider } from './context/TeamContext';
+import TeamManagement from './pages/TeamManagement';
 
 // Import actual section components
 import StackData from './sections/StackData';
@@ -38,7 +41,7 @@ import TestPage from './pages/TestPage';
 import Dashboard from './pages/Dashboard';
 
 const AerscreenRoutes = () => (
-  <>
+  <Routes>
     <Route path="/stack-data" element={<StackData />} />
     <Route path="/building-data" element={<BuildingData />} />
     <Route path="/makemet-data" element={<MakemetData />} />
@@ -48,9 +51,8 @@ const AerscreenRoutes = () => (
     <Route path="/fumigation" element={<Fumigation />} />
     <Route path="/debug" element={<Debug />} />
     <Route path="/results" element={<Results />} />
-    <Route path="*" element={<Navigate to="/stack-data" replace />} />
     <Route path="/test" element={<TestPage />} />
-  </>
+  </Routes>
 );
 
 const AersurfaceRoutes = () => (
@@ -135,11 +137,27 @@ const RoutedApp = () => {
     <BrowserRouter>
       <Layout>
         <Routes>
-          {module === 'AERSCREEN' && AerscreenRoutes()}
+          {/* Global routes - these take precedence */}
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/team-management" element={<TeamManagement />} />
+          
+          {/* Module-specific routes wrapped with providers */}
+          {module === 'AERSCREEN' && (
+            <Route path="/*" element={
+              <AerscreenProvider>
+                <AerscreenRoutes />
+              </AerscreenProvider>
+            } />
+          )}
+          
           {module === 'AERSURFACE' && AersurfaceRoutes()}
           {module === 'AERMOD' && AerModRoutes()}
-          <Route path="/dashboard" element={<Dashboard />} />
+          
+          {/* Default redirect */}
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
+          
+          {/* Catch-all redirect to dashboard */}
+          <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </Routes>
       </Layout>
     </BrowserRouter>
@@ -149,9 +167,11 @@ const RoutedApp = () => {
 function App() {
   return (
     <RunProvider>
-      <ModuleProvider>
-        <RoutedApp />
-      </ModuleProvider>
+      <TeamProvider>
+        <ModuleProvider>
+          <RoutedApp />
+        </ModuleProvider>
+      </TeamProvider>
     </RunProvider>
   );
 }

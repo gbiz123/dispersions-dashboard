@@ -1,11 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import SectionContainer from '../components/SectionContainer';
 import FormField from '../components/forms/FormField';
 import { useAersurface } from '../context/AersurfaceContext';
 import InfoSection from '../components/InfoSection';
+import LoadingOverlay from '../components/LoadingOverlay';
 
 const BasicInfo: React.FC = () => {
-  const { formData, update } = useAersurface();
+  const { formData, update, isLoadingRunData } = useAersurface();
 
   type BasicInfoState = {
     title1: string;
@@ -23,6 +24,13 @@ const BasicInfo: React.FC = () => {
     }
   );
 
+  // Update local state when formData changes (from loaded run data)
+  useEffect(() => {
+    if (formData.basic_info) {
+      set(formData.basic_info as BasicInfoState);
+    }
+  }, [formData.basic_info]);
+
   const handle = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) =>
     set({ ...state, [e.target.name]: e.target.value });
 
@@ -30,6 +38,10 @@ const BasicInfo: React.FC = () => {
     e.preventDefault();
     update('basic_info', state);
   };
+
+  if (isLoadingRunData) {
+    return <LoadingOverlay message="Loading previous run data..." />;
+  }
 
   return (
     <SectionContainer

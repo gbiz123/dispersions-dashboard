@@ -17,6 +17,7 @@ import {
   HomeIcon,
   BeakerIcon,
   MapIcon,
+  UserGroupIcon,
 } from '@heroicons/react/24/outline';
 
 // Add props interface with onCollapse callback
@@ -159,7 +160,9 @@ const Navigation: React.FC<NavigationProps> = ({ onCollapse }) => {
     setMenuOpen(false);
   };
 
-  const handleDashboardClick = () => {
+  const handleDashboardClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    // Clear any module-specific state if needed
     navigate('/dashboard');
     setMenuOpen(false);
   };
@@ -252,13 +255,14 @@ const Navigation: React.FC<NavigationProps> = ({ onCollapse }) => {
 
       {/* Dashboard Quick Access - Always visible */}
       <div className="px-3 py-2 border-b border-gray-700">
-        <Link
-          to="/dashboard"
+        <a
+          href="/dashboard"
+          onClick={handleDashboardClick}
           className={`group flex items-center ${isCollapsed ? 'justify-center' : 'justify-start'} ${
             location.pathname === '/dashboard'
               ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md'
               : 'text-gray-300 hover:bg-gray-700/60'
-          } rounded-md px-3 py-2 transition-all duration-200 relative ${isCollapsed ? 'mx-auto w-12' : 'w-full'}`}
+          } rounded-md px-3 py-2 transition-all duration-200 relative ${isCollapsed ? 'mx-auto w-12' : 'w-full'} cursor-pointer`}
         >
           <span className={`flex items-center ${location.pathname === '/dashboard' ? 'text-white' : 'text-gray-400'}`}>
             <HomeIcon className="h-5 w-5" />
@@ -274,6 +278,33 @@ const Navigation: React.FC<NavigationProps> = ({ onCollapse }) => {
           {!isCollapsed && (
             <span className={`ml-3 ${location.pathname === '/dashboard' ? 'font-medium' : ''}`}>
               Dashboard
+            </span>
+          )}
+        </a>
+        
+        {/* Add Team Management link here */}
+        <Link
+          to="/team-management"
+          className={`group flex items-center ${isCollapsed ? 'justify-center' : 'justify-start'} ${
+            location.pathname === '/team-management'
+              ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md'
+              : 'text-gray-300 hover:bg-gray-700/60'
+          } rounded-md px-3 py-2 mt-1 transition-all duration-200 relative ${isCollapsed ? 'mx-auto w-12' : 'w-full'}`}
+        >
+          <span className={`flex items-center ${location.pathname === '/team-management' ? 'text-white' : 'text-gray-400'}`}>
+            <UserGroupIcon className="h-5 w-5" />
+          </span>
+
+          {isCollapsed && (
+            <div className="absolute left-full rounded-md px-2 py-1 ml-6 bg-gray-800 text-sm font-medium text-white w-auto min-w-max 
+                            opacity-0 translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-200 invisible group-hover:visible z-50 shadow-lg">
+              Team Management
+            </div>
+          )}
+
+          {!isCollapsed && (
+            <span className={`ml-3 ${location.pathname === '/team-management' ? 'font-medium' : ''}`}>
+              Team Management
             </span>
           )}
         </Link>

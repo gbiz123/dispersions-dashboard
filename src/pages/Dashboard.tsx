@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useModule } from '../context/ModuleContext';
+import { useTeam } from '../context/TeamContext';
 import { 
   ChartBarIcon, 
   CloudIcon, 
@@ -27,6 +28,7 @@ import {
   ShieldCheckIcon
 } from '@heroicons/react/24/outline';
 import { ChevronRightIcon } from '@heroicons/react/24/solid';
+import { PencilIcon } from '@heroicons/react/24/outline';
 
 interface DashboardStats {
   runs_in_progress: number;
@@ -48,9 +50,19 @@ interface RecentActivity {
   duration?: string;
 }
 
+interface Run {
+  id: string;
+  name: string;
+  module: 'AERSCREEN' | 'AERSURFACE' | 'AERMOD';
+  status: string;
+  created_at: string;
+  description?: string;
+}
+
 const Dashboard: React.FC = () => {
   const navigate = useNavigate();
   const { setModule } = useModule();
+  const { currentTeam } = useTeam();
   const [stats, setStats] = useState<DashboardStats>({
     runs_in_progress: 0,
     runs_completed: 0,
@@ -63,6 +75,7 @@ const Dashboard: React.FC = () => {
   });
 
   const [recentActivity, setRecentActivity] = useState<RecentActivity[]>([]);
+  const [recentRuns, setRecentRuns] = useState<Run[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -72,6 +85,14 @@ const Dashboard: React.FC = () => {
   const fetchDashboardData = async () => {
     setLoading(true);
     try {
+      // Include team ID in API calls
+      const teamId = currentTeam?.id;
+      if (teamId) {
+        // Update API calls to include team context
+        // For example: 
+        // const response = await fetch(`${API_CONFIG.BASE_URL}/stats?team_id=${teamId}`);
+      }
+      
       // Simulate API calls for demo
       await new Promise(resolve => setTimeout(resolve, 800));
       
@@ -118,12 +139,52 @@ const Dashboard: React.FC = () => {
           timestamp: '2024-01-14T14:20:00Z'
         }
       ]);
+
+      setRecentRuns([
+        {
+          id: '1',
+          name: 'Run 1 - Industrial Facility',
+          module: 'AERMOD',
+          status: 'completed',
+          created_at: '2024-01-15T10:30:00Z',
+          description: 'Quarterly assessment for industrial facility'
+        },
+        {
+          id: '2',
+          name: 'Run 2 - Stack Emission',
+          module: 'AERSCREEN',
+          status: 'running',
+          created_at: '2024-01-15T09:15:00Z'
+        },
+        {
+          id: '3',
+          name: 'Run 3 - Surface Characteristics',
+          module: 'AERSURFACE',
+          status: 'completed',
+          created_at: '2024-01-14T16:45:00Z',
+          description: 'Surface characteristics analysis for Site B'
+        },
+        {
+          id: '4',
+          name: 'Run 4 - Multi-source Dispersion',
+          module: 'AERMOD',
+          status: 'failed',
+          created_at: '2024-01-14T14:20:00Z'
+        }
+      ]);
     } catch (error) {
       console.error('Failed to fetch dashboard data:', error);
     } finally {
       setLoading(false);
     }
   };
+
+  // Re-fetch data when team changes
+  useEffect(() => {
+    if (currentTeam) {
+      fetchDashboardData();
+    }
+  }, [currentTeam]);
 
   const handleStartAnalysis = (toolType: 'AERMOD' | 'AERSCREEN' | 'AERSURFACE') => {
     setModule(toolType);
@@ -139,6 +200,21 @@ const Dashboard: React.FC = () => {
         navigate('/aermod/run-info');
         break;
     }
+  };
+
+  const handleEditRun = (run: Run) => {
+    // Set the module context
+    setModule(run.module);
+    
+    // Navigate to the appropriate starting page with the run ID
+    const startingPaths = {
+      'AERSCREEN': '/stack-data',
+      'AERSURFACE': '/aersurface/basic-info',
+      'AERMOD': '/aermod/run-info'
+    };
+    
+    const path = startingPaths[run.module];
+    navigate(`${path}?run_id=${run.id}`);
   };
 
   const tools = [
@@ -215,6 +291,42 @@ const Dashboard: React.FC = () => {
     }
   ];
 
+  // Mock recent runs for testing
+  const mockRecentRuns: Run[] = [
+    {
+      id: 'aerscreen-001',
+      name: 'Downtown Factory Stack Analysis',
+      module: 'AERSCREEN',
+      status: 'completed',
+      created_at: new Date(Date.now() - 86400000).toISOString(),
+      description: 'Stack emission analysis for permit renewal'
+    },
+    {
+      id: 'aersurface-001',
+      name: 'Industrial Zone Surface Study',
+      module: 'AERSURFACE',
+      status: 'completed',
+      created_at: new Date(Date.now() - 172800000).toISOString(),
+      description: 'Surface roughness calculation for urban area'
+    },
+    {
+      id: 'aermod-001',
+      name: 'Annual Dispersion Model',
+      module: 'AERMOD',
+      status: 'completed',
+      created_at: new Date(Date.now() - 259200000).toISOString(),
+      description: 'Full year dispersion modeling'
+    }
+  ];
+
+  useEffect(() => {
+    // For testing, use mock data
+    setRecentRuns(mockRecentRuns);
+    
+    // When backend is ready, replace with:
+    // fetchRecentRuns();
+  }, [currentTeam]);
+
   if (loading) {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
@@ -241,7 +353,7 @@ const Dashboard: React.FC = () => {
                   Welcome back, User
                 </h1>
                 <p className="mt-2 text-lg text-slate-600">
-                  Monitor your air quality modeling projects and analytics
+                  {currentTeam ? `Viewing ${currentTeam.name} analytics` : 'Monitor your air quality modeling projects and analytics'}
                 </p>
               </div>
               <div className="mt-4 md:mt-0 flex items-center space-x-4">
@@ -483,6 +595,55 @@ const Dashboard: React.FC = () => {
           </div>
         </div>
 
+        {/* Recent Runs Section */}
+        <div className="bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden">
+          <div className="px-6 py-4 border-b border-slate-200">
+            <h3 className="text-lg font-semibold text-slate-800">Recent Runs</h3>
+          </div>
+          <div className="divide-y divide-slate-200">
+            {recentRuns.length === 0 ? (
+              <div className="px-6 py-8 text-center text-slate-500">
+                No recent runs found
+              </div>
+            ) : (
+              recentRuns.map((run) => (
+                <div key={run.id} className="px-6 py-4 hover:bg-slate-50 transition-colors">
+                  <div className="flex items-center justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-3">
+                        <h4 className="font-medium text-slate-800">{run.name}</h4>
+                        <span className="px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800">
+                          {run.module}
+                        </span>
+                        <span className={`px-2 py-1 text-xs font-medium rounded-full ${
+                          run.status === 'completed' ? 'bg-green-100 text-green-800' :
+                          run.status === 'failed' ? 'bg-red-100 text-red-800' :
+                          'bg-yellow-100 text-yellow-800'
+                        }`}>
+                          {run.status}
+                        </span>
+                      </div>
+                      {run.description && (
+                        <p className="text-sm text-slate-600 mt-1">{run.description}</p>
+                      )}
+                      <p className="text-xs text-slate-500 mt-1">
+                        {new Date(run.created_at).toLocaleString()}
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => handleEditRun(run)}
+                      className="ml-4 p-2 text-slate-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                      title="Edit run"
+                    >
+                      <PencilIcon className="h-5 w-5" />
+                    </button>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+        
         {/* Quick Actions Bar */}
         <div className="mt-8 bg-gradient-to-r from-slate-800 to-slate-900 rounded-2xl p-6 text-white">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between">
