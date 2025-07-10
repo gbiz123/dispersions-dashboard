@@ -134,11 +134,11 @@ const AerModRoutes = () => (
 const RoutedApp = () => {
   const { module } = useModule();
   return (
-    <BrowserRouter>
+    <BrowserRouter basename="/dashboard">
       <Layout>
         <Routes>
           {/* Global routes - these take precedence */}
-          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/" element={<Dashboard />} />
           <Route path="/team-management" element={<TeamManagement />} />
           
           {/* Module-specific routes wrapped with providers */}
