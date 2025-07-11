@@ -134,7 +134,7 @@ const AerModRoutes = () => (
 const RoutedApp = () => {
   const { module } = useModule();
   return (
-    <BrowserRouter>
+    <BrowserRouter basename="/dashboard">
       <Layout>
         <Routes>
           {/* Global routes - these take precedence */}
