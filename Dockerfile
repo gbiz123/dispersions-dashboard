@@ -12,13 +12,16 @@
 FROM node:20-alpine AS build
 COPY package*.json ./
 RUN npm install
+RUN npm install serve
 COPY . .
 RUN rm -rf build
 RUN npm run build
+
+# So static resource routes are prefixed with
  
 # Production Stage
 #FROM nginx:stable-alpine AS production
 #COPY --from=build /app/build /usr/share/nginx/html
 #EXPOSE 80
 # CMD ["nginx", "-g", "daemon off;"]
-CMD ["npx", "serve", "-s", "build"]
+CMD ["serve" , "-s", "build"]
