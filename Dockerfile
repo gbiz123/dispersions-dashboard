@@ -16,12 +16,4 @@ RUN npm install serve
 COPY . .
 RUN rm -rf build
 RUN npm run build
-
-# So static resource routes are prefixed with
- 
-# Production Stage
-#FROM nginx:stable-alpine AS production
-#COPY --from=build /app/build /usr/share/nginx/html
-#EXPOSE 80
-# CMD ["nginx", "-g", "daemon off;"]
-CMD ["serve" , "-s", "build"]
+CMD ["npx", "-y", "serve" , "-s", "build"]
