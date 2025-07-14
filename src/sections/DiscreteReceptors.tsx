@@ -3,8 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import FormField from '../components/forms/FormField';
 import SectionContainer from '../components/SectionContainer';
 import { useRunContext } from '../context/RunContext';
-import { AerscreenDiscreteReceptors as DiscreteReceptorsType, Receptor } from '../types/api';
-import { DistanceUnit } from '../types/enums';
+import { AerscreenDiscreteReceptors as DiscreteReceptorsType } from '../types/api';
+import { DiscreteReceptorsUnits, DistanceUnit } from '../types/enums';
 import InfoSection from '../components/InfoSection';
 import Tooltip from '../components/Tooltip';
 
@@ -19,16 +19,9 @@ const DiscreteReceptors: React.FC = () => {
 
   // Default values
   const defaultDiscreteReceptors: DiscreteReceptorsType = {
-    receptors: [
-      {
-        x: 0,
-        y: 0,
-        elevation: 0,
-        x_unit: DistanceUnit.METERS,
-        y_unit: DistanceUnit.METERS,
-        elevation_unit: DistanceUnit.METERS
-      }
-    ]
+	distance_units: DiscreteReceptorsUnits.METERS,
+	include_discrete_receptors: false,
+    receptors: [0]
   };
 
   // Initialize state with existing data or defaults
@@ -36,17 +29,12 @@ const DiscreteReceptors: React.FC = () => {
     formData.discrete_receptors || defaultDiscreteReceptors
   );
 
+  // TODO: Instead of units selection per receptor, units and other fields should be defined up top
+  
   const handleChange = (index: number, e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     const updatedReceptors = [...receptorsData.receptors];
-
-    updatedReceptors[index] = {
-      ...updatedReceptors[index],
-      [name]: name.includes('x') || name.includes('y') || name.includes('elevation') 
-        ? parseFloat(value) || 0 
-        : value
-    };
-
+    updatedReceptors[index] = parseFloat(value) || 0;
     setReceptorsData({
       ...receptorsData,
       receptors: updatedReceptors
@@ -54,19 +42,12 @@ const DiscreteReceptors: React.FC = () => {
   };
 
   const addReceptor = () => {
-    if (receptorsData.receptors.length >= 10) return; // NEW: hard cap
+    if (receptorsData.receptors.length >= 10) return;
     setReceptorsData({
       ...receptorsData,
       receptors: [
         ...receptorsData.receptors,
-        {
-          x: 0,
-          y: 0,
-          elevation: 0,
-          x_unit: DistanceUnit.METERS,
-          y_unit: DistanceUnit.METERS,
-          elevation_unit: DistanceUnit.METERS
-        }
+		0
       ]
     });
   };
@@ -157,61 +138,13 @@ const DiscreteReceptors: React.FC = () => {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField
-                  label="X Coordinate"
-                  name="x"
+                  label="Receptor"
+                  name="distance"
                   type="number"
-                  value={receptor.x}
+                  value={receptor}
                   onChange={(e) => handleChange(index, e)}
                   required
-                  tooltip="Dummy tooltip: Enter the X coordinate of the receptor"
-                />
-                <FormField
-                  label="X Unit"
-                  name="x_unit"
-                  type="select"
-                  value={receptor.x_unit}
-                  onChange={(e) => handleChange(index, e)}
-                  options={distanceUnits}
-                  required
-                  tooltip="Dummy tooltip: Select the unit for X coordinate"
-                />
-
-                <FormField
-                  label="Y Coordinate"
-                  name="y"
-                  type="number"
-                  value={receptor.y}
-                  onChange={(e) => handleChange(index, e)}
-                  required
-                  tooltip="Dummy tooltip: Enter the Y coordinate of the receptor"
-                />
-                <FormField
-                  label="Y Unit"
-                  name="y_unit"
-                  type="select"
-                  value={receptor.y_unit}
-                  onChange={(e) => handleChange(index, e)}
-                  options={distanceUnits}
-                  required
-                  tooltip="Dummy tooltip: Select the unit for Y coordinate"
-                />
-
-                <FormField
-                  label="Elevation"
-                  name="elevation"
-                  type="number"
-                  value={receptor.elevation || 0}
-                  onChange={(e) => handleChange(index, e)}
-                  tooltip="Dummy tooltip: Enter the elevation of the receptor"
-                />
-                <FormField
-                  label="Elevation Unit"
-                  name="elevation_unit"
-                  type="select"
-                  value={receptor.elevation_unit || DistanceUnit.METERS}
-                  onChange={(e) => handleChange(index, e)}
-                  options={distanceUnits}
-                  tooltip="Dummy tooltip: Select the unit for elevation"
+                  tooltip="Enter the distance along plume centerline of the receptor"
                 />
               </div>
             </div>

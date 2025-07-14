@@ -17,14 +17,13 @@ const BuildingData: React.FC = () => {
   
   // Default values
   const defaultBuildingData: BuildingDataType = {
-    use_building_downwash: false,
+	use_building_downwash: false,
     height: 0,
     max_horizontal_dim: 0,
     min_horizontal_dim: 0,
-    bldg_height_unit: DistanceUnit.METERS,
-    bldg_width_max_unit: DistanceUnit.METERS,
-    bldg_width_min_unit: DistanceUnit.METERS,
-    use_existing_bpipprm_file: null
+    deg_from_north_of_max_hor_dim: 0,
+    deg_from_north_of_stack_rel_to_center: 0,
+    dist_stack_to_center: 0
   };
   
   // Initialize state with existing data or defaults
@@ -32,9 +31,11 @@ const BuildingData: React.FC = () => {
     formData.building_data || defaultBuildingData
   );
 
+
   // Add validation state
   const [errors, setErrors] = useState<Partial<Record<keyof BuildingDataType, string>>>({});
   const [touched, setTouched] = useState<Partial<Record<keyof BuildingDataType, boolean>>>({});
+  const [bpipprmFilename, setBpipprmFilename] = useState<string>("");
   const [useManualInputs, setUseManualInputs] = useState(!buildingData.use_existing_bpipprm_file);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -72,20 +73,24 @@ const BuildingData: React.FC = () => {
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] || null;
-    
     if (file) {
-      // Switch to file upload mode
       setUseManualInputs(false);
-      setBuildingData(prev => ({
-        ...prev,
-        use_existing_bpipprm_file: file
-      }));
+      setBpipprmFilename(file.name);
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const fileContent = event.target?.result as string;
+        setBuildingData(prev => ({
+          ...prev,
+          use_existing_bpipprm_file: fileContent
+        }));
+      };
+      reader.readAsText(file);
     } else {
-      // If file is removed, clear the field
       setBuildingData(prev => ({
         ...prev,
-        use_existing_bpipprm_file: null
+        use_existing_bpipprm_file: undefined
       }));
+      setBpipprmFilename("");
     }
   };
 
@@ -146,7 +151,7 @@ const BuildingData: React.FC = () => {
         });
       } else if (!buildingData.use_existing_bpipprm_file) {
         // If using file mode but no file is selected
-        newErrors.useexistingbpipprm_file = 'Please upload a BPIP PRM file';
+        newErrors.use_existing_bpipprm_file = 'Please upload a BPIP PRM file';
         hasErrors = true;
       }
     }
@@ -258,12 +263,12 @@ const BuildingData: React.FC = () => {
                     onChange={handleFileChange}
                     className="file-input file-input-bordered file-input-primary w-full max-w-md"
                   />
-                  {errors.useexistingbpipprm_file && (
-                    <p className="text-red-500 text-sm mt-1">{errors.useexistingbpipprm_file}</p>
+                  {errors.use_existing_bpipprm_file && (
+                    <p className="text-red-500 text-sm mt-1">{errors.use_existing_bpipprm_file}</p>
                   )}
                   {buildingData.use_existing_bpipprm_file && (
                     <p className="text-green-600 text-sm mt-1">
-                      File selected: {buildingData.use_existing_bpipprm_file.name}
+                      File selected: {bpipprmFilename}
                     </p>
                   )}
                 </div>
@@ -285,26 +290,16 @@ const BuildingData: React.FC = () => {
                       <div className="grid grid-cols-2 gap-4">
                         <FormField
                           label="Value"
-                          name="bldg_height"
+                          name="height"
                           type="number"
                           value={buildingData.height || 0}
                           onChange={handleChange}
                           onBlur={handleBlur}
-                          error={touched.bldg_height ? errors.bldg_height : undefined}
+                          error={touched.height ? errors.height : undefined}
                           min={0.1}
                           step={0.1}
                           required
-                          tooltip="Dummy tooltip: Enter the height of the building"
-                        />
-                        <FormField
-                          label="Unit"
-                          name="bldg_height_unit"
-                          type="select"
-                          value={buildingData.bldg_height_unit || ''}
-                          onChange={handleChange}
-                          options={distanceUnits}
-                          required
-                          tooltip="Dummy tooltip: Select the unit for building height"
+                          tooltip="Enter the height of the building"
                         />
                       </div>
                     </div>
@@ -320,18 +315,9 @@ const BuildingData: React.FC = () => {
                           value={buildingData.max_horizontal_dim || 0}
                           onChange={handleChange}
                           onBlur={handleBlur}
-                          error={touched.bldg_width_max ? errors.bldg_width_max : undefined}
+                          error={touched.max_horizontal_dim ? errors.max_horizontal_dim : undefined}
                           min={0.1}
                           step={0.1}
-                          required
-                        />
-                        <FormField
-                          label="Unit"
-                          name="bldg_width_max_unit"
-                          type="select"
-                          value={buildingData.bldg_width_max_unit || ''}
-                          onChange={handleChange}
-                          options={distanceUnits}
                           required
                         />
                       </div>
@@ -348,18 +334,9 @@ const BuildingData: React.FC = () => {
                           value={buildingData.min_horizontal_dim || 0}
                           onChange={handleChange}
                           onBlur={handleBlur}
-                          error={touched.bldg_width_min ? errors.bldg_width_min : undefined}
+                          error={touched.min_horizontal_dim ? errors.min_horizontal_dim : undefined}
                           min={0.1}
                           step={0.1}
-                          required
-                        />
-                        <FormField
-                          label="Unit" 
-                          name="bldg_width_min_unit"
-                          type="select"
-                          value={buildingData.bldg_width_min_unit || ''}
-                          onChange={handleChange}
-                          options={distanceUnits}
                           required
                         />
                       </div>

@@ -12,10 +12,7 @@ const Debug: React.FC = () => {
 
   // keep the full shape but we will only expose save_debug in the UI
   const defaultDebug: DebugType = {
-    save_input:          false,
-    save_aermap_input:   false,
-    save_debug:          false,
-    save_aermap_debug:   false,
+    debug: false,
   };
 
   const [debug, setDebug] = useState<DebugType>(
@@ -25,7 +22,7 @@ const Debug: React.FC = () => {
   // single checkbox toggles save_debug only
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { checked } = e.target;
-    setDebug(prev => ({ ...prev, save_debug: checked }));
+    setDebug(prev => ({ ...prev, debug: checked }));
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -56,7 +53,7 @@ const Debug: React.FC = () => {
                 id="save_debug"
                 name="save_debug"
                 type="checkbox"
-                checked={debug.save_debug}
+                checked={debug.debug}
                 onChange={handleChange}
                 className="h-4 w-4 text-blue-600 rounded"
               />

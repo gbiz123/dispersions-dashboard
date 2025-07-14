@@ -340,16 +340,13 @@ export interface AerscreenSourceData {
 // Building Data
 export interface AerscreenBuildingData {
   use_building_downwash: boolean;
-  use_existing_bpipprm_file: File | null;
+  use_existing_bpipprm_file?: string | null
   height: number;
   max_horizontal_dim: number;
   min_horizontal_dim: number;
   deg_from_north_of_max_hor_dim: number,
   deg_from_north_of_stack_rel_to_center: number,
   dist_stack_to_center: number,
-  bldg_height_unit: string;
-  bldg_width_max_unit: string;
-  bldg_width_min_unit: string;
 }
 
 // Makemet Data
@@ -408,7 +405,7 @@ export interface AerscreenOtherInputs {
   population?: number
   distance_to_amb_air: number
   use_flagpole_receptors: boolean
-  flagpole_height_m: boolean
+  flagpole_height_m: number
 }
 
 // Fumigation
@@ -431,7 +428,6 @@ export interface NormalisedFlowSector {
   date: string;
 }
 
-// Debug
 export interface AerscreenDebug {
   debug?: boolean;
 }

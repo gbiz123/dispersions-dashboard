@@ -1,6 +1,7 @@
 import { runService } from '../services/runService';
 import { resultService } from '../services/resultService';
 import { AerscreenRequest, TemperatureUnit, VelocityUnit, DistanceUnit, SurfaceProfile, ClimateType, LandUseType, RuralUrban, TerrainSource, TerrainFileType, UnitSystem } from '../types/api';
+import { AerscreenOtherInputsUnits, AerscreenRuralOrUrban, DemFileType, DemFileUnits } from 'types/enums';
 
 // Sample data
 const sampleRequest: AerscreenRequest = {
@@ -19,38 +20,37 @@ const sampleRequest: AerscreenRequest = {
     flow_rate_unit: 'm³/s'
   },
   building_data: {
+	deg_from_north_of_stack_rel_to_center: 0,
+	dist_stack_to_center: 10,
     use_building_downwash: true,
     height: 25,
     max_horizontal_dim: 40,
     min_horizontal_dim: 20,
-    bldg_height_unit: 'meters',
-    bldg_width_max_unit: 'meters',
-    bldg_width_min_unit: 'meters',
+	deg_from_north_of_max_hor_dim: 9,
     use_existing_bpipprm_file: null,
   },
   makemet_data: {
-    min_temp: 250,
-    min_temp_unit: 'K' as TemperatureUnit,
-    max_temp: 310,
-    max_temp_unit: 'K' as TemperatureUnit,
-    min_wspd: 0.5,
-    min_wspd_unit: 'm/s' as VelocityUnit,
-    anem_height: 10,
-    anem_height_unit: 'meters' as DistanceUnit,
-    surface_profile: 'rural' as SurfaceProfile,
-    climate_type: 'average' as ClimateType,
-    land_use_type: 'rural' as LandUseType,
+	climatology_type: ClimateType.NONE,
+	min_temp_k: 250,
+    max_temp_k: 310,
+    min_wind_speed_m_s: 0.5,
+    anemometer_height_m: 10,
+	land_use_type: LandUseType.SWAMP,
     albedo: 0.18,
     bowen_ratio: 1.0,
     surface_roughness: 0.3,
-    surface_characteristics_filename: null
   },
   terrain_data: {
-    use_terrain: true,
-    use_discrete_receptors: false,
-    terrain_type: 'complex',
-    elev_unit: 'meters',
-    utm_zone: 15
+	use_terrain: false,
+    utm_x: 0,
+    utm_y: 0,
+    utm_zone: 15,
+    nad_datum: "NAD27",
+    probe_distance_m: 0,
+    elevation: 0,
+    dem_file_type: DemFileType.DEM_1_METER,
+    dem_file_units: DemFileUnits.FEET,
+    override_elevation_with_aermap_val: false
   },
   terrain_input_files: {
     nad_datum: 'NAD83',
@@ -62,10 +62,11 @@ const sampleRequest: AerscreenRequest = {
     terrain_source: TerrainSource.UPLOAD_FILE   // ← NEW ­required field
   },
   other_inputs: {
+	flagpole_height_m: 0,
+	use_flagpole_receptors: false,
+	units: AerscreenOtherInputsUnits.METRIC,
     distance_to_amb_air: 100,
-    min_dist_ambient_unit: 'meters',
-    is_fumigation: false,
-    rural_urban: 'rural' as RuralUrban
+	rural_or_urban: AerscreenRuralOrUrban.RURAL
   }
 };
 
