@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import FormField from '../components/forms/FormField';
 import SectionContainer from '../components/SectionContainer';
 import { useRunContext } from '../context/RunContext';
-import { DiscreteReceptors as DiscreteReceptorsType, Receptor } from '../types/api';
+import { AerscreenDiscreteReceptors as DiscreteReceptorsType, Receptor } from '../types/api';
 import { DistanceUnit } from '../types/enums';
 import InfoSection from '../components/InfoSection';
 import Tooltip from '../components/Tooltip';

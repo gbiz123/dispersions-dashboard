@@ -29,7 +29,7 @@ export function useRunState(): UseRunStateReturn {
     setFormData({});
   };
 
-  const isComplete = !!formData.stack_data && 
+  const isComplete = !!formData.source_data && 
                      !!formData.building_data && 
                      !!formData.makemet_data && 
                      !!formData.terrain_data && 

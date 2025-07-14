@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import FormField from '../components/forms/FormField';
 import SectionContainer from '../components/SectionContainer';
 import { useRunContext } from '../context/RunContext';
-import { Fumigation as FumigationType } from '../types/api';
+import { AerscreenFumigation as FumigationType } from '../types/api';
 import { DistanceUnit } from '../types/enums';
 
 const Fumigation: React.FC = () => {
@@ -12,10 +12,10 @@ const Fumigation: React.FC = () => {
   
   // Default values
   const defaultFumigation: FumigationType = {
-    shore_dist: 0,
+    distance_to_shoreline: 0,
     shore_dist_unit: DistanceUnit.METERS,
-    enable_shoreline_fumigation: false,
-    use_inv_breakup: false
+    shoreline_fumigation: false,
+    inversion_break_up: false
     // ⬆ add more defaults when additional fields are known
   };
   
@@ -43,7 +43,7 @@ const Fumigation: React.FC = () => {
     e.preventDefault();
     
     // Basic validation
-    if (fumigation.shore_dist <= 0) {
+    if (fumigation.distance_to_shoreline <= 0) {
       alert('Shore distance must be greater than 0');
       return;
     }
@@ -71,7 +71,7 @@ const Fumigation: React.FC = () => {
           label="Shore Line Distance"
           name="shore_dist"
           type="number"
-          value={fumigation.shore_dist}
+          value={fumigation.distance_to_shoreline}
           onChange={handleChange}
           required
         />
@@ -94,7 +94,7 @@ const Fumigation: React.FC = () => {
           <input
             type="checkbox"
             name="enable_shoreline_fumigation"
-            checked={fumigation.enable_shoreline_fumigation}
+            checked={fumigation.shoreline_fumigation}
             onChange={handleChange}
             className="h-4 w-4 text-blue-600 rounded"
           />
@@ -105,7 +105,7 @@ const Fumigation: React.FC = () => {
           <input
             type="checkbox"
             name="use_inv_breakup"
-            checked={fumigation.use_inv_breakup}
+            checked={fumigation.inversion_break_up}
             onChange={handleChange}
             className="h-4 w-4 text-blue-600 rounded"
           />

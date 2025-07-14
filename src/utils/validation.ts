@@ -1,6 +1,6 @@
 import { AerscreenRequest } from '../types/api';
 
-export const validateStackData = (data: AerscreenRequest['stack_data']) => {
+export const validateStackData = (data: AerscreenRequest['source_data']) => {
   if (!data) return false;
   
   return (
@@ -20,12 +20,12 @@ export const validateStackData = (data: AerscreenRequest['stack_data']) => {
 export const validateBuildingData = (data: AerscreenRequest['building_data']) => {
   if (!data) return false;
   
-  if (!data.has_building) return true;
+  if (!data.use_building_downwash) return true;
   
   return (
-    data.bldg_height! > 0 &&
-    data.bldg_width_max! > 0 &&
-    data.bldg_width_min! > 0 &&
+    data.height! > 0 &&
+    data.max_horizontal_dim! > 0 &&
+    data.min_horizontal_dim! > 0 &&
     !!data.bldg_height_unit &&
     !!data.bldg_width_max_unit &&
     !!data.bldg_width_min_unit
@@ -63,7 +63,7 @@ export const validateMakemetData = (data: AerscreenRequest['makemet_data']) => {
 export const validateTerrainData = (data: AerscreenRequest['terrain_data']) => {
   if (!data) return false;
   
-  if (!data.has_terrain) return true;
+  if (!data.use_terrain) return true;
   
   if (!data.terrain_type || !data.elev_unit) {
     return false;
@@ -108,7 +108,7 @@ export const validateOtherInputs = (data: AerscreenRequest['other_inputs']) => {
   if (!data) return false;
   
   return (
-    data.min_dist_ambient > 0 &&
+    data.distance_to_amb_air > 0 &&
     !!data.min_dist_ambient_unit
   );
 };
@@ -117,19 +117,19 @@ export const validateFumigation = (data: AerscreenRequest['fumigation']) => {
   if (!data) return true; // Optional section
   
   return (
-    data.shore_dist > 0 &&
+    data.distance_to_shoreline > 0 &&
     !!data.shore_dist_unit
   );
 };
 
 export const validateCompleteRequest = (data: Partial<AerscreenRequest>) => {
   return (
-    validateStackData(data.stack_data!) &&
+    validateStackData(data.source_data!) &&
     validateBuildingData(data.building_data!) &&
     validateMakemetData(data.makemet_data!) &&
     validateTerrainData(data.terrain_data!) &&
     // Check terrain input files only if has_terrain is true
-    (!data.terrain_data?.has_terrain || validateTerrainInputFiles(data.terrain_input_files)) &&
+    (!data.terrain_data?.use_terrain || validateTerrainInputFiles(data.terrain_input_files)) &&
     // Check discrete receptors only if use_discrete_receptors is true
     (!data.terrain_data?.use_discrete_receptors || validateDiscreteReceptors(data.discrete_receptors)) &&
     validateOtherInputs(data.other_inputs!) &&

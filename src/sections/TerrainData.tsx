@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import FormField from '../components/forms/FormField';
 import SectionContainer from '../components/SectionContainer';
 import { useRunContext } from '../context/RunContext';
-import { TerrainData as TerrainDataType, TerrainInputFiles } from '../types/api';
+import { AerscreenTerrainData as TerrainDataType, TerrainInputFiles } from '../types/api';
 import { DistanceUnit, TerrainType, NADDatum, TerrainFileType, TerrainSource } from '../types/enums';
 import { UnitSystem } from '../types/api';
 
@@ -13,7 +13,7 @@ const TerrainData: React.FC = () => {
   
   // Default values
   const defaultTerrainData: TerrainDataType = {
-    has_terrain: false,
+    use_terrain: false,
     use_discrete_receptors: false,
     terrain_type: TerrainType.FLAT,
     elev_unit: DistanceUnit.METERS,
@@ -89,7 +89,7 @@ const TerrainData: React.FC = () => {
     
     updateFormData('terrain_data', terrainData);
     
-    if (terrainData.has_terrain) {
+    if (terrainData.use_terrain) {
       updateFormData('terrain_input_files', terrainInputFiles);
     }
     
@@ -156,7 +156,7 @@ const TerrainData: React.FC = () => {
             <input
               type="checkbox"
               name="has_terrain"
-              checked={terrainData.has_terrain}
+              checked={terrainData.use_terrain}
               onChange={handleTerrainChange}
               className="h-4 w-4 text-blue-600 rounded"
             />
@@ -164,7 +164,7 @@ const TerrainData: React.FC = () => {
           </label>
         </div>
         
-        {terrainData.has_terrain && (
+        {terrainData.use_terrain && (
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <FormField

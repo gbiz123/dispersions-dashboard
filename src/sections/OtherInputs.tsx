@@ -4,7 +4,7 @@ import FormField from '../components/forms/FormField';
 import SectionContainer from '../components/SectionContainer';
 import InfoSection from '../components/InfoSection';
 import { useRunContext } from '../context/RunContext';
-import { OtherInputs as OtherInputsType } from '../types/api';
+import { AerscreenOtherInputs as OtherInputsType } from '../types/api';
 import { DistanceUnit, RuralUrban } from '../types/enums';
 
 const OtherInputs: React.FC = () => {
@@ -13,7 +13,7 @@ const OtherInputs: React.FC = () => {
   
   // Default values
   const defaultOtherInputs: OtherInputsType = {
-    min_dist_ambient: 1,
+    distance_to_amb_air: 1,
     min_dist_ambient_unit: DistanceUnit.METERS,
     urban_population: 0,
     is_fumigation: false,
@@ -88,7 +88,7 @@ const OtherInputs: React.FC = () => {
             label="Minimum Distance to Ambient Air"
             name="min_dist_ambient"
             type="number"
-            value={otherInputs.min_dist_ambient}
+            value={otherInputs.distance_to_amb_air}
             onChange={handleChange}
             required
             tooltip="Dummy tooltip: Enter the minimum distance to ambient air boundary"

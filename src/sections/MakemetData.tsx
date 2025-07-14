@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import FormField from '../components/forms/FormField';
 import SectionContainer from '../components/SectionContainer';
 import { useRunContext } from '../context/RunContext';
-import { MakemetData as MakemetDataType } from '../types/api';
+import { AerscreenMakemetData as MakemetDataType } from '../types/api';
 import { 
   DistanceUnit, 
   VelocityUnit, 
@@ -57,8 +57,8 @@ const MakemetData: React.FC = () => {
     land_use_type: LandUseType.RURAL,
     albedo: 0,
     bowen_ratio: 0,
-    roughness_length: 0,
-    surface_characteristics_file: new File([], '')
+    surface_roughness: 0,
+    surface_characteristics_filename: new File([], '')
   };
   
   // Initialize state with existing data or defaults
@@ -106,7 +106,7 @@ const MakemetData: React.FC = () => {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setMakemetData(prev => ({
       ...prev,
-      surface_characteristics_file: e.target.files?.[0] ?? null
+      surface_characteristics_filename: e.target.files?.[0] ?? null
     }));
   };
 
@@ -367,7 +367,7 @@ const MakemetData: React.FC = () => {
               name="roughness_length"
               type="number"
               step={0.01}
-              value={makemetData.roughness_length}
+              value={makemetData.surface_roughness}
               onChange={handleChange}
             />
           </>
@@ -401,7 +401,7 @@ const MakemetData: React.FC = () => {
               label="Roughness Length (m)"
               name="roughness_length"
               type="number"
-              value={makemetData.roughness_length}
+              value={makemetData.surface_roughness}
               onChange={handleChange}
               min={0}
               step={0.001}

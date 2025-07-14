@@ -74,7 +74,6 @@ const Dashboard: React.FC = () => {
     storage_limit_gb: 100
   });
 
-  const [recentActivity, setRecentActivity] = useState<RecentActivity[]>([]);
   const [recentRuns, setRecentRuns] = useState<Run[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -107,43 +106,11 @@ const Dashboard: React.FC = () => {
         storage_limit_gb: 100
       });
 
-      setRecentActivity([
-        {
-          id: '1',
-          type: 'AERMOD',
-          title: 'Industrial Facility Assessment - Q4 2025',
-          status: 'completed',
-          timestamp: '2024-01-15T10:30:00Z',
-          duration: '45 minutes'
-        },
-        {
-          id: '2',
-          type: 'AERSCREEN',
-          title: 'Stack Emission Analysis',
-          status: 'running',
-          timestamp: '2024-01-15T09:15:00Z'
-        },
-        {
-          id: '3',
-          type: 'AERSURFACE',
-          title: 'Surface Characteristics - Site B',
-          status: 'completed',
-          timestamp: '2024-01-14T16:45:00Z',
-          duration: '12 minutes'
-        },
-        {
-          id: '4',
-          type: 'AERMOD',
-          title: 'Multi-source Dispersion Study',
-          status: 'failed',
-          timestamp: '2024-01-14T14:20:00Z'
-        }
-      ]);
-
+	  // TODO: Implement with API
       setRecentRuns([
         {
           id: '1',
-          name: 'Run 1 - Industrial Facility',
+          name: 'Industrial Facility',
           module: 'AERMOD',
           status: 'completed',
           created_at: '2024-01-15T10:30:00Z',
@@ -151,14 +118,14 @@ const Dashboard: React.FC = () => {
         },
         {
           id: '2',
-          name: 'Run 2 - Stack Emission',
+          name: 'Stack Emission',
           module: 'AERSCREEN',
           status: 'running',
           created_at: '2024-01-15T09:15:00Z'
         },
         {
           id: '3',
-          name: 'Run 3 - Surface Characteristics',
+          name: 'Surface Characteristics',
           module: 'AERSURFACE',
           status: 'completed',
           created_at: '2024-01-14T16:45:00Z',
@@ -166,7 +133,7 @@ const Dashboard: React.FC = () => {
         },
         {
           id: '4',
-          name: 'Run 4 - Multi-source Dispersion',
+          name: 'Multi-source Dispersion',
           module: 'AERMOD',
           status: 'failed',
           created_at: '2024-01-14T14:20:00Z'
@@ -536,71 +503,6 @@ const Dashboard: React.FC = () => {
           </div>
           
           <div className="divide-y divide-slate-100">
-            {recentActivity.map((activity) => (
-              <div key={activity.id} className="px-6 py-4 hover:bg-slate-50 transition-colors">
-                <div className="flex items-center space-x-4">
-                  <div className={`p-2.5 rounded-xl ${
-                    activity.type === 'AERMOD' ? 'bg-blue-100 text-blue-600' :
-                    activity.type === 'AERSCREEN' ? 'bg-amber-100 text-amber-600' :
-                    'bg-emerald-100 text-emerald-600'
-                  }`}>
-                    {activity.type === 'AERMOD' && <CloudIcon className="h-5 w-5" />}
-                    {activity.type === 'AERSCREEN' && <BeakerIcon className="h-5 w-5" />}
-                    {activity.type === 'AERSURFACE' && <MapIcon className="h-5 w-5" />}
-                  </div>
-                  
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between">
-                      <p className="font-medium text-slate-900 truncate">{activity.title}</p>
-                      <div className="flex items-center space-x-2 ml-4">
-                        {activity.status === 'completed' && (
-                          <span className="inline-flex items-center px-2.5 py-1 rounded-lg bg-emerald-50 text-xs font-medium text-emerald-700">
-                            <CheckCircleIcon className="h-3.5 w-3.5 mr-1" />
-                            Completed
-                          </span>
-                        )}
-                        {activity.status === 'running' && (
-                          <span className="inline-flex items-center px-2.5 py-1 rounded-lg bg-blue-50 text-xs font-medium text-blue-700">
-                            <ClockIcon className="h-3.5 w-3.5 mr-1 animate-spin" />
-                            Running
-                          </span>
-                        )}
-                        {activity.status === 'failed' && (
-                          <span className="inline-flex items-center px-2.5 py-1 rounded-lg bg-red-50 text-xs font-medium text-red-700">
-                            <XCircleIcon className="h-3.5 w-3.5 mr-1" />
-                            Failed
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                    <div className="flex items-center space-x-4 mt-1 text-sm text-slate-500">
-                      <span>{activity.type}</span>
-                      <span>{new Date(activity.timestamp).toLocaleString('en-US', { 
-                        month: 'short',
-                        day: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit'
-                      })}</span>
-                      {activity.duration && (
-                        <>
-                          <span>•</span>
-                          <span>{activity.duration}</span>
-                        </>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Recent Runs Section */}
-        <div className="bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden">
-          <div className="px-6 py-4 border-b border-slate-200">
-            <h3 className="text-lg font-semibold text-slate-800">Recent Runs</h3>
-          </div>
-          <div className="divide-y divide-slate-200">
             {recentRuns.length === 0 ? (
               <div className="px-6 py-8 text-center text-slate-500">
                 No recent runs found
@@ -608,35 +510,59 @@ const Dashboard: React.FC = () => {
             ) : (
               recentRuns.map((run) => (
                 <div key={run.id} className="px-6 py-4 hover:bg-slate-50 transition-colors">
-                  <div className="flex items-center justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3">
-                        <h4 className="font-medium text-slate-800">{run.name}</h4>
-                        <span className="px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800">
-                          {run.module}
-                        </span>
-                        <span className={`px-2 py-1 text-xs font-medium rounded-full ${
-                          run.status === 'completed' ? 'bg-green-100 text-green-800' :
-                          run.status === 'failed' ? 'bg-red-100 text-red-800' :
-                          'bg-yellow-100 text-yellow-800'
-                        }`}>
-                          {run.status}
-                        </span>
-                      </div>
-                      {run.description && (
-                        <p className="text-sm text-slate-600 mt-1">{run.description}</p>
-                      )}
-                      <p className="text-xs text-slate-500 mt-1">
-                        {new Date(run.created_at).toLocaleString()}
-                      </p>
+                  <div className="flex items-center space-x-4">
+                    <div className={`p-2.5 rounded-xl ${
+                      run.module === 'AERMOD' ? 'bg-blue-100 text-blue-600' :
+                      run.module === 'AERSCREEN' ? 'bg-amber-100 text-amber-600' :
+                      'bg-emerald-100 text-emerald-600'
+                    }`}>
+                      {run.module === 'AERMOD' && <CloudIcon className="h-5 w-5" />}
+                      {run.module === 'AERSCREEN' && <BeakerIcon className="h-5 w-5" />}
+                      {run.module === 'AERSURFACE' && <MapIcon className="h-5 w-5" />}
                     </div>
-                    <button
-                      onClick={() => handleEditRun(run)}
-                      className="ml-4 p-2 text-slate-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                      title="Edit run"
-                    >
-                      <PencilIcon className="h-5 w-5" />
-                    </button>
+                    
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between">
+                        <h4 className="font-medium text-slate-900 truncate">{run.name}</h4>
+                        <div className="flex items-center space-x-2 ml-4">
+                          <span className="px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800">
+                            {run.module}
+                          </span>
+                          <span className={`inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-medium ${
+                            run.status === 'completed' ? 'bg-emerald-50 text-emerald-700' :
+                            run.status === 'running' ? 'bg-blue-50 text-blue-700' :
+                            run.status === 'failed' ? 'bg-red-50 text-red-700' :
+                            'bg-yellow-50 text-yellow-700'
+                          }`}>
+                            {run.status === 'completed' && <CheckCircleIcon className="h-3.5 w-3.5 mr-1" />}
+                            {run.status === 'running' && <ClockIcon className="h-3.5 w-3.5 mr-1 animate-spin" />}
+                            {run.status === 'failed' && <XCircleIcon className="h-3.5 w-3.5 mr-1" />}
+                            {run.status.charAt(0).toUpperCase() + run.status.slice(1)}
+                          </span>
+                          <button
+                            onClick={() => handleEditRun(run)}
+                            className="p-2 text-slate-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                            title="Edit run"
+                          >
+                            <PencilIcon className="h-5 w-5" />
+                          </button>
+                        </div>
+                      </div>
+                      <div className="flex items-center space-x-4 mt-1 text-sm text-slate-500">
+                        {run.description && (
+                          <>
+                            <span>{run.description}</span>
+                            <span>•</span>
+                          </>
+                        )}
+                        <span>{new Date(run.created_at).toLocaleString('en-US', { 
+                          month: 'short',
+                          day: 'numeric',
+                          hour: '2-digit',
+                          minute: '2-digit'
+                        })}</span>
+                      </div>
+                    </div>
                   </div>
                 </div>
               ))

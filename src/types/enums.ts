@@ -4,6 +4,39 @@ export enum DistanceUnit {
   FEET = 'feet'
 }
 
+export enum DiscreteReceptorsUnits {
+  FEET = 0,
+  METERS = 1,
+  KILOMETERS = 2,
+  MILES = 3
+}
+export enum AerscreenOtherInputsUnits {
+    ENGLISH = 0,
+    METRIC = 1
+}
+
+export enum AerscreenRuralOrUrban {
+    RURAL = 0,
+    URBAN = 1
+}
+
+export enum DemFileType {
+	NED_1_ARC_SECOND = "National Elevation Dataset (NED) 1 arc-second",
+    NED_1_3RD_ARC_SECOND = "National Elevation Dataset (NED) 1/3 arc-second",
+    NED_1_9TH_ARC_SECOND = "National Elevation Dataset (NED) 1/9 arc-second",
+    NED_2_ARC_SECOND_ALASKA = "National Elevation Dataset (NED) Alaska 2 arc-second",
+    DEM_1_METER = "Digital Elevation Model (DEM) 1 meter"
+}
+
+export enum DemFileUnits {
+    FEET = 1,
+    DECIFEET = 2,
+    DECAFEET = 3,
+    METERS = 4,
+    DECIMETERS = 5,
+    DECAMETERS = 6
+}
+
 export enum TerrainSource {
   UPLOAD_FILE   = 'upload_file',
   NATIONAL_MAP  = 'national_map'

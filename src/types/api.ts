@@ -1,3 +1,5 @@
+import { AerscreenOtherInputsUnits, AerscreenRuralOrUrban, DemFileType, DemFileUnits, DiscreteReceptorsUnits } from "./enums";
+
 export enum TemperatureUnit {
   CELSIUS = 'C',
   FAHRENHEIT = 'F',
@@ -30,25 +32,24 @@ export enum SurfaceProfile {
 }
 
 export enum ClimateType {
-  TROPICAL = 'tropical',
-  TEMPERATE = 'temperate',
-  CONTINENTAL = 'continental',
-  POLAR = 'polar',
-  AVERAGE = 'AVERAGE',
-  ARID     = 'ARID',
-  MOIST    = 'MOIST'
+  NONE = 0,
+  AVERAGE_MOISTURE = 1,
+  WET_CONDITIONS = 2,
+  DRY_CONDITIONS = 3
 }
 
 export enum LandUseType {
-  USER_ENTERED_SURFACE_CHARACTERISTICS = 'USER_ENTERED_SURFACE_CHARACTERISTICS',
-  USE_EXTERNAL_FILE_OF_SURFACE_CHARACTERISTICS = 'USE_EXTERNAL_FILE_OF_SURFACE_CHARACTERISTICS',
-  AGRICULTURAL = 'agricultural',
-  URBAN = 'urban',
-  FOREST = 'forest',
-  WATER = 'water',
-  DESERT = 'desert',
-  RURAL = 'Rural',
-  USE_AERSURFACE = 'USE_AERSURFACE'  // Add this line
+  USER_ENTERED_SURFACE_CHARACTERISTICS = 0,
+  WATER = 1,
+  DECIDUOUS_FOREST = 2,
+  CONIFEROUS_FOREST = 3,
+  SWAMP = 4,
+  CULTIVATED_LAND = 5,
+  GRASSLAND = 6,
+  URBAN = 7,
+  DESERT_SHRUB_LAND = 8,
+  USE_EXTERNAL_FILE_OF_SURFACE_CHARACTERISTICS = 9,
+  USE_PREVIOUS_AERSURFACE_RUN = 10
 }
 
 /**
@@ -102,16 +103,16 @@ export interface DistanceMaxConcentration {
 
 // Request Type for starting a run
 export interface AerscreenRequest {
-  stack_data: StackData;
-  building_data: BuildingData;
-  makemet_data: MakemetData;
-  terrain_data: TerrainData;
+  source_data: AerscreenSourceData;
+  building_data: AerscreenBuildingData;
+  makemet_data: AerscreenMakemetData;
+  terrain_data: AerscreenTerrainData;
   terrain_input_files?: TerrainInputFiles;
-  discrete_receptors?: DiscreteReceptors;
+  discrete_receptors?: AerscreenDiscreteReceptors;
   use_discrete_receptors?: boolean;
-  other_inputs?: OtherInputs;
-  fumigation?: Fumigation;
-  debug?: Debug;
+  other_inputs?: AerscreenOtherInputs;
+  fumigation?: AerscreenFumigation;
+  debug?: AerscreenDebug;
 }
 
 export interface Row {
@@ -316,7 +317,7 @@ interface SourceData {
 }
 
 // Stack Data
-export interface StackData {
+export interface AerscreenSourceData {
   rate: number;
   height: number;
   diam: number;
@@ -337,46 +338,47 @@ export interface StackData {
 }
 
 // Building Data
-export interface BuildingData {
-  has_building: boolean;
-  bldg_height: number;
-  bldg_width_max: number;
-  bldg_width_min: number;
+export interface AerscreenBuildingData {
+  use_building_downwash: boolean;
+  use_existing_bpipprm_file: File | null;
+  height: number;
+  max_horizontal_dim: number;
+  min_horizontal_dim: number;
+  deg_from_north_of_max_hor_dim: number,
+  deg_from_north_of_stack_rel_to_center: number,
+  dist_stack_to_center: number,
   bldg_height_unit: string;
   bldg_width_max_unit: string;
   bldg_width_min_unit: string;
-  useexistingbpipprm_file: File | null;
 }
 
 // Makemet Data
-export interface MakemetData {
-  min_temp: number;
-  min_temp_unit: TemperatureUnit;
-  max_temp: number;
-  max_temp_unit: TemperatureUnit;
-  min_wspd: number;
-  min_wspd_unit: VelocityUnit;
-  anem_height: number;
-  anem_height_unit: DistanceUnit;
-  surface_profile: SurfaceProfile;
-  climate_type: ClimateType;
+export interface AerscreenMakemetData {
+  min_temp_k: number;
+  max_temp_k: number;
+  min_wind_speed_m_s: number;
+  anemometer_height_m: number;
+  climatology_type: ClimateType;
   land_use_type: LandUseType;
   albedo: number;
   bowen_ratio: number;
-  roughness_length: number;
-  surface_characteristics_file?: File | null;
-  aersurface_run_id?: number;  // Add this field
+  surface_roughness: number;
+  surface_characteristics_filename?: File | null;
+  aersurface_run_id?: number;
 }
 
 // Terrain Data
-export interface TerrainData {
-  has_terrain: boolean;
-  use_discrete_receptors: boolean;
-  terrain_type?: string;
-  elev_unit?: string;
-  hill_height?: number;
-  hill_height_unit?: string;
-  utm_zone: number;
+export interface AerscreenTerrainData {
+  use_terrain: boolean;
+  utm_x: number
+  utm_y: number
+  utm_zone: number
+  nad_datum: string
+  probe_distance_m: number
+  elevation: number
+  dem_file_type: DemFileType
+  dem_file_units: DemFileUnits
+  override_elevation_with_aermap_val: boolean
 }
 
 // Terrain Input Files
@@ -393,34 +395,29 @@ export interface TerrainInputFiles {
 }
 
 // Discrete Receptors
-export interface DiscreteReceptors {
-  receptors: Receptor[];
-}
-
-export interface Receptor {
-  x: number;
-  y: number;
-  elevation?: number;
-  x_unit: string;
-  y_unit: string;
-  elevation_unit?: string;
+export interface AerscreenDiscreteReceptors {
+  include_discrete_receptors: boolean
+  distance_units: DiscreteReceptorsUnits
+  receptors: number[];
 }
 
 // Other Inputs
-export interface OtherInputs {
-  min_dist_ambient: number;
-  min_dist_ambient_unit: string;
-  urban_population?: number;
-  is_fumigation: boolean;
-  rural_urban: RuralUrban;
+export interface AerscreenOtherInputs {
+  units: AerscreenOtherInputsUnits
+  rural_or_urban: AerscreenRuralOrUrban
+  population?: number
+  distance_to_amb_air: number
+  use_flagpole_receptors: boolean
+  flagpole_height_m: boolean
 }
 
 // Fumigation
-export interface Fumigation {
-  shore_dist: number;
-  shore_dist_unit: string;
-  enable_shoreline_fumigation: boolean;
-  use_inv_breakup: boolean;
+export interface AerscreenFumigation {
+  inversion_break_up: boolean;
+  shoreline_fumigation: boolean;
+  distance_to_shoreline: number;
+  direction_to_shoreline_deg?: number
+  run_aerscreen?: boolean
 }
 
 export interface NormalisedFlowSector {
@@ -435,9 +432,6 @@ export interface NormalisedFlowSector {
 }
 
 // Debug
-export interface Debug {
-  save_input: boolean;
-  save_aermap_input: boolean;
-  save_debug: boolean;
-  save_aermap_debug: boolean;
+export interface AerscreenDebug {
+  debug?: boolean;
 }

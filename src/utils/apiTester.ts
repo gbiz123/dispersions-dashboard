@@ -4,7 +4,7 @@ import { AerscreenRequest, TemperatureUnit, VelocityUnit, DistanceUnit, SurfaceP
 
 // Sample data
 const sampleRequest: AerscreenRequest = {
-  stack_data: {
+  source_data: {
     rate: 100,
     height: 50,
     diam: 2,
@@ -19,14 +19,14 @@ const sampleRequest: AerscreenRequest = {
     flow_rate_unit: 'm³/s'
   },
   building_data: {
-    has_building: true,
-    bldg_height: 25,
-    bldg_width_max: 40,
-    bldg_width_min: 20,
+    use_building_downwash: true,
+    height: 25,
+    max_horizontal_dim: 40,
+    min_horizontal_dim: 20,
     bldg_height_unit: 'meters',
     bldg_width_max_unit: 'meters',
     bldg_width_min_unit: 'meters',
-    useexistingbpipprm_file: null,
+    use_existing_bpipprm_file: null,
   },
   makemet_data: {
     min_temp: 250,
@@ -42,11 +42,11 @@ const sampleRequest: AerscreenRequest = {
     land_use_type: 'rural' as LandUseType,
     albedo: 0.18,
     bowen_ratio: 1.0,
-    roughness_length: 0.3,
-    surface_characteristics_file: null
+    surface_roughness: 0.3,
+    surface_characteristics_filename: null
   },
   terrain_data: {
-    has_terrain: true,
+    use_terrain: true,
     use_discrete_receptors: false,
     terrain_type: 'complex',
     elev_unit: 'meters',
@@ -62,7 +62,7 @@ const sampleRequest: AerscreenRequest = {
     terrain_source: TerrainSource.UPLOAD_FILE   // ← NEW ­required field
   },
   other_inputs: {
-    min_dist_ambient: 100,
+    distance_to_amb_air: 100,
     min_dist_ambient_unit: 'meters',
     is_fumigation: false,
     rural_urban: 'rural' as RuralUrban

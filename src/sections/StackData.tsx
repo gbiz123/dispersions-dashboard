@@ -4,7 +4,7 @@ import FormField from '../components/forms/FormField';
 import SectionContainer from '../components/SectionContainer';
 import { useRunContext } from '../context/RunContext';
 import { useAerscreen } from '../context/AerscreenContext';
-import { StackData as StackDataType } from '../types/api';
+import { AerscreenSourceData as StackDataType } from '../types/api';
 import { DistanceUnit, VelocityUnit, FlowRateUnit, TemperatureUnit, EmissionRateUnit } from '../types/enums';
 import LoadingOverlay from '../components/LoadingOverlay';
 

@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import FormField from '../components/forms/FormField';
 import SectionContainer from '../components/SectionContainer';
 import { useRunContext } from '../context/RunContext';
-import { BuildingData as BuildingDataType } from '../types/api';
+import { AerscreenBuildingData as BuildingDataType } from '../types/api';
 import { DistanceUnit } from '../types/enums';
 import { validateBuildingData } from '../utils/validation';
 import { InformationCircleIcon } from '@heroicons/react/24/outline';
@@ -17,14 +17,14 @@ const BuildingData: React.FC = () => {
   
   // Default values
   const defaultBuildingData: BuildingDataType = {
-    has_building: false,
-    bldg_height: 0,
-    bldg_width_max: 0,
-    bldg_width_min: 0,
+    use_building_downwash: false,
+    height: 0,
+    max_horizontal_dim: 0,
+    min_horizontal_dim: 0,
     bldg_height_unit: DistanceUnit.METERS,
     bldg_width_max_unit: DistanceUnit.METERS,
     bldg_width_min_unit: DistanceUnit.METERS,
-    useexistingbpipprm_file: null
+    use_existing_bpipprm_file: null
   };
   
   // Initialize state with existing data or defaults
@@ -35,7 +35,7 @@ const BuildingData: React.FC = () => {
   // Add validation state
   const [errors, setErrors] = useState<Partial<Record<keyof BuildingDataType, string>>>({});
   const [touched, setTouched] = useState<Partial<Record<keyof BuildingDataType, boolean>>>({});
-  const [useManualInputs, setUseManualInputs] = useState(!buildingData.useexistingbpipprm_file);
+  const [useManualInputs, setUseManualInputs] = useState(!buildingData.use_existing_bpipprm_file);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
@@ -78,13 +78,13 @@ const BuildingData: React.FC = () => {
       setUseManualInputs(false);
       setBuildingData(prev => ({
         ...prev,
-        useexistingbpipprm_file: file
+        use_existing_bpipprm_file: file
       }));
     } else {
       // If file is removed, clear the field
       setBuildingData(prev => ({
         ...prev,
-        useexistingbpipprm_file: null
+        use_existing_bpipprm_file: null
       }));
     }
   };
@@ -95,7 +95,7 @@ const BuildingData: React.FC = () => {
       setUseManualInputs(true);
       setBuildingData(prev => ({
         ...prev,
-        useexistingbpipprm_file: null
+        use_existing_bpipprm_file: null
       }));
       
       // Clear the file input
@@ -132,7 +132,7 @@ const BuildingData: React.FC = () => {
     const newErrors: Partial<Record<keyof BuildingDataType, string>> = {};
     let hasErrors = false;
     
-    if (buildingData.has_building) {
+    if (buildingData.use_building_downwash) {
       if (useManualInputs) {
         // Only validate manual inputs if using manual mode
         Object.entries(buildingData).forEach(([key, value]) => {
@@ -144,7 +144,7 @@ const BuildingData: React.FC = () => {
             }
           }
         });
-      } else if (!buildingData.useexistingbpipprm_file) {
+      } else if (!buildingData.use_existing_bpipprm_file) {
         // If using file mode but no file is selected
         newErrors.useexistingbpipprm_file = 'Please upload a BPIP PRM file';
         hasErrors = true;
@@ -194,7 +194,7 @@ const BuildingData: React.FC = () => {
                 disabled={false}
                 type="checkbox"
                 name="has_building"
-                checked={buildingData.has_building}
+                checked={buildingData.use_building_downwash}
                 onChange={handleChange}
                 className="checkbox checkbox-primary h-5 w-5"
               />
@@ -209,7 +209,7 @@ const BuildingData: React.FC = () => {
           </div>
         </div>
         
-        {buildingData.has_building && (
+        {buildingData.use_building_downwash && (
           <>
             {/* Input mode selection */}
             <div className="mb-6 border-t border-gray-200 pt-4">
@@ -261,9 +261,9 @@ const BuildingData: React.FC = () => {
                   {errors.useexistingbpipprm_file && (
                     <p className="text-red-500 text-sm mt-1">{errors.useexistingbpipprm_file}</p>
                   )}
-                  {buildingData.useexistingbpipprm_file && (
+                  {buildingData.use_existing_bpipprm_file && (
                     <p className="text-green-600 text-sm mt-1">
-                      File selected: {buildingData.useexistingbpipprm_file.name}
+                      File selected: {buildingData.use_existing_bpipprm_file.name}
                     </p>
                   )}
                 </div>
@@ -287,7 +287,7 @@ const BuildingData: React.FC = () => {
                           label="Value"
                           name="bldg_height"
                           type="number"
-                          value={buildingData.bldg_height || 0}
+                          value={buildingData.height || 0}
                           onChange={handleChange}
                           onBlur={handleBlur}
                           error={touched.bldg_height ? errors.bldg_height : undefined}
@@ -317,7 +317,7 @@ const BuildingData: React.FC = () => {
                           label="Value"
                           name="bldg_width_max"
                           type="number"
-                          value={buildingData.bldg_width_max || 0}
+                          value={buildingData.max_horizontal_dim || 0}
                           onChange={handleChange}
                           onBlur={handleBlur}
                           error={touched.bldg_width_max ? errors.bldg_width_max : undefined}
@@ -345,7 +345,7 @@ const BuildingData: React.FC = () => {
                           label="Value"
                           name="bldg_width_min"
                           type="number"
-                          value={buildingData.bldg_width_min || 0}
+                          value={buildingData.min_horizontal_dim || 0}
                           onChange={handleChange}
                           onBlur={handleBlur}
                           error={touched.bldg_width_min ? errors.bldg_width_min : undefined}

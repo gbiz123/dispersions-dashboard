@@ -4,7 +4,7 @@ import SectionContainer from '../components/SectionContainer';
 import InfoSection from '../components/InfoSection';
 import Tooltip from '../components/Tooltip';
 import { useRunContext } from '../context/RunContext';
-import { Debug as DebugType } from '../types/api';
+import { AerscreenDebug as DebugType } from '../types/api';
 
 const Debug: React.FC = () => {
   const { formData, updateFormData } = useRunContext();
