@@ -1,7 +1,8 @@
 // Unit enums
 export enum DistanceUnit {
   METERS = 'meters',
-  FEET = 'feet'
+  FEET = 'feet',
+  INCHES = 'inches'
 }
 
 export enum DiscreteReceptorsUnits {
@@ -49,7 +50,7 @@ export enum RuralUrban {
 
 export enum VelocityUnit {
   METERS_PER_SECOND = 'm/s',
-  FEET_PER_MINUTE = 'ft/min'
+  FEET_PER_SECOND = 'ft/min'
 }
 
 export enum FlowRateUnit {
@@ -112,11 +113,4 @@ export enum RunStatus {
   RUNNING = 'running',
   COMPLETED = 'completed',
   FAILED = 'failed'
-}
-
-// Land use type enums
-export enum LandUseType {
-  USER_ENTERED_SURFACE_CHARACTERISTICS = 0,
-  // Add other land use types as needed
-  USE_EXTERNAL_FILE_OF_SURFACE_CHARACTERISTICS = 9
 }

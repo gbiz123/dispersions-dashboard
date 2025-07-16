@@ -33,7 +33,7 @@ import BuildingData from './sections/BuildingData';
 import MakemetData from './sections/MakemetData';
 import TerrainData from './sections/TerrainData';
 import DiscreteReceptors from './sections/DiscreteReceptors';
-import OtherInputs from './sections/OtherInputs';
+import StudyConfiguration from './sections/OtherInputs';
 import Fumigation from './sections/Fumigation';
 import Debug from './sections/Debug';
 import Results from './sections/Results';
@@ -47,7 +47,7 @@ const AerscreenRoutes = () => (
     <Route path="/makemet-data" element={<MakemetData />} />
     <Route path="/terrain-data" element={<TerrainData />} />
     <Route path="/discrete-receptors" element={<DiscreteReceptors />} />
-    <Route path="/other-inputs" element={<OtherInputs />} />
+    <Route path="/other-inputs" element={<StudyConfiguration />} />
     <Route path="/fumigation" element={<Fumigation />} />
     <Route path="/debug" element={<Debug />} />
     <Route path="/results" element={<Results />} />

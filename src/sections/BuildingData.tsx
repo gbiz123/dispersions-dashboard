@@ -179,39 +179,32 @@ const BuildingData: React.FC = () => {
     { value: DistanceUnit.FEET, label: 'Feet (ft)' }
   ];
 
+  let showMoreInfo = true;
   return (
     <SectionContainer
-      title="Building Data"
+      title="Building Downwash"
       onSubmit={handleSubmit}
       nextSection="/makemet-data"
       nextSectionLabel="Makemet Data"
       previousSection="/stack-data"
     >
-      <InfoSection content="Info section: Configure building parameters for downwash analysis. Building downwash can significantly affect pollutant dispersion near structures." />
+      <InfoSection content="Configure building parameters for downwash analysis. Building downwash can significantly affect pollutant dispersion near structures." />
       
-      {/* Single container with better spacing */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
-        {/* Checkbox with better tooltip positioning */}
         <div className="flex items-center mb-6">
-          <Tooltip content="Dummy tooltip: Enable if your source is near a building">
+          <Tooltip content="Check this box to process building downwash effects">
             <label className="inline-flex items-center cursor-pointer">
               <input
                 disabled={false}
                 type="checkbox"
-                name="has_building"
+                name="use_building_downwash"
                 checked={buildingData.use_building_downwash}
                 onChange={handleChange}
                 className="checkbox checkbox-primary h-5 w-5"
               />
-              <span className="ml-3 text-base font-medium">Building Downwash Considered</span>
+              <span className="ml-3 text-base font-medium">Use Building Downwash</span>
             </label>
           </Tooltip>
-          <div className="ml-2 group relative">
-            <InformationCircleIcon className="h-5 w-5 text-gray-400 hover:text-blue-500 cursor-help" />
-            <div className="opacity-0 group-hover:opacity-100 absolute z-10 w-64 p-3 text-sm bg-gray-800 text-white rounded shadow-lg -translate-x-1/2 left-1/2 bottom-full mb-2">
-              Enable this option if your source is near a building and downwash effects should be considered.
-            </div>
-          </div>
         </div>
         
         {buildingData.use_building_downwash && (
@@ -259,7 +252,7 @@ const BuildingData: React.FC = () => {
                   <input
                     ref={fileInputRef}
                     type="file"
-                    accept=".dat,.prm,.txt"
+                    accept=".dat,.prm,.txt,.out"
                     onChange={handleFileChange}
                     className="file-input file-input-bordered file-input-primary w-full max-w-md"
                   />
@@ -283,64 +276,117 @@ const BuildingData: React.FC = () => {
                   <h3 className="font-medium text-gray-700 mb-4">Building Dimensions</h3>
                   
                   {/* Flattened grid layout with better spacing */}
-                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-x-8 gap-y-6">
-                    {/* Height section */}
-                    <div>
-                      <h4 className="font-medium text-gray-600 mb-3">Building Height</h4>
-                      <div className="grid grid-cols-2 gap-4">
-                        <FormField
-                          label="Value"
-                          name="height"
-                          type="number"
-                          value={buildingData.height || 0}
-                          onChange={handleChange}
-                          onBlur={handleBlur}
-                          error={touched.height ? errors.height : undefined}
-                          min={0.1}
-                          step={0.1}
-                          required
-                          tooltip="Enter the height of the building"
-                        />
-                      </div>
-                    </div>
-                    
-                    {/* Max Width section */}
-                    <div>
-                      <h4 className="font-medium text-gray-600 mb-3">Maximum Building Width</h4>
-                      <div className="grid grid-cols-2 gap-4">
-                        <FormField
-                          label="Value"
-                          name="bldg_width_max"
-                          type="number"
-                          value={buildingData.max_horizontal_dim || 0}
-                          onChange={handleChange}
-                          onBlur={handleBlur}
-                          error={touched.max_horizontal_dim ? errors.max_horizontal_dim : undefined}
-                          min={0.1}
-                          step={0.1}
-                          required
-                        />
-                      </div>
-                    </div>
-                    
-                    {/* Min Width section */}
-                    <div>
-                      <h4 className="font-medium text-gray-600 mb-3">Minimum Building Width</h4>
-                      <div className="grid grid-cols-2 gap-4">
-                        <FormField
-                          label="Value"
-                          name="bldg_width_min"
-                          type="number"
-                          value={buildingData.min_horizontal_dim || 0}
-                          onChange={handleChange}
-                          onBlur={handleBlur}
-                          error={touched.min_horizontal_dim ? errors.min_horizontal_dim : undefined}
-                          min={0.1}
-                          step={0.1}
-                          required
-                        />
-                      </div>
-                    </div>
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-8 gap-y-6">
+					<FormField
+					  label="Height"
+					  name="height"
+					  type="number"
+					  value={buildingData.height}
+					  onChange={handleChange}
+					  required
+					  min={0.1}
+					  step={0.1}
+					  tooltip="Enter the height of the building in feet or meters"
+					/>
+					<FormField
+					  label="Height Unit"
+					  name="height_units"
+					  type="select"
+					  value={buildingData.height_units}
+					  onChange={handleChange}
+					  options={distanceUnits}
+					  required
+					  tooltip="Select the unit for building height"
+					/>
+					<FormField
+					  label="Maximum Horizontal Dimension"
+					  name="max_horizontal_dim"
+					  type="number"
+					  value={buildingData.max_horizontal_dim}
+					  onChange={handleChange}
+					  required
+					  min={0.1}
+					  step={0.1}
+					  tooltip="Enter the maximum horizontal dimension of the building in feet or meters"
+					/>
+					<FormField
+					  label="Maximum Horizontal Dimension Units"
+					  name="max_horizontal_dim_units"
+					  type="select"
+					  value={buildingData.max_horizontal_dim_units}
+					  onChange={handleChange}
+					  options={distanceUnits}
+					  required
+					  tooltip="Select the unit for maximum horizontal dimension"
+					/>
+					<FormField
+					  label="Minimum Horizontal Dimension"
+					  name="min_horizontal_dim"
+					  type="number"
+					  value={buildingData.min_horizontal_dim}
+					  onChange={handleChange}
+					  required
+					  min={0.1}
+					  step={0.1}
+					  tooltip="Enter the minimum horizontal dimension of the building in feet or meters"
+					/>
+					<FormField
+					  label="Minimum Horizontal Dimension Units"
+					  name="min_horizontal_dim_units"
+					  type="select"
+					  value={buildingData.min_horizontal_dim_units}
+					  onChange={handleChange}
+					  options={distanceUnits}
+					  required
+					  tooltip="Select the unit for minimum horizontal dimension"
+					/>
+					<FormField
+					  label="Building Angle (deg)"
+					  name="deg_from_north_of_max_hor_dim"
+					  type="number"
+					  value={buildingData.deg_from_north_of_max_hor_dim}
+					  onChange={handleChange}
+					  required
+					  min={0.0}
+					  max={179.0}
+					  step={0.1}
+					  tooltip="Enter the maximum building dimension's angle to true north (0-179 degrees)"
+					/>
+					<FormField
+					  label="Stack Direction (deg)"
+					  name="deg_from_north_of_stack_rel_to_center"
+					  type="number"
+					  value={buildingData.deg_from_north_of_stack_rel_to_center}
+					  onChange={handleChange}
+					  required
+					  min={0.0}
+					  max={360.0}
+					  step={0.1}
+					  tooltip="Enter the degrees from North of the stack location relative to the building center"
+					/>
+					<FormField
+					  label="Stack Distance"
+					  name="dist_stack_to_center"
+					  type="number"
+					  value={buildingData.dist_stack_to_center}
+					  onChange={handleChange}
+					  required
+					  min={0.0}
+					  max={360.0}
+					  step={0.1}
+					  tooltip="Enter the distance from the stack location to the building center in feet or meters"
+					/>
+					<FormField
+					  label="Stack Distance Units"
+					  name="dist_to_stack_center_units"
+					  type="select"
+					  value={buildingData.dist_to_stack_center_units}
+					  onChange={handleChange}
+					  options={distanceUnits}
+					  required
+					  tooltip="Select the unit for stack distance to building center"
+					/>
+
                   </div>
                 </div>
               </>

@@ -333,8 +333,13 @@ export interface AerscreenSourceData {
   source_type?: string;
   heat_release_rate?: number;  heat_loss_fraction?: number;
   release_height_agl?: number; initial_lateral_dimension?: number; initial_vertical_dimension?: number;
+  vertical_dimension_height_unit?: number;
+  lateral_dimension_height_unit?: number;
   length?: number; width?: number; vertical_dimension?: number;
+  length_unit?: string;
+  width_unit?: string;
   radius?: number; num_vertices?: number;
+  radius_unit?: string;
 }
 
 // Building Data
@@ -342,11 +347,15 @@ export interface AerscreenBuildingData {
   use_building_downwash: boolean;
   use_existing_bpipprm_file?: string | null
   height: number;
+  height_units?: number;
   max_horizontal_dim: number;
+  max_horizontal_dim_units?: number;
   min_horizontal_dim: number;
+  min_horizontal_dim_units?: number;
   deg_from_north_of_max_hor_dim: number,
   deg_from_north_of_stack_rel_to_center: number,
   dist_stack_to_center: number,
+  dist_to_stack_center_units?: number;
 }
 
 // Makemet Data

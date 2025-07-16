@@ -26,9 +26,8 @@ export const validateBuildingData = (data: AerscreenRequest['building_data']) =>
     data.height! > 0 &&
     data.max_horizontal_dim! > 0 &&
     data.min_horizontal_dim! > 0 &&
-    !!data.bldg_height_unit &&
-    !!data.bldg_width_max_unit &&
-    !!data.bldg_width_min_unit
+    !!data.max_horizontal_dim &&
+    !!data.min_horizontal_dim
   );
 };
 
@@ -37,23 +36,19 @@ export const validateMakemetData = (data: AerscreenRequest['makemet_data']) => {
   
   // Basic validation for required fields
   if (
-    !data.min_temp_unit ||
-    !data.max_temp_unit ||
-    !data.min_wspd_unit ||
-    !data.anem_height_unit ||
-    !data.surface_profile ||
-    !data.climate_type
+    !data.land_use_type ||
+    !data.climatology_type
   ) {
     return false;
   }
   
   // Temperature checks
-  if (data.min_temp > data.max_temp) {
+  if (data.min_temp_k > data.max_temp_k) {
     return false;
   }
   
   // Wind speed check
-  if (data.min_wspd < 0) {
+  if (data.min_wind_speed_m_s < 0) {
     return false;
   }
   
@@ -64,17 +59,6 @@ export const validateTerrainData = (data: AerscreenRequest['terrain_data']) => {
   if (!data) return false;
   
   if (!data.use_terrain) return true;
-  
-  if (!data.terrain_type || !data.elev_unit) {
-    return false;
-  }
-  
-  if (data.terrain_type === 'simple') {
-    return (
-      data.hill_height! > 0 &&
-      !!data.hill_height_unit
-    );
-  }
   
   return true;
 };
@@ -94,22 +78,13 @@ export const validateDiscreteReceptors = (data: AerscreenRequest['discrete_recep
   if (!data.receptors || data.receptors.length === 0) {
     return false;
   }
-  
-  // Validate each receptor
-  return data.receptors.every(receptor => 
-    receptor.x != null && 
-    receptor.y != null && 
-    !!receptor.x_unit && 
-    !!receptor.y_unit
-  );
 };
 
 export const validateOtherInputs = (data: AerscreenRequest['other_inputs']) => {
   if (!data) return false;
   
   return (
-    data.distance_to_amb_air > 0 &&
-    !!data.min_dist_ambient_unit
+    data.distance_to_amb_air > 0
   );
 };
 
@@ -117,8 +92,7 @@ export const validateFumigation = (data: AerscreenRequest['fumigation']) => {
   if (!data) return true; // Optional section
   
   return (
-    data.distance_to_shoreline > 0 &&
-    !!data.shore_dist_unit
+    data.distance_to_shoreline > 0
   );
 };
 
@@ -128,12 +102,6 @@ export const validateCompleteRequest = (data: Partial<AerscreenRequest>) => {
     validateBuildingData(data.building_data!) &&
     validateMakemetData(data.makemet_data!) &&
     validateTerrainData(data.terrain_data!) &&
-    // Check terrain input files only if has_terrain is true
-    (!data.terrain_data?.use_terrain || validateTerrainInputFiles(data.terrain_input_files)) &&
-    // Check discrete receptors only if use_discrete_receptors is true
-    (!data.terrain_data?.use_discrete_receptors || validateDiscreteReceptors(data.discrete_receptors)) &&
-    validateOtherInputs(data.other_inputs!) &&
-    // Check fumigation only if is_fumigation is true
-    (!data.other_inputs?.is_fumigation || validateFumigation(data.fumigation))
+    (!data.terrain_data?.use_terrain || validateTerrainInputFiles(data.terrain_input_files)) 
   );
 };

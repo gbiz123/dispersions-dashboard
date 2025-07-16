@@ -7,6 +7,7 @@ import { useAerscreen } from '../context/AerscreenContext';
 import { AerscreenSourceData as StackDataType } from '../types/api';
 import { DistanceUnit, VelocityUnit, FlowRateUnit, TemperatureUnit, EmissionRateUnit } from '../types/enums';
 import LoadingOverlay from '../components/LoadingOverlay';
+import InfoSection from 'components/InfoSection';
 
 enum SourceType {
   POINT = 'point',
@@ -219,6 +220,11 @@ const StackData: React.FC = () => {
     { value: EmissionRateUnit.POUNDS_PER_HOUR, label: 'Pounds per hour (lb/hr)' }
   ];
 
+  const stackDiamUnits = [
+    { value: DistanceUnit.METERS, label: 'Meters (m)' },
+    { value: DistanceUnit.INCHES, label: 'Inches (in)' }
+  ];
+
   const distanceUnits = [
     { value: DistanceUnit.METERS, label: 'Meters (m)' },
     { value: DistanceUnit.FEET, label: 'Feet (ft)' }
@@ -226,18 +232,13 @@ const StackData: React.FC = () => {
 
   const temperatureUnits = [
     { value: TemperatureUnit.KELVIN, label: 'Kelvin (K)' },
-    { value: TemperatureUnit.CELSIUS, label: 'Celsius (°C)' },
     { value: TemperatureUnit.FAHRENHEIT, label: 'Fahrenheit (°F)' }
   ];
 
   const velocityUnits = [
     { value: VelocityUnit.METERS_PER_SECOND, label: 'Meters per second (m/s)' },
-    { value: VelocityUnit.FEET_PER_MINUTE, label: 'Feet per minute (ft/min)' }
-  ];
-
-  const flowRateUnits = [
-    { value: FlowRateUnit.CUBIC_METERS_PER_SECOND, label: 'Cubic meters per second (m³/s)' },
-    { value: FlowRateUnit.CUBIC_FEET_PER_MINUTE, label: 'Cubic feet per minute (ft³/min)' }
+    { value: VelocityUnit.FEET_PER_SECOND, label: 'Feet per second (ft/s)' },
+    { value: FlowRateUnit.CUBIC_FEET_PER_MINUTE, label: 'Cubic feet per minute (AFCM)' }
   ];
 
   const isPointLike = (t: SourceType) =>
@@ -249,11 +250,13 @@ const StackData: React.FC = () => {
 
   return (
     <SectionContainer
-      title="Stack Data"
+      title="Emission Source"
       onSubmit={handleSubmit}
       nextSection="/building-data"
       nextSectionLabel="Building Data"
     >
+      <InfoSection content="Configure a single point, flare, capped stack, horizontal stack, volume, rectangular area, or circular area source." />
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <FormField
           label="Source Type"
@@ -263,7 +266,7 @@ const StackData: React.FC = () => {
           onChange={handleChange}
           options={sourceTypeOptions}
           required
-          tooltip="Dummy tooltip: Select the type of emission source you are modeling"
+          tooltip="Select the type of emission source you are modeling"
         />
         <div className="md:col-span-1"></div>
         
@@ -275,8 +278,9 @@ const StackData: React.FC = () => {
               type="number"
               value={stackData.rate}
               onChange={handleChange}
+			  min={0}
               required
-              tooltip="Dummy tooltip: Enter the emission rate of the pollutant"
+              tooltip="Enter the emission rate of the pollutant in g/s or lb/hr"
             />
             <FormField
               label="Emission Rate Unit"
@@ -286,7 +290,7 @@ const StackData: React.FC = () => {
               onChange={handleChange}
               options={emissionRateUnits}
               required
-              tooltip="Dummy tooltip: Select the unit for emission rate"
+              tooltip="Select the unit for emission rate"
             />
             <FormField
               label="Stack Height"
@@ -294,8 +298,9 @@ const StackData: React.FC = () => {
               type="number"
               value={stackData.height}
               onChange={handleChange}
+			  min={0}
               required
-              tooltip="Dummy tooltip: Enter the height of the stack above ground level"
+              tooltip="Enter the height of the stack opening above ground level in feet or meters"
             />
             <FormField
               label="Stack Height Unit"
@@ -305,7 +310,7 @@ const StackData: React.FC = () => {
               onChange={handleChange}
               options={distanceUnits}
               required
-              tooltip="Dummy tooltip: Select the unit for stack height"
+              tooltip="Select the unit for stack height"
             />
             <FormField
               label="Stack Diameter"
@@ -313,8 +318,9 @@ const StackData: React.FC = () => {
               type="number"
               value={stackData.diam}
               onChange={handleChange}
+			  min={0}
               required
-              tooltip="Dummy tooltip: Enter the internal diameter of the stack"
+              tooltip="Enter the internal exit diameter of the stack in inches or meters"
             />
             <FormField
               label="Stack Diameter Unit"
@@ -322,9 +328,9 @@ const StackData: React.FC = () => {
               type="select"
               value={stackData.diam_unit}
               onChange={handleChange}
-              options={distanceUnits}
+              options={stackDiamUnits}
               required
-              tooltip="Dummy tooltip: Select the unit for stack diameter"
+              tooltip="Select the unit for stack diameter"
             />
             <FormField
               label="Stack Gas Exit Temperature"
@@ -333,7 +339,7 @@ const StackData: React.FC = () => {
               value={stackData.temp_k}
               onChange={handleChange}
               required
-              tooltip="Dummy tooltip: Enter the temperature of the gas exiting the stack"
+              tooltip="Enter the temperature of the gas exiting the stack in F or K. Negatives are relative to ambient temperature."
             />
             <FormField
               label="Temperature Unit"
@@ -343,45 +349,26 @@ const StackData: React.FC = () => {
               onChange={handleChange}
               options={temperatureUnits}
               required
-              tooltip="Dummy tooltip: Select the unit for temperature"
+              tooltip="Select the unit for temperature"
             />
             <FormField
-              label="Stack Gas Exit Velocity"
+              label="Stack Gas Exit Rate"
               name="vel"
               type="number"
               value={stackData.vel}
               onChange={handleChange}
               required
-              tooltip="Dummy tooltip: Enter the velocity of gas exiting the stack"
+              tooltip="Enter the velocity of gas exiting the stack in ft/s or m/s"
             />
             <FormField
-              label="Velocity Unit"
+              label="Rate Unit"
               name="vel_unit"
               type="select"
               value={stackData.vel_unit}
               onChange={handleChange}
               options={velocityUnits}
               required
-              tooltip="Dummy tooltip: Select the unit for velocity"
-            />
-            <FormField
-              label="Stack Gas Exit Flow Rate"
-              name="flow_rate"
-              type="number"
-              value={stackData.flow_rate}
-              onChange={handleChange}
-              required
-              tooltip="Dummy tooltip: Enter the volumetric flow rate of gas"
-            />
-            <FormField
-              label="Flow Rate Unit"
-              name="flow_rate_unit"
-              type="select"
-              value={stackData.flow_rate_unit}
-              onChange={handleChange}
-              options={flowRateUnits}
-              required
-              tooltip="Dummy tooltip: Select the unit for flow rate"
+              tooltip="Select the unit for velocity"
             />
           </Fragment>
         )}
@@ -394,26 +381,51 @@ const StackData: React.FC = () => {
               type="number"
               value={stackData.rate}
               onChange={handleChange}
+			  min={0}
               required
+              tooltip="Enter the emission rate of the pollutant in g/s or lb/hr"
             />
             <FormField
-              label="Height"
+              label="Emission Rate Unit"
+              name="rate_unit"
+              type="select"
+              value={stackData.rate_unit}
+              onChange={handleChange}
+              options={emissionRateUnits}
+              required
+              tooltip="Select the unit for emission rate"
+            />
+            <FormField
+              label="Stack Height"
               name="height"
               type="number"
               value={stackData.height}
               onChange={handleChange}
+			  min={0}
               required
+              tooltip="Enter the height of the stack opening above ground level in feet or meters"
             />
             <FormField
-              label="Heat release rate"
+              label="Stack Height Unit"
+              name="height_unit"
+              type="select"
+              value={stackData.height_unit}
+              onChange={handleChange}
+              options={distanceUnits}
+              required
+              tooltip="Select the unit for stack height"
+            />
+            <FormField
+              label="Heat Release Rate (cal/sec)"
               name="heat_release_rate"
               type="number"
               value={stackData.heat_release_rate ?? 0}
               onChange={handleChange}
               required
+			  tooltip="Enter the total heat release rate in cal/sec"
             />
             <FormField
-              label="Heat loss fraction (0–1)"
+              label="Heat Loss Fraction (0–1)"
               name="heat_loss_fraction"
               type="number"
               value={stackData.heat_loss_fraction ?? 0}
@@ -422,6 +434,7 @@ const StackData: React.FC = () => {
               max={1}
               step={0.01}
               required
+			  tooltip="Enter the total radiative heat loss fraction as a value from 0 to 1"
             />
           </Fragment>
         )}
@@ -434,31 +447,76 @@ const StackData: React.FC = () => {
               type="number"
               value={stackData.rate}
               onChange={handleChange}
+			  min={0}
               required
+              tooltip="Enter the emission rate of the pollutant in g/s or lb/hr"
             />
             <FormField
-              label="Release height AGL"
+              label="Emission Rate Unit"
+              name="rate_unit"
+              type="select"
+              value={stackData.rate_unit}
+              onChange={handleChange}
+              options={emissionRateUnits}
+              required
+              tooltip="Select the unit for emission rate"
+            />
+            <FormField
+              label="Release Height AGL"
               name="release_height_agl"
               type="number"
               value={stackData.release_height_agl}
               onChange={handleChange}
               required
+			  tooltip="Enter release height, i.e center of volumne, in feet or meters"
             />
             <FormField
-              label="Initial lateral dimension"
+              label="Release Height Unit"
+              name="height_unit"
+              type="select"
+              value={stackData.height_unit}
+              onChange={handleChange}
+              options={distanceUnits}
+              required
+              tooltip="Select the unit for release height"
+            />
+            <FormField
+              label="Initial Lateral Dimension"
               name="initial_lateral_dimension"
               type="number"
               value={stackData.initial_lateral_dimension}
               onChange={handleChange}
               required
+              tooltip="Enter the initial lateral dimension of the volume in feet or meters"
             />
             <FormField
-              label="Initial vertical dimension"
+              label="Lateral Dimension Unit"
+              name="lateral_dimension_height_unit"
+              type="select"
+              value={stackData.lateral_dimension_height_unit}
+              onChange={handleChange}
+              options={distanceUnits}
+              required
+              tooltip="Select the unit for initial lateral dimension"
+            />
+            <FormField
+              label="Initial Vertical Dimension"
               name="initial_vertical_dimension"
               type="number"
               value={stackData.initial_vertical_dimension}
               onChange={handleChange}
               required
+              tooltip="Enter the initial vertical dimension of the volume in feet or meters"
+            />
+            <FormField
+              label="Vertical Dimension Unit"
+              name="vertical_dimension_height_unit"
+              type="select"
+              value={stackData.vertical_dimension_height_unit}
+              onChange={handleChange}
+              options={distanceUnits}
+              required
+              tooltip="Select the unit for initial vertical dimension"
             />
           </Fragment>
         )}
@@ -471,15 +529,38 @@ const StackData: React.FC = () => {
               type="number"
               value={stackData.rate}
               onChange={handleChange}
+			  min={0}
               required
+              tooltip="Enter the emission rate of the pollutant in g/s or lb/hr"
             />
             <FormField
-              label="Release height AGL"
+              label="Emission Rate Unit"
+              name="rate_unit"
+              type="select"
+              value={stackData.rate_unit}
+              onChange={handleChange}
+              options={emissionRateUnits}
+              required
+              tooltip="Select the unit for emission rate"
+            />
+            <FormField
+              label="Release Height AGL"
               name="release_height_agl"
               type="number"
               value={stackData.release_height_agl}
               onChange={handleChange}
               required
+			  tooltip="Enter release height, i.e center of volumne, in feet or meters"
+            />
+            <FormField
+              label="Release Height Unit"
+              name="height_unit"
+              type="select"
+              value={stackData.height_unit}
+              onChange={handleChange}
+              options={distanceUnits}
+              required
+              tooltip="Select the unit for release height"
             />
             <FormField
               label="Length"
@@ -488,6 +569,17 @@ const StackData: React.FC = () => {
               value={stackData.length}
               onChange={handleChange}
               required
+              tooltip="Enter the length of the area source"
+            />
+            <FormField
+              label="Length Unit"
+              name="length_unit"
+              type="select"
+              value={stackData.length_unit}
+              onChange={handleChange}
+              options={distanceUnits}
+              required
+              tooltip="Select the unit for area length"
             />
             <FormField
               label="Width"
@@ -496,14 +588,36 @@ const StackData: React.FC = () => {
               value={stackData.width}
               onChange={handleChange}
               required
+              tooltip="Enter the width of the area source"
             />
             <FormField
-              label="Vertical dimension"
+              label="Width Unit"
+              name="width_unit"
+              type="select"
+              value={stackData.width_unit}
+              onChange={handleChange}
+              options={distanceUnits}
+              required
+              tooltip="Select the unit for area width"
+            />
+            <FormField
+              label="Vertical Dimension"
               name="vertical_dimension"
               type="number"
               value={stackData.vertical_dimension}
               onChange={handleChange}
               required
+              tooltip="Enter the initial initial vertical dimension of the plume"
+            />
+            <FormField
+              label="Width Unit"
+              name="width_unit"
+              type="select"
+              value={stackData.width_unit}
+              onChange={handleChange}
+              options={distanceUnits}
+              required
+              tooltip="Select the unit for initial vertical dimension"
             />
           </Fragment>
         )}
@@ -516,15 +630,57 @@ const StackData: React.FC = () => {
               type="number"
               value={stackData.rate}
               onChange={handleChange}
+			  min={0}
               required
+              tooltip="Enter the emission rate of the pollutant in g/s or lb/hr"
             />
             <FormField
-              label="Release height AGL"
+              label="Emission Rate Unit"
+              name="rate_unit"
+              type="select"
+              value={stackData.rate_unit}
+              onChange={handleChange}
+              options={emissionRateUnits}
+              required
+              tooltip="Select the unit for emission rate"
+            />
+            <FormField
+              label="Release Height AGL"
               name="release_height_agl"
               type="number"
               value={stackData.release_height_agl}
               onChange={handleChange}
               required
+			  tooltip="Enter release height, i.e center of volumne, in feet or meters"
+            />
+            <FormField
+              label="Release Height Unit"
+              name="height_unit"
+              type="select"
+              value={stackData.height_unit}
+              onChange={handleChange}
+              options={distanceUnits}
+              required
+              tooltip="Select the unit for release height"
+            />
+            <FormField
+              label="Vertical Dimension"
+              name="vertical_dimension"
+              type="number"
+              value={stackData.vertical_dimension}
+              onChange={handleChange}
+              required
+              tooltip="Enter the initial initial vertical dimension of the plume"
+            />
+            <FormField
+              label="Width Unit"
+              name="width_unit"
+              type="select"
+              value={stackData.width_unit}
+              onChange={handleChange}
+              options={distanceUnits}
+              required
+              tooltip="Select the unit for initial vertical dimension"
             />
             <FormField
               label="Radius"
@@ -533,6 +689,17 @@ const StackData: React.FC = () => {
               value={stackData.radius}
               onChange={handleChange}
               required
+              tooltip="Enter the radius of the circle"
+            />
+            <FormField
+              label="Radius Unit"
+              name="radius_unit"
+              type="select"
+              value={stackData.radius_unit}
+              onChange={handleChange}
+              options={distanceUnits}
+              required
+              tooltip="Select the unit for radius"
             />
             <FormField
               label="Number of vertices"
@@ -541,14 +708,7 @@ const StackData: React.FC = () => {
               value={stackData.num_vertices}
               onChange={handleChange}
               required
-            />
-            <FormField
-              label="Vertical dimension"
-              name="vertical_dimension"
-              type="number"
-              value={stackData.vertical_dimension}
-              onChange={handleChange}
-              required
+              tooltip="Increase the number of vertices to make the shape smoother, but increase processing time"
             />
           </Fragment>
         )}

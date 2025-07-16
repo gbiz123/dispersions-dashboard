@@ -4,7 +4,7 @@ import FormField from '../components/forms/FormField';
 import SectionContainer from '../components/SectionContainer';
 import { useRunContext } from '../context/RunContext';
 import { AerscreenTerrainData as TerrainDataType, TerrainInputFiles } from '../types/api';
-import { DistanceUnit, TerrainType, NADDatum, TerrainFileType, TerrainSource } from '../types/enums';
+import { DistanceUnit, TerrainType, NADDatum, TerrainFileType, TerrainSource, DemFileType, DemFileUnits } from '../types/enums';
 import { UnitSystem } from '../types/api';
 
 const TerrainData: React.FC = () => {
@@ -13,12 +13,15 @@ const TerrainData: React.FC = () => {
   
   // Default values
   const defaultTerrainData: TerrainDataType = {
+	override_elevation_with_aermap_val: false,
+	elevation: 0,
+	dem_file_type: DemFileType.DEM_1_METER,
+	dem_file_units: DemFileUnits.METERS,
+    probe_distance_m: 0,
+	utm_x: 0,
+	utm_y: 0,
+	nad_datum: "NAD83",
     use_terrain: false,
-    use_discrete_receptors: false,
-    terrain_type: TerrainType.FLAT,
-    elev_unit: DistanceUnit.METERS,
-    hill_height: 0,
-    hill_height_unit: DistanceUnit.METERS,
     utm_zone: 0
   };
   
@@ -169,9 +172,9 @@ const TerrainData: React.FC = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <FormField
                 label="Terrain Type"
-                name="terrain_type"
+                name="dem_file_type"
                 type="select"
-                value={terrainData.terrain_type || ''}
+                value={terrainData.dem_file_type || ''}
                 onChange={handleTerrainChange}
                 options={terrainTypeOptions}
                 required
@@ -179,36 +182,13 @@ const TerrainData: React.FC = () => {
               
               <FormField
                 label="Elevation Unit"
-                name="elev_unit"
+                name="dem_file_units"
                 type="select"
-                value={terrainData.elev_unit || ''}
+                value={terrainData.dem_file_units || ''}
                 onChange={handleTerrainChange}
                 options={distanceUnits}
                 required
               />
-              
-              {terrainData.terrain_type === TerrainType.SIMPLE && (
-                <>
-                  <FormField
-                    label="Hill Height"
-                    name="hill_height"
-                    type="number"
-                    value={terrainData.hill_height || 0}
-                    onChange={handleTerrainChange}
-                    required
-                  />
-                  
-                  <FormField
-                    label="Hill Height Unit"
-                    name="hill_height_unit"
-                    type="select"
-                    value={terrainData.hill_height_unit || ''}
-                    onChange={handleTerrainChange}
-                    options={distanceUnits}
-                    required
-                  />
-                </>
-              )}
 
               <FormField
                 label="UTM Zone"

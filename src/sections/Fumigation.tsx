@@ -10,13 +10,10 @@ const Fumigation: React.FC = () => {
   const { formData, updateFormData } = useRunContext();
   const navigate = useNavigate();
   
-  // Default values
   const defaultFumigation: FumigationType = {
     distance_to_shoreline: 0,
-    shore_dist_unit: DistanceUnit.METERS,
     shoreline_fumigation: false,
-    inversion_break_up: false
-    // ⬆ add more defaults when additional fields are known
+    inversion_break_up: false,
   };
   
   // Initialize state with existing data or defaults
@@ -76,12 +73,11 @@ const Fumigation: React.FC = () => {
           required
         />
         <FormField
-          label="Distance Unit"
-          name="shore_dist_unit"
-          type="select"
-          value={fumigation.shore_dist_unit}
+          label="Direction to shoreline (deg)"
+          name="direction_to_shoreline_deg"
+          type="number"
+          value={fumigation.direction_to_shoreline_deg}
           onChange={handleChange}
-          options={distanceUnits}
           required
         />
 

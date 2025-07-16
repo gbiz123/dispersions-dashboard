@@ -14,6 +14,7 @@ import {
 } from '../types/api';
 import { API_CONFIG } from '../config';
 import { useModule } from '../context/ModuleContext'; // Add this import
+import InfoSection from 'components/InfoSection';
 
 // Add interface for AERSURFACE run
 interface AersurfaceRun {
@@ -44,17 +45,12 @@ const MakemetData: React.FC = () => {
   
   // Default values
   const defaultMakemetData: MakemetDataType = {
-    min_temp: 0,
-    min_temp_unit: TemperatureUnit.KELVIN,
-    max_temp: 0,
-    max_temp_unit: TemperatureUnit.KELVIN,
-    min_wspd: 0,
-    min_wspd_unit: VelocityUnit.METERS_PER_SECOND,
-    anem_height: 10,
-    anem_height_unit: DistanceUnit.METERS,
-    surface_profile: SurfaceProfile.RURAL,
-    climate_type: ClimateType.AVERAGE,
-    land_use_type: LandUseType.RURAL,
+    min_temp_k: 0,
+    max_temp_k: 0,
+    min_wind_speed_m_s: 0,
+    anemometer_height_m: 10,
+    climatology_type: ClimateType.NONE,
+    land_use_type: LandUseType.SWAMP,
     albedo: 0,
     bowen_ratio: 0,
     surface_roughness: 0,
@@ -68,7 +64,7 @@ const MakemetData: React.FC = () => {
 
   // Fetch AERSURFACE runs when dropdown changes
   useEffect(() => {
-    if (makemetData.land_use_type !== LandUseType.USE_AERSURFACE) {
+    if (makemetData.land_use_type !== LandUseType.USE_PREVIOUS_AERSURFACE_RUN) {
       setShowAersurfaceList(false);
       setSelectedAersurfaceRun(null);
       return;
@@ -79,7 +75,7 @@ const MakemetData: React.FC = () => {
     setRunsError(null);
 
     const url = getAersurfaceListUrl();
-    console.log('→ fetching AERSURFACE runs from', url);            // <-- keep for dev
+    console.log('→ fetching AERSURFACE runs from', url);
 
     fetch(url)
       .then(r => {
@@ -115,7 +111,7 @@ const MakemetData: React.FC = () => {
     const dataToSubmit: any = { ...makemetData };
     
     
-    if (makemetData.land_use_type === LandUseType.USE_AERSURFACE && selectedAersurfaceRun) {
+    if (makemetData.land_use_type === LandUseType.USE_PREVIOUS_AERSURFACE_RUN && selectedAersurfaceRun) {
       dataToSubmit.aersurface_run_id = selectedAersurfaceRun;
     }
     
@@ -156,18 +152,25 @@ const MakemetData: React.FC = () => {
 
   // Climate type options
   const climateTypeOptions = [
-    { value: ClimateType.AVERAGE, label: 'Average' },
-    { value: ClimateType.ARID, label: 'Arid' },
-    { value: ClimateType.MOIST, label: 'Moist' }
+    { value: ClimateType.AVERAGE_MOISTURE, label: 'Average moisture' },
+    { value: ClimateType.DRY_CONDITIONS, label: 'Dry conditions' },
+    { value: ClimateType.WET_CONDITIONS, label: 'Wet conditions' },
+    { value: ClimateType.NONE, label: 'None' }
   ];
 
   // Land use type options
   const landUseTypeOptions = [
     { value: LandUseType.USER_ENTERED_SURFACE_CHARACTERISTICS, label: 'User-entered surface characteristics' },
     { value: LandUseType.USE_EXTERNAL_FILE_OF_SURFACE_CHARACTERISTICS, label: 'External surface characteristics file' },
-    { value: LandUseType.RURAL, label: 'Rural default' },
-    { value: LandUseType.URBAN, label: 'Urban default' },
-    { value: LandUseType.USE_AERSURFACE, label: 'Use previous AERSURFACE run' }
+    { value: LandUseType.WATER, label: 'Water' },
+    { value: LandUseType.DECIDUOUS_FOREST, label: 'Deciduous Forest' },
+    { value: LandUseType.CONIFEROUS_FOREST, label: 'Coniferous Forest' },
+    { value: LandUseType.SWAMP, label: 'Swamp' },
+    { value: LandUseType.CULTIVATED_LAND, label: 'Cultivated Land' },
+    { value: LandUseType.GRASSLAND, label: 'Grassland' },
+    { value: LandUseType.URBAN, label: 'Urban' },
+    { value: LandUseType.DESERT_SHRUB_LAND, label: 'Desert Shrub Land' },
+    { value: LandUseType.USE_PREVIOUS_AERSURFACE_RUN, label: 'Use Previous AERSURFACE run' },
   ];
 
   // Visibility helpers -------------------------------------------------------
@@ -181,11 +184,13 @@ const MakemetData: React.FC = () => {
 
   return (
     <SectionContainer
-      title="🌡️ Makemet Data"
+      title="Meteorology"
       onSubmit={handleSubmit}
       nextSection="/terrain-data"          // ← correct route
       previousSection="/building-data"     // ← previous AERSCREEN section
     >
+      <InfoSection content="Configure meteorological and surface data for inputs into the MAKEMET meteorology preprocessor." />
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Land Use Type with AERSURFACE option */}
         <div className="relative">
@@ -254,127 +259,65 @@ const MakemetData: React.FC = () => {
         {showFullFields && (
           <>
             <FormField
-              label="Minimum Ambient Temperature"
-              name="min_temp"
+              label="Minimum Ambient Temperature (K)"
+              name="min_temp_k"
               type="number"
-              value={makemetData.min_temp}
+              value={makemetData.min_temp_k}
               onChange={handleChange}
-              required
-            />
-            <FormField
-              label="Minimum Temperature Unit"
-              name="min_temp_unit"
-              type="select"
-              value={makemetData.min_temp_unit}
-              onChange={handleChange}
-              options={temperatureUnits}
               required
             />
 
             <FormField
-              label="Maximum Ambient Temperature"
-              name="max_temp"
+              label="Maximum Ambient Temperature (K)"
+              name="max_temp_k"
               type="number"
-              value={makemetData.max_temp}
+              value={makemetData.max_temp_k}
               onChange={handleChange}
-              required
-            />
-            <FormField
-              label="Maximum Temperature Unit"
-              name="max_temp_unit"
-              type="select"
-              value={makemetData.max_temp_unit}
-              onChange={handleChange}
-              options={temperatureUnits}
               required
             />
 
             <FormField
-              label="Minimum Wind Speed"
-              name="min_wspd"
+              label="Minimum Wind Speed (m/s)"
+              name="min_wind_speed_m_s"
               type="number"
-              value={makemetData.min_wspd}
+              value={makemetData.min_wind_speed_m_s}
               onChange={handleChange}
-              required
-            />
-            <FormField
-              label="Minimum Wind Speed Unit"
-              name="min_wspd_unit"
-              type="select"
-              value={makemetData.min_wspd_unit}
-              onChange={handleChange}
-              options={velocityUnits}
               required
             />
 
             <FormField
-              label="Anemometer Height"
-              name="anem_height"
+              label="Anemometer Height (m)"
+              name="anemometer_height_m"
               type="number"
-              value={makemetData.anem_height}
+              value={makemetData.anemometer_height_m}
               onChange={handleChange}
-              required
-            />
-            <FormField
-              label="Anemometer Height Unit"
-              name="anem_height_unit"
-              type="select"
-              value={makemetData.anem_height_unit}
-              onChange={handleChange}
-              options={distanceUnits}
               required
             />
 
             <FormField
-              label="Dominant Surface Profile"
-              name="surface_profile"
+              label="Land Use Type"
+              name="land_use_type"
               type="select"
-              value={makemetData.surface_profile}
+              value={makemetData.land_use_type}
               onChange={handleChange}
-              options={surfaceProfileOptions}
+              options={landUseTypeOptions}
               required
             />
 
             <FormField
-              label="Dominant Climate Type"
-              name="climate_type"
+              label="Climatology Type"
+              name="climatology_type"
               type="select"
-              value={makemetData.climate_type}
+              value={makemetData.climatology_type}
               onChange={handleChange}
               options={climateTypeOptions}
               required
-            />
-
-            {/* Advanced characteristics */}
-            <FormField
-              label="Albedo"
-              name="albedo"
-              type="number"
-              step={0.01}
-              value={makemetData.albedo}
-              onChange={handleChange}
-            />
-            <FormField
-              label="Bowen Ratio"
-              name="bowen_ratio"
-              type="number"
-              step={0.01}
-              value={makemetData.bowen_ratio}
-              onChange={handleChange}
-            />
-            <FormField
-              label="Roughness Length"
-              name="roughness_length"
-              type="number"
-              step={0.01}
-              value={makemetData.surface_roughness}
-              onChange={handleChange}
             />
           </>
         )}
 
         {/* Show other fields only if not using AERSURFACE */}
-        {makemetData.land_use_type !== LandUseType.USE_AERSURFACE && 
+        {makemetData.land_use_type !== LandUseType.USE_PREVIOUS_AERSURFACE_RUN && 
          makemetData.land_use_type !== LandUseType.USE_EXTERNAL_FILE_OF_SURFACE_CHARACTERISTICS && (
           <>
             <FormField

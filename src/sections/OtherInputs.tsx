@@ -5,23 +5,21 @@ import SectionContainer from '../components/SectionContainer';
 import InfoSection from '../components/InfoSection';
 import { useRunContext } from '../context/RunContext';
 import { AerscreenOtherInputs as OtherInputsType } from '../types/api';
-import { DistanceUnit, RuralUrban } from '../types/enums';
+import { AerscreenOtherInputsUnits, AerscreenRuralOrUrban, DistanceUnit, RuralUrban } from '../types/enums';
 
 const OtherInputs: React.FC = () => {
   const { formData, updateFormData } = useRunContext();
   const navigate = useNavigate();
   
-  // Default values
   const defaultOtherInputs: OtherInputsType = {
+	use_flagpole_receptors: false,
+	flagpole_height_m: 0,
+	units: AerscreenOtherInputsUnits.METRIC,
+	rural_or_urban: AerscreenRuralOrUrban.RURAL,
     distance_to_amb_air: 1,
-    min_dist_ambient_unit: DistanceUnit.METERS,
-    urban_population: 0,
-    is_fumigation: false,
-    // cast to ensure both sides use the same enum type
-    rural_urban: RuralUrban.RURAL as RuralUrban
+    population: 0,
   };
   
-  // Initialize state with existing data or defaults
   const [otherInputs, setOtherInputs] = useState<OtherInputsType>(
     formData.other_inputs || defaultOtherInputs
   );
@@ -66,8 +64,8 @@ const OtherInputs: React.FC = () => {
     <SectionContainer
       title="Other Inputs"
       onSubmit={handleSubmit}
-      nextSection={otherInputs.is_fumigation ? '/fumigation' : '/debug'}
-      nextSectionLabel={otherInputs.is_fumigation ? 'Fumigation' : 'Debug'}
+      nextSection="/fumigation"
+      nextSectionLabel="Fumigation"
       previousSection="/discrete-receptors"
     >
       <InfoSection content="Info section: Configure additional modeling parameters including urban/rural classification and minimum distances for regulatory compliance." />
@@ -78,7 +76,7 @@ const OtherInputs: React.FC = () => {
             label="Rural or Urban?"
             name="rural_urban"
             type="select"
-            value={otherInputs.rural_urban}
+            value={otherInputs.rural_or_urban}
             onChange={handleChange}
             options={ruralUrbanOptions}
             required
@@ -97,7 +95,7 @@ const OtherInputs: React.FC = () => {
             label="Distance Unit"
             name="min_dist_ambient_unit"
             type="select"
-            value={otherInputs.min_dist_ambient_unit}
+            value={otherInputs.distance_to_amb_air}
             onChange={handleChange}
             options={distanceUnits}
             required
@@ -108,7 +106,7 @@ const OtherInputs: React.FC = () => {
             label="Urban Population"
             name="urban_population"
             type="number"
-            value={otherInputs.urban_population || 0}
+            value={otherInputs.population || 0}
             onChange={handleChange}
             tooltip="Dummy tooltip: Enter the urban population if applicable"
           />

@@ -29,10 +29,10 @@ const aerscreenGroups = [
   {
     title: 'Input Parameters',
     items: [
-      { path: '/stack-data',      label: 'Stack Data',            icon: <FireIcon               className="h-5 w-5" /> },
-      { path: '/building-data',   label: 'Building Data',         icon: <BuildingOffice2Icon    className="h-5 w-5" /> },
-      { path: '/makemet-data',    label: 'Makemet Data',          icon: <CloudIcon              className="h-5 w-5" /> },
-      { path: '/terrain-data',    label: 'Terrain Data',          icon: <ChartBarIcon           className="h-5 w-5" /> },
+      { path: '/stack-data',      label: 'Source',            icon: <FireIcon               className="h-5 w-5" /> },
+      { path: '/building-data',   label: 'Building',         icon: <BuildingOffice2Icon    className="h-5 w-5" /> },
+      { path: '/makemet-data',    label: 'Meteorology',          icon: <CloudIcon              className="h-5 w-5" /> },
+      { path: '/terrain-data',    label: 'Terrain',          icon: <ChartBarIcon           className="h-5 w-5" /> },
     ],
   },
   {
