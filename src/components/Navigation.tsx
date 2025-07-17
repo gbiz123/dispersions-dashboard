@@ -104,6 +104,15 @@ const aerModGroups = [
   },
 ];
 
+const dashboardGroups = [ 
+	{
+		title: "",
+		items: [
+
+		]
+	}
+];
+
 const Navigation: React.FC<NavigationProps> = ({ onCollapse }) => {
   const { isRunning } = useRunContext();
   const location = useLocation();
@@ -116,7 +125,8 @@ const Navigation: React.FC<NavigationProps> = ({ onCollapse }) => {
   const navigationGroups =
     module === 'AERSCREEN' ? aerscreenGroups :
     module === 'AERSURFACE' ? aersurfaceGroups :
-    aerModGroups
+    module === 'AERMOD' ? aerModGroups :
+    dashboardGroups
 
   // Notify parent component when collapse state changes
   const handleToggleCollapse = () => {
@@ -138,7 +148,7 @@ const Navigation: React.FC<NavigationProps> = ({ onCollapse }) => {
   }, [menuOpen]);
 
   /* choose module */
-  const chooseModule = (target: 'AERSCREEN' | 'AERSURFACE' | 'AERMOD') => {
+  const chooseModule = (target: 'AERSCREEN' | 'AERSURFACE' | 'AERMOD' | 'Dashboard') => {
     if (target !== module) {
       setModule(target);
       
@@ -160,25 +170,21 @@ const Navigation: React.FC<NavigationProps> = ({ onCollapse }) => {
     setMenuOpen(false);
   };
 
-  const handleDashboardClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    // Clear any module-specific state if needed
-    navigate('/');
-    setMenuOpen(false);
-  };
-
   return (
-    <nav className={`${isCollapsed ? 'w-20' : 'w-72'} bg-gradient-to-b from-gray-800 to-gray-900 text-white h-screen fixed transition-all duration-300 ease-in-out flex flex-col`}>
+    <nav 
+		className={`${isCollapsed ? 'w-20' : 'w-72'} bg-gradient-to-b from-gray-800 to-gray-900 text-white h-screen fixed transition-all duration-300 ease-in-out flex flex-col`}>
       {/* Header with logo and toggle */}
-      <div className="border-b border-gray-700 p-4 flex items-center justify-between relative">
-        <div className="flex items-center space-x-3">
-          <div className="h-9 w-9 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-md">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-white" viewBox="0 0 20 20" fill="currentColor">
-              <path d="M5.5 16a3.5 3.5 0 01-.369-6.98 4 4 0 117.753-1.977A4.5 4.5 0 1113.5 16h-8z" />
-            </svg>
+      <div className={`border-b border-gray-700 p-4 flex items-center ${isCollapsed ? 'justify-center' : 'justify-between'} relative`}>
+        {!isCollapsed && (
+          <div className="flex items-center space-x-3">
+            <div className="h-9 w-9 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-md">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-white" viewBox="0 0 20 20" fill="currentColor">
+                <path d="M5.5 16a3.5 3.5 0 01-.369-6.98 4 4 0 117.753-1.977A4.5 4.5 0 1113.5 16h-8z" />
+              </svg>
+            </div>
+            <h1 className="text-xl font-bold tracking-wide text-white">{module}</h1>
           </div>
-          {!isCollapsed && <h1 className="text-xl font-bold tracking-wide text-white">{module}</h1>}
-        </div>
+        )}
         
         <div className="flex items-center space-x-2">
           <button
@@ -197,13 +203,17 @@ const Navigation: React.FC<NavigationProps> = ({ onCollapse }) => {
           </button>
 
           {/* hamburger */}
-          <button
-            onClick={() => setMenuOpen(o => !o)}
-            title="Select module"
-            className="p-1.5 rounded-md bg-gray-700 hover:bg-gray-600 transition-colors text-gray-300"
-          >
-            <Bars3Icon className="h-5 w-5" />
-          </button>
+		  {!isCollapsed && (
+			  <>
+				  <button
+					onClick={() => setMenuOpen(o => !o)}
+					title="Select module"
+					className="p-1.5 rounded-md bg-gray-700 hover:bg-gray-600 transition-colors text-gray-300"
+				  >
+					<Bars3Icon className="h-5 w-5" />
+				  </button>
+			  </>
+		  )}
         </div>
 
         {/* drop-down */}
@@ -214,7 +224,7 @@ const Navigation: React.FC<NavigationProps> = ({ onCollapse }) => {
                        shadow-lg z-50 divide-y divide-gray-700"
           >
             <button
-              onClick={handleDashboardClick}
+              onClick={() => chooseModule('Dashboard')}
               className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-700 flex items-center space-x-2 ${
                 location.pathname === '/dashboard' ? 'text-blue-400' : 'text-gray-200'
               }`}
@@ -257,7 +267,7 @@ const Navigation: React.FC<NavigationProps> = ({ onCollapse }) => {
       <div className="px-3 py-2 border-b border-gray-700">
         <a
           href="/dashboard"
-          onClick={handleDashboardClick}
+          onClick={() => chooseModule('Dashboard')}
           className={`group flex items-center ${isCollapsed ? 'justify-center' : 'justify-start'} ${
             location.pathname === '/dashboard'
               ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md'

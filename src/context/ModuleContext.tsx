@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState } from 'react';
 
-export type Module = 'AERSCREEN' | 'AERSURFACE' | 'AERMOD';
+export type Module = 'AERSCREEN' | 'AERSURFACE' | 'AERMOD' | 'Dashboard';
 
 interface Ctx {
   module: Module;
@@ -12,12 +12,13 @@ const C = createContext({} as Ctx);
 export const useModule = () => useContext(C);
 
 export const ModuleProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [module, setModule] = useState<Module>('AERSCREEN');
+  const [module, setModule] = useState<Module>('Dashboard');
   
   const toggle = () => {
     setModule(m => {
       if (m === 'AERSCREEN') return 'AERSURFACE';
       if (m === 'AERSURFACE') return 'AERMOD';
+      if (m === 'AERMOD') return 'Dashboard';
       return 'AERSCREEN';
     });
   };
