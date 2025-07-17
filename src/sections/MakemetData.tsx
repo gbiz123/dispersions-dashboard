@@ -93,6 +93,8 @@ const MakemetData: React.FC = () => {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
+	console.log(name)
+	console.log(value)
     setMakemetData(prev => ({
       ...prev,
       [name]: type === 'number' ? parseFloat(value) || 0 : value
@@ -174,10 +176,6 @@ const MakemetData: React.FC = () => {
   ];
 
   // Visibility helpers -------------------------------------------------------
-  const showFullFields =
-    makemetData.land_use_type ===
-    LandUseType.USER_ENTERED_SURFACE_CHARACTERISTICS;
-
   const showFileUploadOnly =
     makemetData.land_use_type ===
     LandUseType.USE_EXTERNAL_FILE_OF_SURFACE_CHARACTERISTICS;
@@ -255,8 +253,6 @@ const MakemetData: React.FC = () => {
           </div>
         )}
 
-        {/* Full set of inputs */}
-        {showFullFields && (
           <>
             <FormField
               label="Minimum Ambient Temperature (K)"
@@ -295,16 +291,6 @@ const MakemetData: React.FC = () => {
             />
 
             <FormField
-              label="Land Use Type"
-              name="land_use_type"
-              type="select"
-              value={makemetData.land_use_type}
-              onChange={handleChange}
-              options={landUseTypeOptions}
-              required
-            />
-
-            <FormField
               label="Climatology Type"
               name="climatology_type"
               type="select"
@@ -314,7 +300,6 @@ const MakemetData: React.FC = () => {
               required
             />
           </>
-        )}
 
         {/* Show other fields only if not using AERSURFACE */}
         {makemetData.land_use_type !== LandUseType.USE_PREVIOUS_AERSURFACE_RUN && 

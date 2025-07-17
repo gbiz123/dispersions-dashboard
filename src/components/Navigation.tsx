@@ -163,7 +163,7 @@ const Navigation: React.FC<NavigationProps> = ({ onCollapse }) => {
   const handleDashboardClick = (e: React.MouseEvent) => {
     e.preventDefault();
     // Clear any module-specific state if needed
-    navigate('/dashboard');
+    navigate('/');
     setMenuOpen(false);
   };
 
