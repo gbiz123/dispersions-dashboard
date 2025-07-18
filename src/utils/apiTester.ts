@@ -1,7 +1,7 @@
 import { runService } from '../services/runService';
 import { resultService } from '../services/resultService';
 import { AerscreenRequest, TemperatureUnit, VelocityUnit, DistanceUnit, SurfaceProfile, ClimateType, LandUseType, RuralUrban, TerrainSource, TerrainFileType, UnitSystem } from '../types/api';
-import { AerscreenOtherInputsUnits, AerscreenRuralOrUrban, DemFileType, DemFileUnits } from 'types/enums';
+import { AerscreenOtherInputsUnits, AerscreenRuralOrUrban, DemFileResolution, DemFileUnits } from 'types/enums';
 
 // Sample data
 const sampleRequest: AerscreenRequest = {
@@ -49,14 +49,11 @@ const sampleRequest: AerscreenRequest = {
     probe_distance: 0,
 	probe_distance_units: DistanceUnit.METERS,
     elevation: 0,
-    dem_file_type: DemFileType.DEM_1_METER,
-    dem_file_units: DemFileUnits.FEET,
     override_elevation_with_aermap_val: false
   },
   terrain_input_files: {
-    nad_datum: 'NAD83',
     file_type: TerrainFileType.DEM,   // valid enum value
-    units: UnitSystem.METRIC,         // valid enum value
+    units: DemFileUnits.METERS,
     file: null,
     terrain_source: TerrainSource.UPLOAD_FILE   // ← NEW ­required field
   },

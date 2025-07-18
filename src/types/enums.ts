@@ -21,7 +21,7 @@ export enum AerscreenRuralOrUrban {
     URBAN = "URBAN"
 }
 
-export enum DemFileType {
+export enum DemFileResolution {
 	NED_1_ARC_SECOND = "NED_1_ARC_SECOND",
     NED_1_3RD_ARC_SECOND = "NED_1_3RD_ARC_SECOND",
     NED_1_9TH_ARC_SECOND = "NED_1_9TH_ARC_SECOND",
@@ -103,8 +103,7 @@ export enum UnitSystem {
 
 export enum TerrainFileType {
   DEM = 'DEM',
-  DTED = 'DTED',
-  GEO_TIFF = 'GEO_TIFF'
+  NED = 'NED'
 }
 
 // Status enums

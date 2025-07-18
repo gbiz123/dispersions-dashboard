@@ -4,7 +4,7 @@ import FormField from '../components/forms/FormField';
 import SectionContainer from '../components/SectionContainer';
 import { useRunContext } from '../context/RunContext';
 import { AerscreenTerrainData as TerrainDataType, TerrainInputFiles } from '../types/api';
-import { TerrainType, NADDatum, TerrainFileType, TerrainSource, DemFileType, DemFileUnits } from '../types/enums';
+import { TerrainType, NADDatum, TerrainFileType, TerrainSource, DemFileResolution, DemFileUnits } from '../types/enums';
 import { DistanceUnit, UnitSystem } from '../types/api';
 import InfoSection from 'components/InfoSection';
 
@@ -16,8 +16,6 @@ const TerrainData: React.FC = () => {
   const defaultTerrainData: TerrainDataType = {
 	override_elevation_with_aermap_val: false,
 	elevation: 0,
-	dem_file_type: DemFileType.DEM_1_METER,
-	dem_file_units: DemFileUnits.METERS,
     probe_distance: 0,
 	probe_distance_units: DistanceUnit.METERS,
 	utm_x: 0,
@@ -28,11 +26,8 @@ const TerrainData: React.FC = () => {
   };
   
   const defaultTerrainInputFiles: TerrainInputFiles = {
-    us_county: '',
-    us_state: '',
-    nad_datum: NADDatum.NAD83,
-    file_type: TerrainFileType.DEM,
-    units: UnitSystem.METRIC,
+    file_type: TerrainFileType.NED,
+    units: DemFileUnits.METERS,
     file: null,
     terrain_source: TerrainSource.UPLOAD_FILE
   };
@@ -106,12 +101,12 @@ const TerrainData: React.FC = () => {
     { value: DistanceUnit.FEET, label: 'Feet (ft)' }
   ];
 
-  const demFileTypeOptions = [
-	{ value: DemFileType.NED_1_ARC_SECOND, label: 'NED (1 Arc Second)' },
-	{ value: DemFileType.NED_1_3RD_ARC_SECOND, label: 'NED (1/3 Arc Second)' },
-	{ value: DemFileType.NED_1_9TH_ARC_SECOND, label: 'NED (1/9 Arc Second)' },
-	{ value: DemFileType.NED_2_ARC_SECOND_ALASKA, label: 'NED (2 Arc Second Alaska)' },
-	{ value: DemFileType.DEM_1_METER, label: 'DEM (1 Meter)' }
+  const demFileResolutionOptions = [
+	{ value: DemFileResolution.NED_1_ARC_SECOND, label: 'NED (1 Arc Second)' },
+	{ value: DemFileResolution.NED_1_3RD_ARC_SECOND, label: 'NED (1/3 Arc Second)' },
+	{ value: DemFileResolution.NED_1_9TH_ARC_SECOND, label: 'NED (1/9 Arc Second)' },
+	{ value: DemFileResolution.NED_2_ARC_SECOND_ALASKA, label: 'NED (2 Arc Second Alaska)' },
+	{ value: DemFileResolution.DEM_1_METER, label: 'DEM (1 Meter)' }
   ]
   
   // NAD Datum options
@@ -128,15 +123,18 @@ const TerrainData: React.FC = () => {
 
   // File type options
   const fileTypeOptions = [
-    { value: TerrainFileType.DEM, label: 'DEM' },
-    { value: TerrainFileType.DTED, label: 'DTED' },
-    { value: TerrainFileType.GEO_TIFF, label: 'GeoTIFF' }
+    { value: TerrainFileType.NED, label: 'NED' },
+    { value: TerrainFileType.DEM, label: 'DEM' }
   ];
 
   // Unit system options
-  const unitSystemOptions = [
-    { value: UnitSystem.METRIC, label: 'Metric' },
-    { value: UnitSystem.ENGLISH, label: 'English' }
+  const demFileUnitOptions = [
+	  { value: DemFileUnits.METERS, label:  "Meters" },
+	  { value: DemFileUnits.DECIMETERS, label:  "Deci-meters" },
+	  { value: DemFileUnits.DECAMETERS, label:  "Deca-meters" },
+	  { value: DemFileUnits.FEET, label:  "Feet" },
+	  { value: DemFileUnits.DECIFEET, label:  "Deci-feet" },
+	  { value: DemFileUnits.DECAFEET, label:  "Deca-feet" }
   ];
 
   // Terrain source options
@@ -149,8 +147,8 @@ const TerrainData: React.FC = () => {
     <SectionContainer
       title="Terrain"
       onSubmit={handleSubmit}
-      nextSection="/other-inputs"
-      nextSectionLabel="Other Inputs"
+      nextSection="/discrete-receptors"
+      nextSectionLabel="Discrete Receptors"
       previousSection="/makemet-data"
     >
       <InfoSection content="Include terrain processing provided by AERMAP." />
@@ -205,7 +203,7 @@ const TerrainData: React.FC = () => {
 				label="NAD Datum"
 				name="nad_datum"
 				type="select"
-				value={terrainInputFiles.nad_datum || ''}
+				value={terrainData.nad_datum || ''}
 				onChange={handleTerrainFilesChange}
 				options={nadDatumOptions}
 				required
@@ -268,39 +266,24 @@ const TerrainData: React.FC = () => {
                 value={terrainInputFiles.terrain_source}
                 onChange={handleTerrainFilesChange}
                 options={terrainSourceOptions}
+				tooltip="Select whether to upload your own terrain files, or to pull from the National Elevation Dataset automatically"
               />
+              {terrainInputFiles.terrain_source === TerrainSource.NATIONAL_MAP && (
+                  <FormField
+                    label="NED File Resolution"
+                    name="dem_file_resolution"
+                    type="select"
+                    value={terrainInputFiles.dem_file_resolution || ''}
+                    onChange={handleTerrainFilesChange}
+                    options={demFileResolutionOptions}
+                    required={!!terrainInputFiles.file}
+					tooltip="Choose the resolution of the NED file you would like to pull"
+                  />
+			  )}
 
               {terrainInputFiles.terrain_source === TerrainSource.UPLOAD_FILE && (
                 <>
-                  <FormField
-                    label="US County ID"
-                    name="us_county"
-                    type="text"
-                    value={terrainInputFiles.us_county || ''}
-                    onChange={handleTerrainFilesChange}
-                  />
-                  
-                  <FormField
-                    label="US State"
-                    name="us_state"
-                    type="text"
-                    value={terrainInputFiles.us_state || ''}
-                    onChange={handleTerrainFilesChange}
-                  />
-                  
-
-                  <div className="col-span-1 md:col-span-2">
-                    <label className="block text-sm font-medium mb-1">
-                      Upload Terrain File
-                    </label>
-                    <input
-                      type="file"
-                      accept=".dem,.dted,.tif,.tiff"
-                      onChange={handleTerrainFilesChange}
-                      className="block w-full text-sm"
-                    />
-                  </div>
-
+					<div></div>
                   <FormField
                     label="File Type"
                     name="file_type"
@@ -309,17 +292,33 @@ const TerrainData: React.FC = () => {
                     onChange={handleTerrainFilesChange}
                     options={fileTypeOptions}
                     required={!!terrainInputFiles.file}
+					tooltip="Choose the type of file as NED or DEM"
                   />
 
-                  <FormField
-                    label="Units"
-                    name="units"
-                    type="select"
-                    value={terrainInputFiles.units || ''}
-                    onChange={handleTerrainFilesChange}
-                    options={unitSystemOptions}
-                    required={!!terrainInputFiles.file}
-                  />
+				  {terrainInputFiles.file_type === TerrainFileType.NED && (
+					  <FormField
+						label="NED File Units"
+						name="units"
+						type="select"
+						value={terrainInputFiles.units || ''}
+						onChange={handleTerrainFilesChange}
+						options={demFileUnitOptions}
+						required={!!terrainInputFiles.file && terrainInputFiles.file_type === TerrainFileType.NED}
+						tooltip="Choose the units of the terrain data for NED file"
+					  />
+					)}
+
+                  <div className="col-span-1 md:col-span-2">
+                    <label className="block text-sm font-medium mb-1">
+                      Upload Terrain File
+                    </label>
+                    <input
+                      type="file"
+                      accept=".dem,.dted,.tif,.tiff,.geotiff"
+                      onChange={handleTerrainFilesChange}
+                      className="block w-full text-sm"
+                    />
+                  </div>
                 </>
               )}
             </div>

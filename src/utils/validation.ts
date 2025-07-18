@@ -63,15 +63,6 @@ export const validateTerrainData = (data: AerscreenRequest['terrain_data']) => {
   return true;
 };
 
-export const validateTerrainInputFiles = (data: AerscreenRequest['terrain_input_files']) => {
-  if (!data) return true; // Optional section
-  
-  if (data.terrain_source === 'national_map') return true; // <-- add
-
-  // NAD Datum is required if providing terrain input files
-  return !!data.nad_datum;
-};
-
 export const validateDiscreteReceptors = (data: AerscreenRequest['discrete_receptors']) => {
   if (!data) return true; // Optional section
   
@@ -101,7 +92,6 @@ export const validateCompleteRequest = (data: Partial<AerscreenRequest>) => {
     validateStackData(data.source_data!) &&
     validateBuildingData(data.building_data!) &&
     validateMakemetData(data.makemet_data!) &&
-    validateTerrainData(data.terrain_data!) &&
-    (!data.terrain_data?.use_terrain || validateTerrainInputFiles(data.terrain_input_files)) 
+    validateTerrainData(data.terrain_data!) 
   );
 };

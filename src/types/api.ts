@@ -1,4 +1,4 @@
-import { AerscreenOtherInputsUnits, AerscreenRuralOrUrban, DemFileType, DemFileUnits, DiscreteReceptorsUnits } from "./enums";
+import { DemFileResolution, AerscreenOtherInputsUnits, AerscreenRuralOrUrban, DemFileUnits, DiscreteReceptorsUnits } from "./enums";
 
 export enum TemperatureUnit {
   FAHRENHEIT = 'F',
@@ -65,9 +65,7 @@ export enum RuralUrban {
  */
 export enum TerrainFileType {
   DEM = 'DEM',
-  DTED = 'DTED',
-  GEO_TIFF = 'GEO_TIFF',   // Geo-referenced TIFF
-  ASCII_GRID = 'ASCII_GRID'  // ESRI ASCII grid
+  NED = 'NED',
 }
 
 /* ───────────── Terrain source options (upload vs national map) ─────────── */
@@ -385,20 +383,16 @@ export interface AerscreenTerrainData {
   probe_distance_units: DistanceUnit
   elevation: number
   elevation_units?: number
-  dem_file_type: DemFileType
-  dem_file_units: DemFileUnits
   override_elevation_with_aermap_val: boolean
 }
 
 // Terrain Input Files
 export interface TerrainInputFiles {
-  us_county?: string;
-  us_state?: string;
-  nad_datum?: string;
   file_type: TerrainFileType; 
-  units: UnitSystem;
+  units: DemFileUnits;
   file: File | null;
   terrain_source: TerrainSource;
+  dem_file_resolution?: DemFileResolution;
 }
 
 // Discrete Receptors

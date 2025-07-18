@@ -249,26 +249,28 @@ const MakemetData: React.FC = () => {
         {/* Land Use Type with AERSURFACE option */}
 		</div>
 		<h3 className="text-lg font-semibold mt-6 mb-3">Surface Characteristics</h3>
-		<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-			<div className="relative">
-			  <FormField
-				label="Land Use Type"
-				name="land_use_type"
-				type="select"
-				value={makemetData.land_use_type}
-				onChange={handleChange}
-				options={landUseTypeOptions}
-				className="col-span-1 md:col-span-2"
-			  />
-			  {makemetData.land_use_type === LandUseType.USE_PREVIOUS_AERSURFACE_RUN && (
-				  <button
-					onClick={handleAersurfaceClick}
-					className="absolute top-0 right-0 text-sm text-blue-600 hover:underline"
-				  >
-					New AERSURFACE Run →
-				  </button>
-			  )}
-        </div>
+        <div className="mb-6 border-t border-gray-200 pt-4">
+			<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+				<div className="relative">
+				  <FormField
+					label="Land Use Type"
+					name="land_use_type"
+					type="select"
+					value={makemetData.land_use_type}
+					onChange={handleChange}
+					options={landUseTypeOptions}
+					className="col-span-1 md:col-span-2"
+				  />
+				  {makemetData.land_use_type === LandUseType.USE_PREVIOUS_AERSURFACE_RUN && (
+					  <button
+						onClick={handleAersurfaceClick}
+						className="absolute top-0 right-0 text-sm text-blue-600 hover:underline"
+					  >
+						New AERSURFACE Run →
+					  </button>
+				  )}
+			</div>
+		</div>
 
 		{
 			makemetData.land_use_type != LandUseType.USE_EXTERNAL_FILE_OF_SURFACE_CHARACTERISTICS &&

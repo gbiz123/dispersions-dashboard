@@ -16,6 +16,14 @@ const DiscreteReceptors: React.FC = () => {
   const [useDiscrete, setUseDiscrete] = useState<boolean>(
     formData.use_discrete_receptors ?? true
   );
+  //
+  // Distance units options
+  const discreteReceptorsUnits = [
+    { value: DiscreteReceptorsUnits.METERS, label: 'Meters (m)' },
+    { value: DiscreteReceptorsUnits.KILOMETERS, label: 'Kilometers (km)' },
+    { value: DiscreteReceptorsUnits.FEET, label: 'Feet (ft)' },
+    { value: DiscreteReceptorsUnits.MILES, label: 'Miles (mi)' },
+  ];
 
   // Default values
   const defaultDiscreteReceptors: DiscreteReceptorsType = {
@@ -89,11 +97,11 @@ const DiscreteReceptors: React.FC = () => {
       nextSectionLabel="Other Inputs"
       previousSection="/terrain-data"
     >
-      <InfoSection content="Info section: Define specific receptor locations for detailed concentration calculations. Discrete receptors allow you to model impacts at specific points of interest." />
+      <InfoSection content="Include up to 10 specific receptor locations for detailed concentration calculations." />
       
       <div className="space-y-6">
         {/* NEW: checkbox */}
-        <Tooltip content="Dummy tooltip: Enable to add specific receptor locations">
+        <Tooltip content="Check the box to include discrete receptors in this study">
           <label className="flex items-center space-x-2">
             <input
               type="checkbox"
@@ -104,53 +112,63 @@ const DiscreteReceptors: React.FC = () => {
           </label>
         </Tooltip>
 
-        <div
-          className={
-            useDiscrete ? '' : 'opacity-50 pointer-events-none select-none'
-          }
-        >
-          <div className="flex justify-between items-center">
-            <h3 className="text-lg font-semibold">Receptors</h3>
-            <button
-              type="button"
-              onClick={addReceptor}
-              className="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600 disabled:opacity-50"
-              disabled={!useDiscrete || receptorsData.receptors.length >= 10}
-            >
-              Add Receptor
-            </button>
-          </div>
-
-          {receptorsData.receptors.map((receptor, index) => (
-            <div key={index} className="p-4 border rounded-md mb-5 bg-gray-50 relative">
-              <div className="absolute top-2 right-2">
-                <button
-                  type="button"
-                  onClick={() => removeReceptor(index)}
-                  className="p-1 text-red-500 hover:text-red-700"
-                  disabled={receptorsData.receptors.length <= 1}
-                >
-                  <span className="text-xl">&times;</span>
-                </button>
-              </div>
-
-              <h4 className="font-medium mb-3">Receptor {index + 1}</h4>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <FormField
-                  label="Receptor"
-                  name="distance"
-                  type="number"
-                  value={receptor}
-                  onChange={(e) => handleChange(index, e)}
-                  required
-                  tooltip="Enter the distance along plume centerline of the receptor"
-                />
-              </div>
+        {useDiscrete && (
+          <div>
+            <div className="grid grid-cols-1 lg:grid-cols-4 xl:grid-cols-6 gap-6 mb-4">
+              <FormField
+                label="Distance Units"
+                name="distance_units"
+                type="select"
+                value={receptorsData.distance_units}
+                onChange={(e) => setReceptorsData({ ...receptorsData, distance_units: e.target.value as DiscreteReceptorsUnits })}
+                options={discreteReceptorsUnits}
+                required
+                tooltip="Select the units for receptor distances"
+              />
             </div>
-          ))}
+
+            {receptorsData.receptors.map((receptor, index) => (
+              <div key={index} className="p-4 border rounded-md mb-5 bg-gray-50 relative">
+                <div className="absolute top-2 right-2">
+                  <button
+                    type="button"
+                    onClick={() => removeReceptor(index)}
+                    className="p-1 text-red-500 hover:text-red-700"
+                    disabled={receptorsData.receptors.length <= 1}
+                  >
+                    <span className="text-xl">&times;</span>
+                  </button>
+                </div>
+
+                <h4 className="font-medium mb-3">Receptor {index + 1}</h4>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <FormField
+                    label="Receptor"
+                    name="distance"
+                    type="number"
+                    value={receptor}
+                    onChange={(e) => handleChange(index, e)}
+                    required
+                    tooltip="Enter the distance along plume centerline of the receptor"
+                  />
+                </div>
+              </div>
+            ))}
+            <div className="flex justify-between items-center">
+              <h3 className="text-lg font-semibold">Receptors</h3>
+              <button
+                type="button"
+                onClick={addReceptor}
+                className="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600 disabled:opacity-50"
+                disabled={receptorsData.receptors.length >= 10}
+              >
+                Add Receptor
+              </button>
+            </div>
+          </div>
+        )}
         </div>
-      </div>
     </SectionContainer>
   );
 };
