@@ -1,7 +1,6 @@
 import { AerscreenOtherInputsUnits, AerscreenRuralOrUrban, DemFileType, DemFileUnits, DiscreteReceptorsUnits } from "./enums";
 
 export enum TemperatureUnit {
-  CELSIUS = 'C',
   FAHRENHEIT = 'F',
   KELVIN = 'K'
 }
@@ -361,7 +360,9 @@ export interface AerscreenBuildingData {
 // Makemet Data
 export interface AerscreenMakemetData {
   min_temp_k: number;
+  min_temp_units?: TemperatureUnit;
   max_temp_k: number;
+  max_temp_units?: TemperatureUnit;
   min_wind_speed_m_s: number;
   anemometer_height_m: number;
   climatology_type: ClimateType;
@@ -380,8 +381,10 @@ export interface AerscreenTerrainData {
   utm_y: number
   utm_zone: number
   nad_datum: string
-  probe_distance_m: number
+  probe_distance: number
+  probe_distance_units: DistanceUnit
   elevation: number
+  elevation_units?: number
   dem_file_type: DemFileType
   dem_file_units: DemFileUnits
   override_elevation_with_aermap_val: boolean
@@ -392,8 +395,6 @@ export interface TerrainInputFiles {
   us_county?: string;
   us_state?: string;
   nad_datum?: string;
-  probe_dist?: number;
-  probe_dist_unit?: string;
   file_type: TerrainFileType; 
   units: UnitSystem;
   file: File | null;

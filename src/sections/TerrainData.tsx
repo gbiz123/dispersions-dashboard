@@ -4,8 +4,9 @@ import FormField from '../components/forms/FormField';
 import SectionContainer from '../components/SectionContainer';
 import { useRunContext } from '../context/RunContext';
 import { AerscreenTerrainData as TerrainDataType, TerrainInputFiles } from '../types/api';
-import { DistanceUnit, TerrainType, NADDatum, TerrainFileType, TerrainSource, DemFileType, DemFileUnits } from '../types/enums';
-import { UnitSystem } from '../types/api';
+import { TerrainType, NADDatum, TerrainFileType, TerrainSource, DemFileType, DemFileUnits } from '../types/enums';
+import { DistanceUnit, UnitSystem } from '../types/api';
+import InfoSection from 'components/InfoSection';
 
 const TerrainData: React.FC = () => {
   const { formData, updateFormData } = useRunContext();
@@ -17,7 +18,8 @@ const TerrainData: React.FC = () => {
 	elevation: 0,
 	dem_file_type: DemFileType.DEM_1_METER,
 	dem_file_units: DemFileUnits.METERS,
-    probe_distance_m: 0,
+    probe_distance: 0,
+	probe_distance_units: DistanceUnit.METERS,
 	utm_x: 0,
 	utm_y: 0,
 	nad_datum: "NAD83",
@@ -29,8 +31,6 @@ const TerrainData: React.FC = () => {
     us_county: '',
     us_state: '',
     nad_datum: NADDatum.NAD83,
-    probe_dist: 0,
-    probe_dist_unit: DistanceUnit.METERS,
     file_type: TerrainFileType.DEM,
     units: UnitSystem.METRIC,
     file: null,
@@ -105,19 +105,19 @@ const TerrainData: React.FC = () => {
     { value: DistanceUnit.METERS, label: 'Meters (m)' },
     { value: DistanceUnit.FEET, label: 'Feet (ft)' }
   ];
-  
-  // Terrain type options
-  const terrainTypeOptions = [
-    { value: TerrainType.FLAT, label: 'Flat' },
-    { value: TerrainType.SIMPLE, label: 'Simple' },
-    { value: TerrainType.COMPLEX, label: 'Complex' }
-  ];
+
+  const demFileTypeOptions = [
+	{ value: DemFileType.NED_1_ARC_SECOND, label: 'NED (1 Arc Second)' },
+	{ value: DemFileType.NED_1_3RD_ARC_SECOND, label: 'NED (1/3 Arc Second)' },
+	{ value: DemFileType.NED_1_9TH_ARC_SECOND, label: 'NED (1/9 Arc Second)' },
+	{ value: DemFileType.NED_2_ARC_SECOND_ALASKA, label: 'NED (2 Arc Second Alaska)' },
+	{ value: DemFileType.DEM_1_METER, label: 'DEM (1 Meter)' }
+  ]
   
   // NAD Datum options
   const nadDatumOptions = [
     { value: NADDatum.NAD27, label: 'NAD27' },
     { value: NADDatum.NAD83, label: 'NAD83' },
-    { value: NADDatum.WGS84, label: 'WGS84' }
   ];
 
   // UTM Zone options
@@ -142,54 +142,54 @@ const TerrainData: React.FC = () => {
   // Terrain source options
   const terrainSourceOptions = [
     { value: TerrainSource.UPLOAD_FILE, label: 'Upload terrain file' },
-    { value: TerrainSource.NATIONAL_MAP, label: 'Pull from national map' }
+    { value: TerrainSource.NATIONAL_MAP, label: 'Pull from National Elevation Dataset' }
   ];
 
   return (
     <SectionContainer
-      title="Terrain Data"
+      title="Terrain"
       onSubmit={handleSubmit}
       nextSection="/other-inputs"
       nextSectionLabel="Other Inputs"
       previousSection="/makemet-data"
     >
+      <InfoSection content="Include terrain processing provided by AERMAP." />
       <div className="space-y-4">
         <div className="mb-6 space-y-2">
           <label className="flex items-center space-x-2">
             <input
               type="checkbox"
-              name="has_terrain"
+              name="use_terrain"
               checked={terrainData.use_terrain}
               onChange={handleTerrainChange}
               className="h-4 w-4 text-blue-600 rounded"
             />
-            <span>Has Terrain</span>
+            <span>Use Terrain</span>
           </label>
         </div>
         
         {terrainData.use_terrain && (
           <>
+            <h3 className="text-lg font-semibold mt-6 mb-3">Location Inputs</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <FormField
-                label="Terrain Type"
-                name="dem_file_type"
-                type="select"
-                value={terrainData.dem_file_type || ''}
+                label="UTM X Coordinate"
+                name="utm_x"
+                type="number"
+                value={terrainData.utm_x || ''}
                 onChange={handleTerrainChange}
-                options={terrainTypeOptions}
                 required
+				tooltip="Enter the UTM X coordinate (Easting) of the emission source"
               />
-              
               <FormField
-                label="Elevation Unit"
-                name="dem_file_units"
-                type="select"
-                value={terrainData.dem_file_units || ''}
+                label="UTM Y Coordinate"
+                name="utm_y"
+                type="number"
+                value={terrainData.utm_y || ''}
                 onChange={handleTerrainChange}
-                options={distanceUnits}
                 required
+				tooltip="Enter the UTM Y coordinate (Northing) of the emission source"
               />
-
               <FormField
                 label="UTM Zone"
                 name="utm_zone"
@@ -198,6 +198,63 @@ const TerrainData: React.FC = () => {
                 onChange={handleTerrainChange}
                 options={utmZoneOptions}
                 required
+				tooltip="Enter the UTM zone of the emission source"
+              />
+			  
+			  <FormField
+				label="NAD Datum"
+				name="nad_datum"
+				type="select"
+				value={terrainInputFiles.nad_datum || ''}
+				onChange={handleTerrainFilesChange}
+				options={nadDatumOptions}
+				required
+				tooltip="Enter the NAD datum of the source location"
+			  />
+			  <FormField
+				label="Probe Distance"
+				name="probe_dist"
+				type="number"
+				value={terrainData.probe_distance || 0}
+				onChange={handleTerrainFilesChange}
+				tooltip="Enter the maximum distance to the probe in feet or meters"
+			  />
+			  
+			  <FormField
+				label="Probe Distance Unit"
+				name="probe_dist_unit"
+				type="select"
+				value={terrainData.probe_distance || ''}
+				onChange={handleTerrainFilesChange}
+				options={distanceUnits}
+				tooltip="Enter the units of probe distance"
+			  />
+			  <FormField
+				label="Source Elevation"
+				name="probe_dist"
+				type="number"
+				value={terrainData.elevation || 0}
+				onChange={handleTerrainFilesChange}
+				tooltip="Enter the elevation of the emission source in feet or meters"
+			  />
+              <FormField
+                label="Source Elevation Unit"
+                name="elevation_units"
+                type="select"
+                value={terrainData.elevation_units || ''}
+                onChange={handleTerrainChange}
+                options={distanceUnits}
+                required
+				tooltip="Enter the units of source elevation"
+              />
+              <FormField
+                label="Override Source Elevation"
+                name="override_elevation_with_aermap_val"
+                type="checkbox"
+                value={terrainData.override_elevation_with_aermap_val || ''}
+                onChange={handleTerrainChange}
+                required
+				tooltip="Override the emission source value with the value calculated by AERMAP"
               />
             </div>
             
@@ -231,32 +288,6 @@ const TerrainData: React.FC = () => {
                     onChange={handleTerrainFilesChange}
                   />
                   
-                  <FormField
-                    label="NAD Datum"
-                    name="nad_datum"
-                    type="select"
-                    value={terrainInputFiles.nad_datum || ''}
-                    onChange={handleTerrainFilesChange}
-                    options={nadDatumOptions}
-                    required
-                  />
-                  
-                  <FormField
-                    label="Probe Distance"
-                    name="probe_dist"
-                    type="number"
-                    value={terrainInputFiles.probe_dist || 0}
-                    onChange={handleTerrainFilesChange}
-                  />
-                  
-                  <FormField
-                    label="Probe Distance Unit"
-                    name="probe_dist_unit"
-                    type="select"
-                    value={terrainInputFiles.probe_dist_unit || ''}
-                    onChange={handleTerrainFilesChange}
-                    options={distanceUnits}
-                  />
 
                   <div className="col-span-1 md:col-span-2">
                     <label className="block text-sm font-medium mb-1">

@@ -10,8 +10,8 @@ export interface SelectOption {
 interface FormFieldProps {
   label: string;
   name: string;
-  type: 'number' | 'text' | 'select';
-  value?: string | number;
+  type: 'number' | 'text' | 'select' | 'checkbox';
+  value?: string | number | boolean;
   onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void;
   options?: SelectOption[];
   required?: boolean;
@@ -73,21 +73,16 @@ const FormField: React.FC<FormFieldProps> = ({
     el.dispatchEvent(new Event('input', { bubbles: true }));
   };
 
-  /* ── common props used by <input> ─────────────────── */
-  const commonProps: React.InputHTMLAttributes<HTMLInputElement> = {
-    ...(type === 'number' && { onWheel: wheelNumber }),
-  };
-
   const fieldContent = (
     <>
       {type === 'select' ? (
         <select
           name={name}
-          value={value}
+          value={typeof value === 'boolean' ? undefined : value}
           onChange={onChange}
           onBlur={onBlur}
           disabled={disabled}
-          className="block w-full border rounded px-2 py-1"
+          className={`block w-full border rounded px-2 py-1 ${className}`}
         >
           {options?.map(o => (
             <option key={o.value} value={o.value} disabled={o.disabled}>
@@ -95,12 +90,22 @@ const FormField: React.FC<FormFieldProps> = ({
             </option>
           ))}
         </select>
+      ) : type === 'checkbox' ? (
+        <input
+          type="checkbox"
+          name={name}
+          checked={Boolean(value)}
+          onChange={onChange}
+          onBlur={onBlur}
+          required={required}
+          disabled={disabled}
+          className={`rounded border-gray-300 text-blue-600 focus:ring-blue-500 ${className}`}
+        />
       ) : (
         <input
-          {...commonProps}
           type={type}
           name={name}
-          value={value}
+          value={typeof value === 'boolean' ? undefined : value}
           onChange={onChange}
           onBlur={onBlur}
           min={min}
@@ -109,7 +114,7 @@ const FormField: React.FC<FormFieldProps> = ({
           required={required}
           disabled={disabled}
           maxLength={maxLength}
-          className="block w-full border rounded px-2 py-1"
+          className={`block w-full border rounded px-2 py-1 ${className}`}
         />
       )}
     </>
@@ -135,3 +140,4 @@ const FormField: React.FC<FormFieldProps> = ({
 };
 
 export default FormField;
+

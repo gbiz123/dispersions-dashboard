@@ -93,8 +93,6 @@ const MakemetData: React.FC = () => {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
-	console.log(name)
-	console.log(value)
     setMakemetData(prev => ({
       ...prev,
       [name]: type === 'number' ? parseFloat(value) || 0 : value
@@ -130,7 +128,6 @@ const MakemetData: React.FC = () => {
   // Temperature units options
   const temperatureUnits = [
     { value: TemperatureUnit.KELVIN, label: 'Kelvin (K)' },
-    { value: TemperatureUnit.CELSIUS, label: 'Celsius (°C)' },
     { value: TemperatureUnit.FAHRENHEIT, label: 'Fahrenheit (°F)' }
   ];
 
@@ -189,25 +186,105 @@ const MakemetData: React.FC = () => {
     >
       <InfoSection content="Configure meteorological and surface data for inputs into the MAKEMET meteorology preprocessor." />
 
+	  <h3 className="text-lg font-semibold mt-6 mb-3">Climate Info</h3>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <>
+            <FormField
+              label="Minimum Ambient Temperature"
+              name="min_temp_k"
+              type="number"
+              value={makemetData.min_temp_k}
+              onChange={handleChange}
+              required
+			  tooltip="Enter the minimum ambient air temperature in Fahrenheit or Kelvin"
+            />
+			<FormField
+			  label="Minimum Temperature Units"
+			  name="min_temp_units"
+			  type="select"
+			  value={makemetData.min_temp_units}
+			  onChange={handleChange}
+			  options={temperatureUnits}
+			  required
+			  tooltip="Select the unit for temperature"
+			/>
+            <FormField
+              label="Maximum Ambient Temperature"
+              name="max_temp_k"
+              type="number"
+              value={makemetData.max_temp_k}
+              onChange={handleChange}
+              required
+			  tooltip="Enter the maximum ambient air temperature in Fahrenheit or Kelvin"
+            />
+			<FormField
+			  label="Maximum Temperature Units"
+			  name="max_temp_units"
+			  type="select"
+			  value={makemetData.max_temp_units}
+			  onChange={handleChange}
+			  options={temperatureUnits}
+			  required
+			  tooltip="Select the unit for temperature"
+			/>
+            <FormField
+              label="Minimum Wind Speed (m/s)"
+              name="min_wind_speed_m_s"
+              type="number"
+              value={makemetData.min_wind_speed_m_s}
+              onChange={handleChange}
+              required
+			  tooltip="Enter the minimum wind speed in meters per second"
+            />
+            <FormField
+              label="Anemometer Height (m)"
+              name="anemometer_height_m"
+              type="number"
+              value={makemetData.anemometer_height_m}
+              onChange={handleChange}
+              required
+			  tooltip="Enter the anemometer height in meters"
+            />
+          </>
         {/* Land Use Type with AERSURFACE option */}
-        <div className="relative">
-          <FormField
-            label="Land Use Type"
-            name="land_use_type"
-            type="select"
-            value={makemetData.land_use_type}
-            onChange={handleChange}
-            options={landUseTypeOptions}
-            className="col-span-1 md:col-span-2"
-          />
-          <button
-            onClick={handleAersurfaceClick}
-            className="absolute top-0 right-0 text-sm text-blue-600 hover:underline"
-          >
-            Open AERSURFACE →
-          </button>
+		</div>
+		<h3 className="text-lg font-semibold mt-6 mb-3">Surface Characteristics</h3>
+		<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+			<div className="relative">
+			  <FormField
+				label="Land Use Type"
+				name="land_use_type"
+				type="select"
+				value={makemetData.land_use_type}
+				onChange={handleChange}
+				options={landUseTypeOptions}
+				className="col-span-1 md:col-span-2"
+			  />
+			  {makemetData.land_use_type === LandUseType.USE_PREVIOUS_AERSURFACE_RUN && (
+				  <button
+					onClick={handleAersurfaceClick}
+					className="absolute top-0 right-0 text-sm text-blue-600 hover:underline"
+				  >
+					New AERSURFACE Run →
+				  </button>
+			  )}
         </div>
+
+		{
+			makemetData.land_use_type != LandUseType.USE_EXTERNAL_FILE_OF_SURFACE_CHARACTERISTICS &&
+			makemetData.land_use_type != LandUseType.USER_ENTERED_SURFACE_CHARACTERISTICS && 
+			makemetData.land_use_type != LandUseType.USE_PREVIOUS_AERSURFACE_RUN && (
+				<FormField
+				  label="Climatology Type"
+				  name="climatology_type"
+				  type="select"
+				  value={makemetData.climatology_type}
+				  onChange={handleChange}
+				  options={climateTypeOptions}
+				  required
+				/>
+			)
+		}
 
         {/* AERSURFACE run selection list */}
         {showAersurfaceList && (
@@ -253,57 +330,9 @@ const MakemetData: React.FC = () => {
           </div>
         )}
 
-          <>
-            <FormField
-              label="Minimum Ambient Temperature (K)"
-              name="min_temp_k"
-              type="number"
-              value={makemetData.min_temp_k}
-              onChange={handleChange}
-              required
-            />
-
-            <FormField
-              label="Maximum Ambient Temperature (K)"
-              name="max_temp_k"
-              type="number"
-              value={makemetData.max_temp_k}
-              onChange={handleChange}
-              required
-            />
-
-            <FormField
-              label="Minimum Wind Speed (m/s)"
-              name="min_wind_speed_m_s"
-              type="number"
-              value={makemetData.min_wind_speed_m_s}
-              onChange={handleChange}
-              required
-            />
-
-            <FormField
-              label="Anemometer Height (m)"
-              name="anemometer_height_m"
-              type="number"
-              value={makemetData.anemometer_height_m}
-              onChange={handleChange}
-              required
-            />
-
-            <FormField
-              label="Climatology Type"
-              name="climatology_type"
-              type="select"
-              value={makemetData.climatology_type}
-              onChange={handleChange}
-              options={climateTypeOptions}
-              required
-            />
-          </>
 
         {/* Show other fields only if not using AERSURFACE */}
-        {makemetData.land_use_type !== LandUseType.USE_PREVIOUS_AERSURFACE_RUN && 
-         makemetData.land_use_type !== LandUseType.USE_EXTERNAL_FILE_OF_SURFACE_CHARACTERISTICS && (
+        {makemetData.land_use_type === LandUseType.USER_ENTERED_SURFACE_CHARACTERISTICS && (
           <>
             <FormField
               label="Albedo"

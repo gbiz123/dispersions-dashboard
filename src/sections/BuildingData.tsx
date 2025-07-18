@@ -188,9 +188,8 @@ const BuildingData: React.FC = () => {
       nextSectionLabel="Makemet Data"
       previousSection="/stack-data"
     >
-      <InfoSection content="Configure building parameters for downwash analysis. Building downwash can significantly affect pollutant dispersion near structures." />
+      <InfoSection content="Configure building parameters for downwash analysis." />
       
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
         <div className="flex items-center mb-6">
           <Tooltip content="Check this box to process building downwash effects">
             <label className="inline-flex items-center cursor-pointer">
@@ -393,7 +392,6 @@ const BuildingData: React.FC = () => {
             )}
           </>
         )}
-      </div>
     </SectionContainer>
   );
 };

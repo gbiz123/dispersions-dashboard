@@ -46,7 +46,8 @@ const sampleRequest: AerscreenRequest = {
     utm_y: 0,
     utm_zone: 15,
     nad_datum: "NAD27",
-    probe_distance_m: 0,
+    probe_distance: 0,
+	probe_distance_units: DistanceUnit.METERS,
     elevation: 0,
     dem_file_type: DemFileType.DEM_1_METER,
     dem_file_units: DemFileUnits.FEET,
@@ -54,8 +55,6 @@ const sampleRequest: AerscreenRequest = {
   },
   terrain_input_files: {
     nad_datum: 'NAD83',
-    probe_dist: 1000,
-    probe_dist_unit: 'meters',
     file_type: TerrainFileType.DEM,   // valid enum value
     units: UnitSystem.METRIC,         // valid enum value
     file: null,
