@@ -10,13 +10,12 @@ import { AerscreenOtherInputsUnits, AerscreenRuralOrUrban, DistanceUnit, RuralUr
 const OtherInputs: React.FC = () => {
   const { formData, updateFormData } = useRunContext();
   const navigate = useNavigate();
+  const [useDefaultMinAmbDist, setUseDefaultMinAmbDist] = useState<boolean>(true)
   
   const defaultOtherInputs: OtherInputsType = {
 	use_flagpole_receptors: false,
 	flagpole_height_m: 0,
-	units: AerscreenOtherInputsUnits.METRIC,
 	rural_or_urban: AerscreenRuralOrUrban.RURAL,
-    distance_to_amb_air: 1,
     population: 0,
   };
   
@@ -49,15 +48,9 @@ const OtherInputs: React.FC = () => {
     navigate('/debug');
   };
 
-  // Distance units options
-  const distanceUnits = [
-    { value: DistanceUnit.METERS, label: 'Meters (m)' },
-    { value: DistanceUnit.FEET, label: 'Feet (ft)' }
-  ];
-
   const ruralUrbanOptions = [
-    { value: RuralUrban.RURAL, label: 'Rural' },
-    { value: RuralUrban.URBAN, label: 'Urban' }
+    { value: AerscreenRuralOrUrban.RURAL, label: 'Rural' },
+    { value: AerscreenRuralOrUrban.URBAN, label: 'Urban' }
   ];
 
   return (
@@ -68,48 +61,53 @@ const OtherInputs: React.FC = () => {
       nextSectionLabel="Fumigation"
       previousSection="/discrete-receptors"
     >
-      <InfoSection content="Info section: Configure additional modeling parameters including urban/rural classification and minimum distances for regulatory compliance." />
+      <InfoSection content="Configure urban/rural classification and minimum ambient distance for regulatory compliance." />
       
       <div className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField
             label="Rural or Urban?"
-            name="rural_urban"
+            name="rural_or_urban"
             type="select"
             value={otherInputs.rural_or_urban}
             onChange={handleChange}
             options={ruralUrbanOptions}
             required
-            tooltip="Dummy tooltip: Select whether the area is rural or urban"
+            tooltip="Select whether the source is in a rural or urban area"
           />
+          {otherInputs.rural_or_urban === AerscreenRuralOrUrban.URBAN ? (
+            <FormField
+              label="Urban Population"
+              name="population"
+              type="number"
+              value={otherInputs.population || 0}
+              onChange={handleChange}
+              tooltip="Enter the urban population if applicable"
+            />
+          ) : (
+            <div></div>
+          )}
+            {/* Input mode selection */}
           <FormField
-            label="Minimum Distance to Ambient Air"
-            name="min_dist_ambient"
-            type="number"
-            value={otherInputs.distance_to_amb_air}
-            onChange={handleChange}
-            required
-            tooltip="Dummy tooltip: Enter the minimum distance to ambient air boundary"
+            label="Use Default Minimum Ambient Distance"
+            name="use_default_minimum_ambient_distance"
+            type="checkbox"
+            value={useDefaultMinAmbDist}
+            onChange={ () => setUseDefaultMinAmbDist(!useDefaultMinAmbDist) }
+            tooltip="Use the default AERSCREEN minimum ambient distance. Non-volume sources are 1 meter, and volume sources are 2.15 times the initial lateral dimension."
           />
-          <FormField
-            label="Distance Unit"
-            name="min_dist_ambient_unit"
-            type="select"
-            value={otherInputs.distance_to_amb_air}
-            onChange={handleChange}
-            options={distanceUnits}
-            required
-            tooltip="Dummy tooltip: Select the unit for distance"
-          />
-          
-          <FormField
-            label="Urban Population"
-            name="urban_population"
-            type="number"
-            value={otherInputs.population || 0}
-            onChange={handleChange}
-            tooltip="Dummy tooltip: Enter the urban population if applicable"
-          />
+
+		  {!useDefaultMinAmbDist && (
+			  <FormField
+				label="Minimum Distance to Ambient Air (m)"
+				name="distance_to_amb_air"
+				type="number"
+				value={otherInputs.distance_to_amb_air}
+				onChange={handleChange}
+				required
+				tooltip="Enter the minimum distance to ambient air in meters"
+			  />
+		  )}
         </div>
       </div>
     </SectionContainer>

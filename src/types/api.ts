@@ -404,10 +404,9 @@ export interface AerscreenDiscreteReceptors {
 
 // Other Inputs
 export interface AerscreenOtherInputs {
-  units: AerscreenOtherInputsUnits
   rural_or_urban: AerscreenRuralOrUrban
   population?: number
-  distance_to_amb_air: number
+  distance_to_amb_air?: number
   use_flagpole_receptors: boolean
   flagpole_height_m: number
 }

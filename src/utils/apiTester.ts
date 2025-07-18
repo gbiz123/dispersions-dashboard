@@ -60,7 +60,6 @@ const sampleRequest: AerscreenRequest = {
   other_inputs: {
 	flagpole_height_m: 0,
 	use_flagpole_receptors: false,
-	units: AerscreenOtherInputsUnits.METRIC,
     distance_to_amb_air: 100,
 	rural_or_urban: AerscreenRuralOrUrban.RURAL
   }

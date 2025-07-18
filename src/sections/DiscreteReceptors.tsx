@@ -108,7 +108,7 @@ const DiscreteReceptors: React.FC = () => {
               checked={useDiscrete}
               onChange={() => setUseDiscrete(!useDiscrete)}
             />
-            <span>Use discrete receptors here</span>
+            <span>Include Discrete Receptors</span>
           </label>
         </Tooltip>
 

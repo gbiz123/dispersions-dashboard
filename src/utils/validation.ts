@@ -71,14 +71,6 @@ export const validateDiscreteReceptors = (data: AerscreenRequest['discrete_recep
   }
 };
 
-export const validateOtherInputs = (data: AerscreenRequest['other_inputs']) => {
-  if (!data) return false;
-  
-  return (
-    data.distance_to_amb_air > 0
-  );
-};
-
 export const validateFumigation = (data: AerscreenRequest['fumigation']) => {
   if (!data) return true; // Optional section
   
