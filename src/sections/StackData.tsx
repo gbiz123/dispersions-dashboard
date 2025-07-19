@@ -9,50 +9,6 @@ import { DistanceUnit, VelocityUnit, FlowRateUnit, TemperatureUnit, EmissionRate
 import LoadingOverlay from '../components/LoadingOverlay';
 import InfoSection from 'components/InfoSection';
 
-const makeDefaults = (t: AerscreenSourceType): Partial<StackDataType> => {
-  switch (t) {
-    case AerscreenSourceType.FLARE:
-      return {
-        rate: 0,
-        height: 0,
-        heat_release_rate: 0,
-        heat_loss_fraction: 0.55,
-      };
-    case AerscreenSourceType.VOLUME:
-      return {
-        rate: 0,
-        release_height_agl: 0,
-        initial_lateral_dimension: 0,
-        initial_vertical_dimension: 0,
-      };
-    case AerscreenSourceType.RECTANGULAR_AREA:
-      return {
-        rate: 0,
-        release_height_agl: 0,
-        width: 0,
-        length: 0,
-        vertical_dimension: 0,
-      };
-    case AerscreenSourceType.CIRCULAR_AREA:
-      return {
-        rate: 0,
-        release_height_agl: 0,
-        radius: 0,
-        num_vertices: 20,
-        vertical_dimension: 0,
-      };
-    /* point-like sources share the same five groups of fields */
-    default:
-      return {
-        rate: 0,
-        height: 0,
-        diam: 0,
-        temp_k: 0,
-        vel: 0,
-        flow_rate: 0,
-      };
-  }
-};
 
 /* ------------------------------------------------------------------ */
 /* component                                                          */
@@ -61,134 +17,21 @@ const StackData: React.FC = () => {
   const { formData, updateFormData } = useRunContext();
   const { isLoadingRunData } = useAerscreen();
   const navigate = useNavigate();
-  
-  const defaultStackData: StackDataType & { sourceType: AerscreenSourceType } = {
-    rate: 0,
-    height: 10,
-    diam: 0,
-    temp_k: 0,
-    vel: 0,
-    flow_rate: 0,
-    rate_unit: EmissionRateUnit.GRAMS_PER_SECOND,
-    height_unit: DistanceUnit.METERS,
-    diam_unit: DistanceUnit.METERS,
-    temp_unit: TemperatureUnit.KELVIN,
-    vel_unit: VelocityUnit.METERS_PER_SECOND,
-    flow_rate_unit: FlowRateUnit.CUBIC_METERS_PER_SECOND,
-    heat_release_rate: 0,
-    heat_loss_fraction: 0.55,
-    release_height_agl: 0,
-    initial_lateral_dimension: 0,
-    initial_vertical_dimension: 0,
-    length: 0,
-    width: 0,
-    vertical_dimension: 0,
-    radius: 0,
-    num_vertices: 20,
-    sourceType: AerscreenSourceType.POINT
-  };
-  
-  const [stackData, setStackData] = useState<StackDataType & { sourceType: AerscreenSourceType }>(formData.source_data);
 
   /* ------------- change handler ----------------------------------- */
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
 
-    /* when user switches the sourceType, reset to clean defaults */
-    if (name === 'sourceType') {
-      const newType = value as AerscreenSourceType;
-
-      // create a brand-new state object that satisfies the full type
-	  const newStackData = formData.source_data
-	  newStackData.sourceType = newType
-	  updateFormData('source_data', newStackData)
-	  setStackData(formData.source_data)
-	  console.log(newType)
-    } else {
-		const sanitised =
-		  name === 'heat_loss_fraction'
-			? Math.max(0.0001, Math.min(1, parseFloat(value) || 0))
-			: value;
-
-		setStackData({
-		  ...formData.source_data,
-		  [name]:
-			/* list of numeric fields */
-			[
-			  'rate', 'height', 'diam', 'temp_k', 'vel', 'flow_rate',
-			  'heat_release_rate', 'heat_loss_fraction', 'release_height_agl',
-			  'initial_lateral_dimension', 'initial_vertical_dimension',
-			  'length', 'width', 'vertical_dimension', 'radius', 'num_vertices',
-			].includes(name)
-			  ? parseFloat(sanitised as string) || 0
-			  : sanitised,
-		});
-	}
+	updateFormData('source_data', {
+		...formData.source_data,
+		[name]: value
+	})
 
 	console.log("Stack data", formData.source_data)
   };
 
-  /* ──────────────────────────────────────────────────────────────
-   * keep-list for every source-type
-   * ──────────────────────────────────────────────────────────── */
-  const allowedFields: Record<AerscreenSourceType, (keyof StackDataType)[]> = {
-    [AerscreenSourceType.POINT]: [
-      'rate', 'height', 'diam', 'temp_k', 'vel', 'flow_rate',
-      'rate_unit', 'height_unit', 'diam_unit', 'temp_unit',
-      'vel_unit', 'flow_rate_unit'
-    ],
-    [AerscreenSourceType.CAPPED_POINT]: [
-      'rate', 'height', 'diam', 'temp_k', 'vel', 'flow_rate',
-      'rate_unit', 'height_unit', 'diam_unit', 'temp_unit',
-      'vel_unit', 'flow_rate_unit'
-    ],
-    [AerscreenSourceType.HORIZONTAL_POINT]: [
-      'rate', 'height', 'diam', 'temp_k', 'vel', 'flow_rate',
-      'rate_unit', 'height_unit', 'diam_unit', 'temp_unit',
-      'vel_unit', 'flow_rate_unit'
-    ],
-    [AerscreenSourceType.FLARE]: [
-      'rate', 'height', 'heat_release_rate', 'heat_loss_fraction'
-    ],
-    [AerscreenSourceType.VOLUME]: [
-      'rate', 'release_height_agl',
-      'initial_lateral_dimension', 'initial_vertical_dimension'
-    ],
-    [AerscreenSourceType.RECTANGULAR_AREA]: [
-      'rate', 'release_height_agl', 'length', 'width', 'vertical_dimension'
-    ],
-    [AerscreenSourceType.CIRCULAR_AREA]: [
-      'rate', 'release_height_agl',
-      'radius', 'num_vertices', 'vertical_dimension'
-    ]
-  };
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-
-    /* ② validation for flare – heat-loss-fraction must be 0 < x ≤ 1 */
-    if (
-      stackData.sourceType === AerscreenSourceType.FLARE &&
-      (stackData.heat_loss_fraction! <= 0 || stackData.heat_loss_fraction! > 1)
-    ) {
-      alert('Heat-loss fraction must be greater than 0 and less or equal 1.');
-      return;
-    }
-
-    // -------- existing payload build --------
-    const { sourceType, ...rest } = stackData;
-    const core = allowedFields[sourceType].reduce<Record<string, unknown>>(
-      (obj, k) => {
-        if (rest[k] !== undefined) obj[k as string] = rest[k];
-        return obj;
-      },
-      {}
-    );
-    const payload = { source_type: sourceType, ...core };
-
-	console.log(payload)
-
-    updateFormData('source_data', payload as StackDataType);
     navigate('/building-data');
   };
 
@@ -250,7 +93,7 @@ const StackData: React.FC = () => {
 			  label="Source Type"
 			  name="sourceType"
 			  type="select"
-			  value={stackData.sourceType}
+			  value={formData.source_data.sourceType}
 			  onChange={handleChange}
 			  options={sourceTypeOptions}
 			  required
@@ -258,13 +101,13 @@ const StackData: React.FC = () => {
 			/>
 			<div className="md:col-span-1"></div>
 			
-			{isPointLike(stackData.sourceType) && (
+			{isPointLike(formData.source_data.sourceType) && (
 			  <Fragment>
 				<FormField
 				  label="Emission Rate"
 				  name="rate"
 				  type="number"
-				  value={stackData.rate}
+				  value={formData.source_data.rate}
 				  onChange={handleChange}
 				  min={0}
 				  required
@@ -274,7 +117,7 @@ const StackData: React.FC = () => {
 				  label="Emission Rate Unit"
 				  name="rate_unit"
 				  type="select"
-				  value={stackData.rate_unit}
+				  value={formData.source_data.rate_unit}
 				  onChange={handleChange}
 				  options={emissionRateUnits}
 				  required
@@ -284,7 +127,7 @@ const StackData: React.FC = () => {
 				  label="Stack Height"
 				  name="height"
 				  type="number"
-				  value={stackData.height}
+				  value={formData.source_data.height}
 				  onChange={handleChange}
 				  min={0}
 				  required
@@ -294,7 +137,7 @@ const StackData: React.FC = () => {
 				  label="Stack Height Unit"
 				  name="height_unit"
 				  type="select"
-				  value={stackData.height_unit}
+				  value={formData.source_data.height_unit}
 				  onChange={handleChange}
 				  options={distanceUnits}
 				  required
@@ -304,7 +147,7 @@ const StackData: React.FC = () => {
 				  label="Stack Diameter"
 				  name="diam"
 				  type="number"
-				  value={stackData.diam}
+				  value={formData.source_data.diam}
 				  onChange={handleChange}
 				  min={0}
 				  required
@@ -314,7 +157,7 @@ const StackData: React.FC = () => {
 				  label="Stack Diameter Unit"
 				  name="diam_unit"
 				  type="select"
-				  value={stackData.diam_unit}
+				  value={formData.source_data.diam_unit}
 				  onChange={handleChange}
 				  options={stackDiamUnits}
 				  required
@@ -324,7 +167,7 @@ const StackData: React.FC = () => {
 				  label="Stack Gas Exit Temperature"
 				  name="temp_k"
 				  type="number"
-				  value={stackData.temp_k}
+				  value={formData.source_data.temp_k}
 				  onChange={handleChange}
 				  required
 				  tooltip="Enter the temperature of the gas exiting the stack in F or K. Negatives are relative to ambient temperature."
@@ -333,7 +176,7 @@ const StackData: React.FC = () => {
 				  label="Temperature Unit"
 				  name="temp_unit"
 				  type="select"
-				  value={stackData.temp_unit}
+				  value={formData.source_data.temp_unit}
 				  onChange={handleChange}
 				  options={temperatureUnits}
 				  required
@@ -343,7 +186,7 @@ const StackData: React.FC = () => {
 				  label="Stack Gas Exit Rate"
 				  name="vel"
 				  type="number"
-				  value={stackData.vel}
+				  value={formData.source_data.vel}
 				  onChange={handleChange}
 				  required
 				  tooltip="Enter the velocity of gas exiting the stack in ft/s or m/s"
@@ -352,7 +195,7 @@ const StackData: React.FC = () => {
 				  label="Rate Unit"
 				  name="vel_unit"
 				  type="select"
-				  value={stackData.vel_unit}
+				  value={formData.source_data.vel_unit}
 				  onChange={handleChange}
 				  options={velocityUnits}
 				  required
@@ -361,13 +204,13 @@ const StackData: React.FC = () => {
 			  </Fragment>
 			)}
 
-			{stackData.sourceType === AerscreenSourceType.FLARE && (
+			{formData.source_data.sourceType === AerscreenSourceType.FLARE && (
 			  <Fragment>
 				<FormField
 				  label="Emission Rate"
 				  name="rate"
 				  type="number"
-				  value={stackData.rate}
+				  value={formData.source_data.rate}
 				  onChange={handleChange}
 				  min={0}
 				  required
@@ -377,7 +220,7 @@ const StackData: React.FC = () => {
 				  label="Emission Rate Unit"
 				  name="rate_unit"
 				  type="select"
-				  value={stackData.rate_unit}
+				  value={formData.source_data.rate_unit}
 				  onChange={handleChange}
 				  options={emissionRateUnits}
 				  required
@@ -387,7 +230,7 @@ const StackData: React.FC = () => {
 				  label="Stack Height"
 				  name="height"
 				  type="number"
-				  value={stackData.height}
+				  value={formData.source_data.height}
 				  onChange={handleChange}
 				  min={0}
 				  required
@@ -397,7 +240,7 @@ const StackData: React.FC = () => {
 				  label="Stack Height Unit"
 				  name="height_unit"
 				  type="select"
-				  value={stackData.height_unit}
+				  value={formData.source_data.height_unit}
 				  onChange={handleChange}
 				  options={distanceUnits}
 				  required
@@ -407,7 +250,7 @@ const StackData: React.FC = () => {
 				  label="Heat Release Rate (cal/sec)"
 				  name="heat_release_rate"
 				  type="number"
-				  value={stackData.heat_release_rate ?? 0}
+				  value={formData.source_data.heat_release_rate ?? 0}
 				  onChange={handleChange}
 				  required
 				  tooltip="Enter the total heat release rate in cal/sec"
@@ -416,7 +259,7 @@ const StackData: React.FC = () => {
 				  label="Heat Loss Fraction (0–1)"
 				  name="heat_loss_fraction"
 				  type="number"
-				  value={stackData.heat_loss_fraction ?? 0}
+				  value={formData.source_data.heat_loss_fraction ?? 0}
 				  onChange={handleChange}
 				  min={0}
 				  max={1}
@@ -427,13 +270,13 @@ const StackData: React.FC = () => {
 			  </Fragment>
 			)}
 
-			{stackData.sourceType === AerscreenSourceType.VOLUME && (
+			{formData.source_data.sourceType === AerscreenSourceType.VOLUME && (
 			  <Fragment>
 				<FormField
 				  label="Emission Rate"
 				  name="rate"
 				  type="number"
-				  value={stackData.rate}
+				  value={formData.source_data.rate}
 				  onChange={handleChange}
 				  min={0}
 				  required
@@ -443,7 +286,7 @@ const StackData: React.FC = () => {
 				  label="Emission Rate Unit"
 				  name="rate_unit"
 				  type="select"
-				  value={stackData.rate_unit}
+				  value={formData.source_data.rate_unit}
 				  onChange={handleChange}
 				  options={emissionRateUnits}
 				  required
@@ -453,7 +296,7 @@ const StackData: React.FC = () => {
 				  label="Release Height AGL"
 				  name="release_height_agl"
 				  type="number"
-				  value={stackData.release_height_agl}
+				  value={formData.source_data.release_height_agl}
 				  onChange={handleChange}
 				  required
 				  tooltip="Enter release height, i.e center of volumne, in feet or meters"
@@ -462,7 +305,7 @@ const StackData: React.FC = () => {
 				  label="Release Height Unit"
 				  name="height_unit"
 				  type="select"
-				  value={stackData.height_unit}
+				  value={formData.source_data.height_unit}
 				  onChange={handleChange}
 				  options={distanceUnits}
 				  required
@@ -472,7 +315,7 @@ const StackData: React.FC = () => {
 				  label="Initial Lateral Dimension"
 				  name="initial_lateral_dimension"
 				  type="number"
-				  value={stackData.initial_lateral_dimension}
+				  value={formData.source_data.initial_lateral_dimension}
 				  onChange={handleChange}
 				  required
 				  tooltip="Enter the initial lateral dimension of the volume in feet or meters"
@@ -481,7 +324,7 @@ const StackData: React.FC = () => {
 				  label="Lateral Dimension Unit"
 				  name="lateral_dimension_height_unit"
 				  type="select"
-				  value={stackData.lateral_dimension_height_unit}
+				  value={formData.source_data.lateral_dimension_height_unit}
 				  onChange={handleChange}
 				  options={distanceUnits}
 				  required
@@ -491,7 +334,7 @@ const StackData: React.FC = () => {
 				  label="Initial Vertical Dimension"
 				  name="initial_vertical_dimension"
 				  type="number"
-				  value={stackData.initial_vertical_dimension}
+				  value={formData.source_data.initial_vertical_dimension}
 				  onChange={handleChange}
 				  required
 				  tooltip="Enter the initial vertical dimension of the volume in feet or meters"
@@ -500,7 +343,7 @@ const StackData: React.FC = () => {
 				  label="Vertical Dimension Unit"
 				  name="vertical_dimension_height_unit"
 				  type="select"
-				  value={stackData.vertical_dimension_height_unit}
+				  value={formData.source_data.vertical_dimension_height_unit}
 				  onChange={handleChange}
 				  options={distanceUnits}
 				  required
@@ -509,13 +352,13 @@ const StackData: React.FC = () => {
 			  </Fragment>
 			)}
 
-			{stackData.sourceType === AerscreenSourceType.RECTANGULAR_AREA && (
+			{formData.source_data.sourceType === AerscreenSourceType.RECTANGULAR_AREA && (
 			  <Fragment>
 				<FormField
 				  label="Emission Rate"
 				  name="rate"
 				  type="number"
-				  value={stackData.rate}
+				  value={formData.source_data.rate}
 				  onChange={handleChange}
 				  min={0}
 				  required
@@ -525,7 +368,7 @@ const StackData: React.FC = () => {
 				  label="Emission Rate Unit"
 				  name="rate_unit"
 				  type="select"
-				  value={stackData.rate_unit}
+				  value={formData.source_data.rate_unit}
 				  onChange={handleChange}
 				  options={emissionRateUnits}
 				  required
@@ -535,7 +378,7 @@ const StackData: React.FC = () => {
 				  label="Release Height AGL"
 				  name="release_height_agl"
 				  type="number"
-				  value={stackData.release_height_agl}
+				  value={formData.source_data.release_height_agl}
 				  onChange={handleChange}
 				  required
 				  tooltip="Enter release height, i.e center of volumne, in feet or meters"
@@ -544,7 +387,7 @@ const StackData: React.FC = () => {
 				  label="Release Height Unit"
 				  name="height_unit"
 				  type="select"
-				  value={stackData.height_unit}
+				  value={formData.source_data.height_unit}
 				  onChange={handleChange}
 				  options={distanceUnits}
 				  required
@@ -554,7 +397,7 @@ const StackData: React.FC = () => {
 				  label="Length"
 				  name="length"
 				  type="number"
-				  value={stackData.length}
+				  value={formData.source_data.length}
 				  onChange={handleChange}
 				  required
 				  tooltip="Enter the length of the area source"
@@ -563,7 +406,7 @@ const StackData: React.FC = () => {
 				  label="Length Unit"
 				  name="length_unit"
 				  type="select"
-				  value={stackData.length_unit}
+				  value={formData.source_data.length_unit}
 				  onChange={handleChange}
 				  options={distanceUnits}
 				  required
@@ -573,7 +416,7 @@ const StackData: React.FC = () => {
 				  label="Width"
 				  name="width"
 				  type="number"
-				  value={stackData.width}
+				  value={formData.source_data.width}
 				  onChange={handleChange}
 				  required
 				  tooltip="Enter the width of the area source"
@@ -582,7 +425,7 @@ const StackData: React.FC = () => {
 				  label="Width Unit"
 				  name="width_unit"
 				  type="select"
-				  value={stackData.width_unit}
+				  value={formData.source_data.width_unit}
 				  onChange={handleChange}
 				  options={distanceUnits}
 				  required
@@ -592,7 +435,7 @@ const StackData: React.FC = () => {
 				  label="Vertical Dimension"
 				  name="vertical_dimension"
 				  type="number"
-				  value={stackData.vertical_dimension}
+				  value={formData.source_data.vertical_dimension}
 				  onChange={handleChange}
 				  required
 				  tooltip="Enter the initial initial vertical dimension of the plume"
@@ -601,7 +444,7 @@ const StackData: React.FC = () => {
 				  label="Width Unit"
 				  name="width_unit"
 				  type="select"
-				  value={stackData.width_unit}
+				  value={formData.source_data.width_unit}
 				  onChange={handleChange}
 				  options={distanceUnits}
 				  required
@@ -610,13 +453,13 @@ const StackData: React.FC = () => {
 			  </Fragment>
 			)}
 
-			{stackData.sourceType === AerscreenSourceType.CIRCULAR_AREA && (
+			{formData.source_data.sourceType === AerscreenSourceType.CIRCULAR_AREA && (
 			  <Fragment>
 				<FormField
 				  label="Emission Rate"
 				  name="rate"
 				  type="number"
-				  value={stackData.rate}
+				  value={formData.source_data.rate}
 				  onChange={handleChange}
 				  min={0}
 				  required
@@ -626,7 +469,7 @@ const StackData: React.FC = () => {
 				  label="Emission Rate Unit"
 				  name="rate_unit"
 				  type="select"
-				  value={stackData.rate_unit}
+				  value={formData.source_data.rate_unit}
 				  onChange={handleChange}
 				  options={emissionRateUnits}
 				  required
@@ -636,7 +479,7 @@ const StackData: React.FC = () => {
 				  label="Release Height AGL"
 				  name="release_height_agl"
 				  type="number"
-				  value={stackData.release_height_agl}
+				  value={formData.source_data.release_height_agl}
 				  onChange={handleChange}
 				  required
 				  tooltip="Enter release height, i.e center of volumne, in feet or meters"
@@ -645,7 +488,7 @@ const StackData: React.FC = () => {
 				  label="Release Height Unit"
 				  name="height_unit"
 				  type="select"
-				  value={stackData.height_unit}
+				  value={formData.source_data.height_unit}
 				  onChange={handleChange}
 				  options={distanceUnits}
 				  required
@@ -655,7 +498,7 @@ const StackData: React.FC = () => {
 				  label="Vertical Dimension"
 				  name="vertical_dimension"
 				  type="number"
-				  value={stackData.vertical_dimension}
+				  value={formData.source_data.vertical_dimension}
 				  onChange={handleChange}
 				  required
 				  tooltip="Enter the initial initial vertical dimension of the plume"
@@ -664,7 +507,7 @@ const StackData: React.FC = () => {
 				  label="Width Unit"
 				  name="width_unit"
 				  type="select"
-				  value={stackData.width_unit}
+				  value={formData.source_data.width_unit}
 				  onChange={handleChange}
 				  options={distanceUnits}
 				  required
@@ -674,7 +517,7 @@ const StackData: React.FC = () => {
 				  label="Radius"
 				  name="radius"
 				  type="number"
-				  value={stackData.radius}
+				  value={formData.source_data.radius}
 				  onChange={handleChange}
 				  required
 				  tooltip="Enter the radius of the circle"
@@ -683,7 +526,7 @@ const StackData: React.FC = () => {
 				  label="Radius Unit"
 				  name="radius_unit"
 				  type="select"
-				  value={stackData.radius_unit}
+				  value={formData.source_data.radius_unit}
 				  onChange={handleChange}
 				  options={distanceUnits}
 				  required
@@ -693,7 +536,7 @@ const StackData: React.FC = () => {
 				  label="Number of vertices"
 				  name="num_vertices"
 				  type="number"
-				  value={stackData.num_vertices}
+				  value={formData.source_data.num_vertices}
 				  onChange={handleChange}
 				  required
 				  tooltip="Increase the number of vertices to make the shape smoother, but increase processing time"
