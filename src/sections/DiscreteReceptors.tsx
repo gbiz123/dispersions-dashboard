@@ -12,11 +12,6 @@ const DiscreteReceptors: React.FC = () => {
   const { formData, updateFormData } = useRunContext();
   const navigate = useNavigate();
 
-  // NEW: toggle for using discrete receptors
-  const [useDiscrete, setUseDiscrete] = useState<boolean>(
-    formData.use_discrete_receptors ?? true
-  );
-  //
   // Distance units options
   const discreteReceptorsUnits = [
     { value: DiscreteReceptorsUnits.METERS, label: 'Meters (m)' },
@@ -25,61 +20,47 @@ const DiscreteReceptors: React.FC = () => {
     { value: DiscreteReceptorsUnits.MILES, label: 'Miles (mi)' },
   ];
 
-  // Default values
-  const defaultDiscreteReceptors: DiscreteReceptorsType = {
-	distance_units: DiscreteReceptorsUnits.METERS,
-	include_discrete_receptors: false,
-    receptors: [0]
-  };
-
-  // Initialize state with existing data or defaults
-  const [receptorsData, setReceptorsData] = useState<DiscreteReceptorsType>(
-    formData.discrete_receptors || defaultDiscreteReceptors
-  );
-
   // TODO: Instead of units selection per receptor, units and other fields should be defined up top
   
   const handleChange = (index: number, e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    const updatedReceptors = [...receptorsData.receptors];
+    const currentReceptors = formData.discrete_receptors?.receptors || [0];
+    const updatedReceptors = [...currentReceptors];
     updatedReceptors[index] = parseFloat(value) || 0;
-    setReceptorsData({
-      ...receptorsData,
+    
+    updateFormData('discrete_receptors', {
+      ...formData.discrete_receptors,
       receptors: updatedReceptors
     });
   };
 
   const addReceptor = () => {
-    if (receptorsData.receptors.length >= 10) return;
-    setReceptorsData({
-      ...receptorsData,
-      receptors: [
-        ...receptorsData.receptors,
-		0
-      ]
+    const currentReceptors = formData.discrete_receptors?.receptors || [0];
+    if (currentReceptors.length >= 10) return;
+    
+    updateFormData('discrete_receptors', {
+      ...formData.discrete_receptors,
+      receptors: [...currentReceptors, 0]
     });
   };
 
   const removeReceptor = (index: number) => {
-    if (receptorsData.receptors.length <= 1) {
+    const currentReceptors = formData.discrete_receptors?.receptors || [0];
+    if (currentReceptors.length <= 1) {
       return; // Don't remove the last receptor
     }
 
-    const updatedReceptors = [...receptorsData.receptors];
+    const updatedReceptors = [...currentReceptors];
     updatedReceptors.splice(index, 1);
 
-    setReceptorsData({
-      ...receptorsData,
+    updateFormData('discrete_receptors', {
+      ...formData.discrete_receptors,
       receptors: updatedReceptors
     });
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    updateFormData('use_discrete_receptors', useDiscrete); // NEW
-    if (useDiscrete) {
-      updateFormData('discrete_receptors', receptorsData);
-    }
     navigate('/other-inputs');
   };
 
@@ -105,36 +86,36 @@ const DiscreteReceptors: React.FC = () => {
           <label className="flex items-center space-x-2">
             <input
               type="checkbox"
-              checked={useDiscrete}
-              onChange={() => setUseDiscrete(!useDiscrete)}
+              checked={formData.use_discrete_receptors ?? false}
+              onChange={() => updateFormData('use_discrete_receptors', !formData.use_discrete_receptors)}
             />
             <span>Include Discrete Receptors</span>
           </label>
         </Tooltip>
 
-        {useDiscrete && (
+        {formData.use_discrete_receptors && (
           <div>
             <div className="grid grid-cols-1 lg:grid-cols-4 xl:grid-cols-6 gap-6 mb-4">
               <FormField
                 label="Distance Units"
                 name="distance_units"
                 type="select"
-                value={receptorsData.distance_units}
-                onChange={(e) => setReceptorsData({ ...receptorsData, distance_units: e.target.value as DiscreteReceptorsUnits })}
+                value={formData.discrete_receptors?.distance_units || DiscreteReceptorsUnits.METERS}
+                onChange={(e) => updateFormData('discrete_receptors', { ...formData.discrete_receptors, distance_units: e.target.value as DiscreteReceptorsUnits })}
                 options={discreteReceptorsUnits}
                 required
                 tooltip="Select the units for receptor distances"
               />
             </div>
 
-            {receptorsData.receptors.map((receptor, index) => (
+            {(formData.discrete_receptors?.receptors || [0]).map((receptor: any, index: any) => (
               <div key={index} className="p-4 border rounded-md mb-5 bg-gray-50 relative">
                 <div className="absolute top-2 right-2">
                   <button
                     type="button"
                     onClick={() => removeReceptor(index)}
                     className="p-1 text-red-500 hover:text-red-700"
-                    disabled={receptorsData.receptors.length <= 1}
+                    disabled={(formData.discrete_receptors?.receptors || [0]).length <= 1}
                   >
                     <span className="text-xl">&times;</span>
                   </button>
@@ -161,7 +142,7 @@ const DiscreteReceptors: React.FC = () => {
                 type="button"
                 onClick={addReceptor}
                 className="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600 disabled:opacity-50"
-                disabled={receptorsData.receptors.length >= 10}
+                disabled={(formData.discrete_receptors?.receptors || [0]).length >= 10}
               >
                 Add Receptor
               </button>

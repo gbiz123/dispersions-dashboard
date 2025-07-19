@@ -15,28 +15,11 @@ const BuildingData: React.FC = () => {
   const navigate = useNavigate();
   const fileInputRef = useRef<HTMLInputElement>(null);
   
-  // Default values
-  const defaultBuildingData: BuildingDataType = {
-	use_building_downwash: false,
-    height: 0,
-    max_horizontal_dim: 0,
-    min_horizontal_dim: 0,
-    deg_from_north_of_max_hor_dim: 0,
-    deg_from_north_of_stack_rel_to_center: 0,
-    dist_stack_to_center: 0
-  };
-  
-  // Initialize state with existing data or defaults
-  const [buildingData, setBuildingData] = useState<BuildingDataType>(
-    formData.building_data || defaultBuildingData
-  );
-
-
   // Add validation state
   const [errors, setErrors] = useState<Partial<Record<keyof BuildingDataType, string>>>({});
   const [touched, setTouched] = useState<Partial<Record<keyof BuildingDataType, boolean>>>({});
   const [bpipprmFilename, setBpipprmFilename] = useState<string>("");
-  const [useManualInputs, setUseManualInputs] = useState(!buildingData.use_existing_bpipprm_file);
+  const [useManualInputs, setUseManualInputs] = useState(!formData.building_data?.use_existing_bpipprm_file);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
@@ -47,20 +30,17 @@ const BuildingData: React.FC = () => {
       [name]: true
     }));
     
+    let processedValue: any = value;
     if (type === 'checkbox') {
-      const checked = (e.target as HTMLInputElement).checked;
-      setBuildingData(prev => ({
-        ...prev,
-        [name]: checked
-      }));
-    } else {
-      setBuildingData(prev => ({
-        ...prev,
-        [name]: name.includes('bldg_height') || name.includes('bldg_width') 
-          ? parseFloat(value) || 0 
-          : value
-      }));
+      processedValue = (e.target as HTMLInputElement).checked;
+    } else if (name.includes('bldg_height') || name.includes('bldg_width')) {
+      processedValue = parseFloat(value) || 0;
     }
+    
+    updateFormData('building_data', {
+      ...formData.building_data,
+      [name]: processedValue
+    });
     
     // Clear error for this field when it changes
     if (errors[name as keyof BuildingDataType]) {
@@ -79,17 +59,17 @@ const BuildingData: React.FC = () => {
       const reader = new FileReader();
       reader.onload = (event) => {
         const fileContent = event.target?.result as string;
-        setBuildingData(prev => ({
-          ...prev,
+        updateFormData('building_data', {
+          ...formData.building_data,
           use_existing_bpipprm_file: fileContent
-        }));
+        });
       };
       reader.readAsText(file);
     } else {
-      setBuildingData(prev => ({
-        ...prev,
+      updateFormData('building_data', {
+        ...formData.building_data,
         use_existing_bpipprm_file: undefined
-      }));
+      });
       setBpipprmFilename("");
     }
   };
@@ -98,10 +78,10 @@ const BuildingData: React.FC = () => {
     if (mode === 'manual') {
       // Switch to manual input mode
       setUseManualInputs(true);
-      setBuildingData(prev => ({
-        ...prev,
+      updateFormData('building_data', {
+        ...formData.building_data,
         use_existing_bpipprm_file: null
-      }));
+      });
       
       // Clear the file input
       if (fileInputRef.current) {
@@ -132,6 +112,8 @@ const BuildingData: React.FC = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    
+    const buildingData = formData.building_data || {};
     
     // Check all fields for errors
     const newErrors: Partial<Record<keyof BuildingDataType, string>> = {};
@@ -169,7 +151,6 @@ const BuildingData: React.FC = () => {
       return; // Don't proceed if validation fails
     }
     
-    updateFormData('building_data', buildingData);
     navigate('/makemet-data');
   };
 
@@ -197,7 +178,7 @@ const BuildingData: React.FC = () => {
                 disabled={false}
                 type="checkbox"
                 name="use_building_downwash"
-                checked={buildingData.use_building_downwash}
+                checked={formData.building_data?.use_building_downwash || false}
                 onChange={handleChange}
                 className="checkbox checkbox-primary h-5 w-5"
               />
@@ -206,7 +187,7 @@ const BuildingData: React.FC = () => {
           </Tooltip>
         </div>
         
-        {buildingData.use_building_downwash && (
+        {formData.building_data?.use_building_downwash && (
           <>
             {/* Input mode selection */}
             <div className="mb-6 border-t border-gray-200 pt-4">
@@ -258,7 +239,7 @@ const BuildingData: React.FC = () => {
                   {errors.use_existing_bpipprm_file && (
                     <p className="text-red-500 text-sm mt-1">{errors.use_existing_bpipprm_file}</p>
                   )}
-                  {buildingData.use_existing_bpipprm_file && (
+                  {formData.building_data?.use_existing_bpipprm_file && (
                     <p className="text-green-600 text-sm mt-1">
                       File selected: {bpipprmFilename}
                     </p>
@@ -280,7 +261,7 @@ const BuildingData: React.FC = () => {
 					  label="Height"
 					  name="height"
 					  type="number"
-					  value={buildingData.height}
+					  value={formData.building_data?.height || 0}
 					  onChange={handleChange}
 					  required
 					  min={0.1}
@@ -291,7 +272,7 @@ const BuildingData: React.FC = () => {
 					  label="Height Unit"
 					  name="height_units"
 					  type="select"
-					  value={buildingData.height_units}
+					  value={formData.building_data?.height_units || ''}
 					  onChange={handleChange}
 					  options={distanceUnits}
 					  required
@@ -301,7 +282,7 @@ const BuildingData: React.FC = () => {
 					  label="Maximum Horizontal Dimension"
 					  name="max_horizontal_dim"
 					  type="number"
-					  value={buildingData.max_horizontal_dim}
+					  value={formData.building_data?.max_horizontal_dim || 0}
 					  onChange={handleChange}
 					  required
 					  min={0.1}
@@ -312,7 +293,7 @@ const BuildingData: React.FC = () => {
 					  label="Maximum Horizontal Dimension Units"
 					  name="max_horizontal_dim_units"
 					  type="select"
-					  value={buildingData.max_horizontal_dim_units}
+					  value={formData.building_data?.max_horizontal_dim_units || ''}
 					  onChange={handleChange}
 					  options={distanceUnits}
 					  required
@@ -322,7 +303,7 @@ const BuildingData: React.FC = () => {
 					  label="Minimum Horizontal Dimension"
 					  name="min_horizontal_dim"
 					  type="number"
-					  value={buildingData.min_horizontal_dim}
+					  value={formData.building_data?.min_horizontal_dim || 0}
 					  onChange={handleChange}
 					  required
 					  min={0.1}
@@ -333,7 +314,7 @@ const BuildingData: React.FC = () => {
 					  label="Minimum Horizontal Dimension Units"
 					  name="min_horizontal_dim_units"
 					  type="select"
-					  value={buildingData.min_horizontal_dim_units}
+					  value={formData.building_data?.min_horizontal_dim_units || ''}
 					  onChange={handleChange}
 					  options={distanceUnits}
 					  required
@@ -343,7 +324,7 @@ const BuildingData: React.FC = () => {
 					  label="Building Angle (deg)"
 					  name="deg_from_north_of_max_hor_dim"
 					  type="number"
-					  value={buildingData.deg_from_north_of_max_hor_dim}
+					  value={formData.building_data?.deg_from_north_of_max_hor_dim || 0}
 					  onChange={handleChange}
 					  required
 					  min={0.0}
@@ -355,7 +336,7 @@ const BuildingData: React.FC = () => {
 					  label="Stack Direction (deg)"
 					  name="deg_from_north_of_stack_rel_to_center"
 					  type="number"
-					  value={buildingData.deg_from_north_of_stack_rel_to_center}
+					  value={formData.building_data?.deg_from_north_of_stack_rel_to_center || 0}
 					  onChange={handleChange}
 					  required
 					  min={0.0}
@@ -367,7 +348,7 @@ const BuildingData: React.FC = () => {
 					  label="Stack Distance"
 					  name="dist_stack_to_center"
 					  type="number"
-					  value={buildingData.dist_stack_to_center}
+					  value={formData.building_data?.dist_stack_to_center || 0}
 					  onChange={handleChange}
 					  required
 					  min={0.0}
@@ -379,7 +360,7 @@ const BuildingData: React.FC = () => {
 					  label="Stack Distance Units"
 					  name="dist_to_stack_center_units"
 					  type="select"
-					  value={buildingData.dist_to_stack_center_units}
+					  value={formData.building_data?.dist_to_stack_center_units || ''}
 					  onChange={handleChange}
 					  options={distanceUnits}
 					  required

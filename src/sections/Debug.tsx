@@ -10,24 +10,18 @@ const Debug: React.FC = () => {
   const { formData, updateFormData } = useRunContext();
   const navigate = useNavigate();
 
-  // keep the full shape but we will only expose save_debug in the UI
-  const defaultDebug: DebugType = {
-    debug: false,
-  };
-
-  const [debug, setDebug] = useState<DebugType>(
-    formData.debug || defaultDebug
-  );
 
   // single checkbox toggles save_debug only
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { checked } = e.target;
-    setDebug(prev => ({ ...prev, debug: checked }));
+    updateFormData('debug', {
+      ...formData.debug,
+      debug: checked
+    });
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    updateFormData('debug', debug);
     navigate('/results');
   };
 
@@ -53,7 +47,7 @@ const Debug: React.FC = () => {
                 id="save_debug"
                 name="save_debug"
                 type="checkbox"
-                checked={debug.debug}
+                checked={formData.debug?.debug || false}
                 onChange={handleChange}
                 className="h-4 w-4 text-blue-600 rounded"
               />

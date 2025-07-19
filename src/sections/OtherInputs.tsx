@@ -10,41 +10,35 @@ import { AerscreenOtherInputsUnits, AerscreenRuralOrUrban, DistanceUnit, RuralUr
 const OtherInputs: React.FC = () => {
   const { formData, updateFormData } = useRunContext();
   const navigate = useNavigate();
-  const [useDefaultMinAmbDist, setUseDefaultMinAmbDist] = useState<boolean>(true)
-  
-  const defaultOtherInputs: OtherInputsType = {
-	use_flagpole_receptors: false,
-	flagpole_height_m: 0,
-	rural_or_urban: AerscreenRuralOrUrban.RURAL,
-    population: 0,
-  };
-  
-  const [otherInputs, setOtherInputs] = useState<OtherInputsType>(
-    formData.other_inputs || defaultOtherInputs
+  const [useDefaultMinAmbDist, setUseDefaultMinAmbDist] = useState<boolean>(
+    formData.other_inputs?.use_default_minimum_ambient_distance ?? true
   );
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
     
+    let processedValue: any = value;
     if (type === 'checkbox') {
-      const checked = (e.target as HTMLInputElement).checked;
-      setOtherInputs(prev => ({
-        ...prev,
-        [name]: checked
-      }));
-    } else {
-      setOtherInputs(prev => ({
-        ...prev,
-        [name]: name.includes('min_dist') || name.includes('population') 
-          ? parseFloat(value) || 0 
-          : value
-      }));
+      processedValue = (e.target as HTMLInputElement).checked;
+    } else if (name.includes('min_dist') || name.includes('population')) {
+      processedValue = parseFloat(value) || 0;
     }
+    
+    updateFormData('other_inputs', {
+      ...formData.other_inputs,
+      [name]: processedValue
+    });
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    updateFormData('other_inputs', otherInputs);
+    
+    // Update the useDefaultMinAmbDist state in formData
+    updateFormData('other_inputs', {
+      ...formData.other_inputs,
+      use_default_minimum_ambient_distance: useDefaultMinAmbDist
+    });
+    
     navigate('/debug');
   };
 
@@ -69,18 +63,18 @@ const OtherInputs: React.FC = () => {
             label="Rural or Urban?"
             name="rural_or_urban"
             type="select"
-            value={otherInputs.rural_or_urban}
+            value={formData.other_inputs?.rural_or_urban || AerscreenRuralOrUrban.RURAL}
             onChange={handleChange}
             options={ruralUrbanOptions}
             required
             tooltip="Select whether the source is in a rural or urban area"
           />
-          {otherInputs.rural_or_urban === AerscreenRuralOrUrban.URBAN ? (
+          {formData.other_inputs?.rural_or_urban === AerscreenRuralOrUrban.URBAN ? (
             <FormField
               label="Urban Population"
               name="population"
               type="number"
-              value={otherInputs.population || 0}
+              value={formData.other_inputs?.population || 0}
               onChange={handleChange}
               tooltip="Enter the urban population if applicable"
             />
@@ -102,7 +96,7 @@ const OtherInputs: React.FC = () => {
 				label="Minimum Distance to Ambient Air (m)"
 				name="distance_to_amb_air"
 				type="number"
-				value={otherInputs.distance_to_amb_air}
+				value={formData.other_inputs?.distance_to_amb_air || 0}
 				onChange={handleChange}
 				required
 				tooltip="Enter the minimum distance to ambient air in meters"

@@ -43,28 +43,10 @@ const MakemetData: React.FC = () => {
   const [loadingRuns, setLoadingRuns] = useState(false);
   const [runsError, setRunsError] = useState<string | null>(null);
   
-  // Default values
-  const defaultMakemetData: MakemetDataType = {
-    min_temp_k: 0,
-    max_temp_k: 0,
-    min_wind_speed_m_s: 0,
-    anemometer_height_m: 10,
-    climatology_type: ClimateType.NONE,
-    land_use_type: LandUseType.SWAMP,
-    albedo: 0,
-    bowen_ratio: 0,
-    surface_roughness: 0,
-    surface_characteristics_filename: new File([], '')
-  };
-  
-  // Initialize state with existing data or defaults
-  const [makemetData, setMakemetData] = useState<MakemetDataType>(
-    formData.makemet_data || defaultMakemetData
-  );
 
   // Fetch AERSURFACE runs when dropdown changes
   useEffect(() => {
-    if (makemetData.land_use_type !== LandUseType.USE_PREVIOUS_AERSURFACE_RUN) {
+    if (formData.makemet_data?.land_use_type !== LandUseType.USE_PREVIOUS_AERSURFACE_RUN) {
       setShowAersurfaceList(false);
       setSelectedAersurfaceRun(null);
       return;
@@ -89,33 +71,35 @@ const MakemetData: React.FC = () => {
         setAersurfaceRuns([]);
       })
       .finally(() => setLoadingRuns(false));
-  }, [makemetData.land_use_type]);
+  }, [formData.makemet_data?.land_use_type]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
-    setMakemetData(prev => ({
-      ...prev,
-      [name]: type === 'number' ? parseFloat(value) || 0 : value
-    }));
+    const processedValue = type === 'number' ? parseFloat(value) || 0 : value;
+    
+    updateFormData('makemet_data', {
+      ...formData.makemet_data,
+      [name]: processedValue
+    });
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setMakemetData(prev => ({
-      ...prev,
+    updateFormData('makemet_data', {
+      ...formData.makemet_data,
       surface_characteristics_filename: e.target.files?.[0] ?? null
-    }));
+    });
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const dataToSubmit: any = { ...makemetData };
+    const dataToSubmit: any = { ...formData.makemet_data };
     
     
-    if (makemetData.land_use_type === LandUseType.USE_PREVIOUS_AERSURFACE_RUN && selectedAersurfaceRun) {
+    if (formData.makemet_data?.land_use_type === LandUseType.USE_PREVIOUS_AERSURFACE_RUN && selectedAersurfaceRun) {
       dataToSubmit.aersurface_run_id = selectedAersurfaceRun;
+      updateFormData('makemet_data', dataToSubmit);
     }
     
-    updateFormData('makemet_data', dataToSubmit);
     navigate('/terrain-data'); 
   };
 
@@ -174,7 +158,7 @@ const MakemetData: React.FC = () => {
 
   // Visibility helpers -------------------------------------------------------
   const showFileUploadOnly =
-    makemetData.land_use_type ===
+    formData.makemet_data?.land_use_type ===
     LandUseType.USE_EXTERNAL_FILE_OF_SURFACE_CHARACTERISTICS;
 
   return (
@@ -193,7 +177,7 @@ const MakemetData: React.FC = () => {
               label="Minimum Ambient Temperature"
               name="min_temp_k"
               type="number"
-              value={makemetData.min_temp_k}
+              value={formData.makemet_data?.min_temp_k || 0}
               onChange={handleChange}
               required
 			  tooltip="Enter the minimum ambient air temperature in Fahrenheit or Kelvin"
@@ -202,7 +186,7 @@ const MakemetData: React.FC = () => {
 			  label="Minimum Temperature Units"
 			  name="min_temp_units"
 			  type="select"
-			  value={makemetData.min_temp_units}
+			  value={formData.makemet_data?.min_temp_units || ''}
 			  onChange={handleChange}
 			  options={temperatureUnits}
 			  required
@@ -212,7 +196,7 @@ const MakemetData: React.FC = () => {
               label="Maximum Ambient Temperature"
               name="max_temp_k"
               type="number"
-              value={makemetData.max_temp_k}
+              value={formData.makemet_data?.max_temp_k || 0}
               onChange={handleChange}
               required
 			  tooltip="Enter the maximum ambient air temperature in Fahrenheit or Kelvin"
@@ -221,7 +205,7 @@ const MakemetData: React.FC = () => {
 			  label="Maximum Temperature Units"
 			  name="max_temp_units"
 			  type="select"
-			  value={makemetData.max_temp_units}
+			  value={formData.makemet_data?.max_temp_units || ''}
 			  onChange={handleChange}
 			  options={temperatureUnits}
 			  required
@@ -231,7 +215,7 @@ const MakemetData: React.FC = () => {
               label="Minimum Wind Speed (m/s)"
               name="min_wind_speed_m_s"
               type="number"
-              value={makemetData.min_wind_speed_m_s}
+              value={formData.makemet_data?.min_wind_speed_m_s || 0}
               onChange={handleChange}
               required
 			  tooltip="Enter the minimum wind speed in meters per second"
@@ -240,7 +224,7 @@ const MakemetData: React.FC = () => {
               label="Anemometer Height (m)"
               name="anemometer_height_m"
               type="number"
-              value={makemetData.anemometer_height_m}
+              value={formData.makemet_data?.anemometer_height_m || 10}
               onChange={handleChange}
               required
 			  tooltip="Enter the anemometer height in meters"
@@ -256,12 +240,12 @@ const MakemetData: React.FC = () => {
 					label="Land Use Type"
 					name="land_use_type"
 					type="select"
-					value={makemetData.land_use_type}
+					value={formData.makemet_data?.land_use_type || ''}
 					onChange={handleChange}
 					options={landUseTypeOptions}
 					className="col-span-1 md:col-span-2"
 				  />
-				  {makemetData.land_use_type === LandUseType.USE_PREVIOUS_AERSURFACE_RUN && (
+				  {formData.makemet_data?.land_use_type === LandUseType.USE_PREVIOUS_AERSURFACE_RUN && (
 					  <button
 						onClick={handleAersurfaceClick}
 						className="absolute top-0 right-0 text-sm text-blue-600 hover:underline"
@@ -270,23 +254,23 @@ const MakemetData: React.FC = () => {
 					  </button>
 				  )}
 			</div>
-		</div>
 
-		{
-			makemetData.land_use_type != LandUseType.USE_EXTERNAL_FILE_OF_SURFACE_CHARACTERISTICS &&
-			makemetData.land_use_type != LandUseType.USER_ENTERED_SURFACE_CHARACTERISTICS && 
-			makemetData.land_use_type != LandUseType.USE_PREVIOUS_AERSURFACE_RUN && (
-				<FormField
-				  label="Climatology Type"
-				  name="climatology_type"
-				  type="select"
-				  value={makemetData.climatology_type}
-				  onChange={handleChange}
-				  options={climateTypeOptions}
-				  required
-				/>
-			)
-		}
+			{
+				formData.makemet_data?.land_use_type != LandUseType.USE_EXTERNAL_FILE_OF_SURFACE_CHARACTERISTICS &&
+				formData.makemet_data?.land_use_type != LandUseType.USER_ENTERED_SURFACE_CHARACTERISTICS && 
+				formData.makemet_data?.land_use_type != LandUseType.USE_PREVIOUS_AERSURFACE_RUN && (
+					<FormField
+					  label="Climatology Type"
+					  name="climatology_type"
+					  type="select"
+					  value={formData.makemet_data?.climatology_type || ''}
+					  onChange={handleChange}
+					  options={climateTypeOptions}
+					  required
+					/>
+				)
+			}
+		</div>
 
         {/* AERSURFACE run selection list */}
         {showAersurfaceList && (
@@ -334,13 +318,13 @@ const MakemetData: React.FC = () => {
 
 
         {/* Show other fields only if not using AERSURFACE */}
-        {makemetData.land_use_type === LandUseType.USER_ENTERED_SURFACE_CHARACTERISTICS && (
-          <>
+        {formData.makemet_data?.land_use_type === LandUseType.USER_ENTERED_SURFACE_CHARACTERISTICS && (
+		  <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <FormField
               label="Albedo"
               name="albedo"
               type="number"
-              value={makemetData.albedo}
+              value={formData.makemet_data?.albedo || 0}
               onChange={handleChange}
               min={0}
               max={1}
@@ -351,7 +335,7 @@ const MakemetData: React.FC = () => {
               label="Bowen Ratio"
               name="bowen_ratio"
               type="number"
-              value={makemetData.bowen_ratio}
+              value={formData.makemet_data?.bowen_ratio || 0}
               onChange={handleChange}
               step={0.1}
             />
@@ -360,12 +344,12 @@ const MakemetData: React.FC = () => {
               label="Roughness Length (m)"
               name="roughness_length"
               type="number"
-              value={makemetData.surface_roughness}
+              value={formData.makemet_data?.surface_roughness || 0}
               onChange={handleChange}
               min={0}
               step={0.001}
             />
-          </>
+          </div>
         )}
       </div>
     </SectionContainer>
