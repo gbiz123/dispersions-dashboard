@@ -22,6 +22,8 @@ interface FormFieldProps {
   error?: string;
   onBlur?: (e: React.FocusEvent<HTMLInputElement | HTMLSelectElement>) => void;
   className?: string;
+  defaultNoneSelected?: boolean;
+  defaultNoneSelectedMessage?: string;
   maxLength?: number;
   tooltip?: string;
 }
@@ -38,6 +40,8 @@ const FormField: React.FC<FormFieldProps> = ({
   required = false,
   className = '',
   disabled = false,
+  defaultNoneSelected = false,
+  defaultNoneSelectedMessage = "Select an option",
   min,
   max,
   step,
@@ -84,6 +88,9 @@ const FormField: React.FC<FormFieldProps> = ({
           disabled={disabled}
           className={`block w-full border rounded px-2 py-1 ${className}`}
         >
+		  {defaultNoneSelected && (
+			  <option disabled selected> {defaultNoneSelectedMessage} </option>
+		  )}
           {options?.map(o => (
             <option key={o.value} value={o.value} disabled={o.disabled}>
               {o.label}

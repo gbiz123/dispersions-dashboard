@@ -92,6 +92,8 @@ const StackData: React.FC = () => {
 			<FormField
 			  label="Source Type"
 			  name="sourceType"
+			  defaultNoneSelected={true}
+			  defaultNoneSelectedMessage="Select a source type"
 			  type="select"
 			  value={formData.source_data.sourceType}
 			  onChange={handleChange}
