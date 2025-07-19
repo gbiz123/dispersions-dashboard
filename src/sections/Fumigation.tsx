@@ -1,10 +1,13 @@
-import React, { useState } from 'react';
+import InfoSection from 'components/InfoSection';
+import WarningSection from 'components/WarningSection';
+import React, { useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import FormField from '../components/forms/FormField';
 import SectionContainer from '../components/SectionContainer';
 import { useRunContext } from '../context/RunContext';
 import { AerscreenFumigation as FumigationType } from '../types/api';
-import { DistanceUnit } from '../types/enums';
+import { AerscreenSourceType, DistanceUnit } from '../types/enums';
+
 
 const Fumigation: React.FC = () => {
   const { formData, updateFormData } = useRunContext();
@@ -29,7 +32,7 @@ const Fumigation: React.FC = () => {
     } else {
       setFumigation(prev => ({
         ...prev,
-        [name]: name.includes('shore_dist') && !name.includes('unit')
+        [name]: type === 'number'
           ? parseFloat(value) || 0
           : value
       }));
@@ -38,13 +41,6 @@ const Fumigation: React.FC = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
-    // Basic validation
-    if (fumigation.distance_to_shoreline <= 0) {
-      alert('Shore distance must be greater than 0');
-      return;
-    }
-    
     updateFormData('fumigation', fumigation);
     navigate('/debug');
   };
@@ -63,60 +59,64 @@ const Fumigation: React.FC = () => {
       nextSectionLabel="Debug"
       previousSection="/other-inputs"
     >
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <FormField
-          label="Shore Line Distance"
-          name="shore_dist"
-          type="number"
-          value={fumigation.distance_to_shoreline}
-          onChange={handleChange}
-          required
-        />
-        <FormField
-          label="Direction to shoreline (deg)"
-          name="direction_to_shoreline_deg"
-          type="number"
-          value={fumigation.direction_to_shoreline_deg}
-          onChange={handleChange}
-          required
-        />
+	  {
+		  (formData.source_data.sourceType !== AerscreenSourceType.POINT ||
+		  formData.source_data.height < 10) && (
+		  <WarningSection content="Shoreline and inversion breakup fumigation effects are only applicable to point sources with release heights 10m or higher." /> 
+	  )}
+	  {
+		  formData.source_data.sourceType === AerscreenSourceType.POINT &&
+		  formData.source_data.height >= 10 && (
+		  <>
+		  <InfoSection content="Calculate fumigation due to inversion breakup and coastal fumigation for point sources with release heights 10m or higher." /> 
+		  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+		  {/* Check-boxes */}
+			<FormField
+			  label="Enable Shoreline Fumigation"
+			  name="shoreline_fumigation"
+			  type="checkbox"
+			  value={fumigation.shoreline_fumigation}
+			  onChange={handleChange}
+			  required
+			  tooltip="Apply shoreline fumigation effects to the study"
+			/>
 
-        {/* Add inputs for other FumigationType numeric/string fields here */}
-      </div>
+			<FormField
+			  label="Enable Inversion Breakup"
+			  name="inversion_break_up"
+			  type="checkbox"
+			  value={fumigation.inversion_break_up}
+			  onChange={handleChange}
+			  required
+			  tooltip="Apply inversion breakup fumigation effects to the study"
+			/>
 
-      {/* Check-boxes */}
-      <div className="mt-6 space-y-4">
-        <label className="flex items-center space-x-2">
-          <input
-            type="checkbox"
-            name="enable_shoreline_fumigation"
-            checked={fumigation.shoreline_fumigation}
-            onChange={handleChange}
-            className="h-4 w-4 text-blue-600 rounded"
-          />
-          <span>Enable shoreline fumigation</span>
-        </label>
+			{fumigation.shoreline_fumigation && (
+				<>
+					<FormField
+					  label="Shoreline Distance (m)"
+					  name="distance_to_shoreline"
+					  type="number"
+					  value={fumigation.distance_to_shoreline}
+					  onChange={handleChange}
+					  required
+					  tooltip="Enter the minimum distance from the emission source to the shoreline in meters"
+					/>
+					<FormField
+					  label="Direction to shoreline (deg)"
+					  name="direction_to_shoreline_deg"
+					  type="number"
+					  value={fumigation.direction_to_shoreline_deg}
+					  onChange={handleChange}
+					  tooltip="Optional direction to shoreline from emission source"
+					/>
+				</>
+			)}
 
-        <label className="flex items-center space-x-2">
-          <input
-            type="checkbox"
-            name="use_inv_breakup"
-            checked={fumigation.inversion_break_up}
-            onChange={handleChange}
-            className="h-4 w-4 text-blue-600 rounded"
-          />
-          <span>Use inversion breakup</span>
-        </label>
-      </div>
-      
-      <div className="mt-6 p-4 bg-blue-50 rounded-md">
-        <h3 className="font-medium text-blue-800">About Fumigation</h3>
-        <p className="text-sm text-blue-700 mt-2">
-          Fumigation refers to the mixing of a plume with the growing convective boundary layer 
-          when it is carried over a shore by the wind. This can lead to elevated ground-level
-          concentrations. Shore distance represents the distance from the source to the shoreline.
-        </p>
-      </div>
+			{/* Add inputs for other FumigationType numeric/string fields here */}
+		  </div>
+	    </>
+	  )}
     </SectionContainer>
   );
 };

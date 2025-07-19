@@ -48,6 +48,16 @@ export enum RuralUrban {
   URBAN = 'urban'
 }
 
+export enum AerscreenSourceType {
+  POINT = 'POINT',
+  CAPPED_POINT = 'CAPPED_POINT',
+  HORIZONTAL_POINT = 'HORIZONTAL_POINT',
+  FLARE = 'FLARE',
+  VOLUME = 'VOLUME',
+  RECTANGULAR_AREA = 'RECTANGULAR_AREA',
+  CIRCULAR_AREA = 'CIRCULAR_AREA'
+}
+
 export enum VelocityUnit {
   METERS_PER_SECOND = 'm/s',
   FEET_PER_SECOND = 'ft/min'
@@ -60,7 +70,6 @@ export enum FlowRateUnit {
 
 export enum TemperatureUnit {
   KELVIN = 'K',
-  CELSIUS = 'C',
   FAHRENHEIT = 'F'
 }
 

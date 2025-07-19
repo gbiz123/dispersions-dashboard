@@ -12,7 +12,7 @@ const AerscreenContext = createContext<AerscreenContextType | undefined>(undefin
 export const AerscreenProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [searchParams] = useSearchParams();
   const runId = searchParams.get('run_id');
-  const { updateFormData } = useRunContext();
+  const { formData, updateFormData } = useRunContext();
   
   // Fetch run data if editing
   const { runData, isLoading: isLoadingRunData } = useRunData({ 
@@ -27,9 +27,11 @@ export const AerscreenProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       // The structure should match your API response format
       
       // Stack Data
-      if (runData.stack_data) {
-        updateFormData('stack_data', runData.stack_data);
-      }
+      if (runData.source_data) {
+        updateFormData('source_data', runData.source_data);
+      } else {
+
+	  }
 
       // Building Data
       if (runData.building_data) {

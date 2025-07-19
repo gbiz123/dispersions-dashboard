@@ -18,6 +18,8 @@ export const RunProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   // Memoize the updateFormData function to prevent infinite loops
   const updateFormData = useCallback((section: string, data: any) => {
+	console.log("formData updated in " + section)
+	console.log(data)
     setFormData((prev: any) => ({
       ...prev,
       [section]: data

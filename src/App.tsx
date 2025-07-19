@@ -1,6 +1,6 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { RunProvider } from './context/RunContext';
+import { RunProvider, useRunContext } from './context/RunContext';
 import { AersurfaceProvider } from './context/AersurfaceContext';
 import { AermodProvider } from './context/AermodContext';
 import { AerscreenProvider } from './context/AerscreenContext';
@@ -133,6 +133,7 @@ const AerModRoutes = () => (
 
 const RoutedApp = () => {
   const { module } = useModule();
+  const { formData, updateFormData } = useRunContext()
   return (
     <BrowserRouter basename="/dashboard">
       <Layout>

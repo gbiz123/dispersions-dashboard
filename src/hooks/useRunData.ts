@@ -9,7 +9,7 @@ interface UseRunDataProps {
 // Mock data for testing
 const mockRunData = {
   AERSCREEN: {
-    stack_data: {
+    source_data: {
       source_type: 'point',
       rate: 10.5,
       height: 50,
