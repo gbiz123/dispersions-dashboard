@@ -5,7 +5,7 @@ import SectionContainer from '../components/SectionContainer';
 import InfoSection from '../components/InfoSection';
 import { useRunContext } from '../context/RunContext';
 import { AerscreenOtherInputs as OtherInputsType } from '../types/api';
-import { AerscreenOtherInputsUnits, AerscreenRuralOrUrban, DistanceUnit, RuralUrban } from '../types/enums';
+import { AerscreenOtherInputsUnits, DistanceUnit, RuralUrban } from '../types/enums';
 
 const OtherInputs: React.FC = () => {
   const { formData, updateFormData } = useRunContext();
@@ -43,8 +43,8 @@ const OtherInputs: React.FC = () => {
   };
 
   const ruralUrbanOptions = [
-    { value: AerscreenRuralOrUrban.RURAL, label: 'Rural' },
-    { value: AerscreenRuralOrUrban.URBAN, label: 'Urban' }
+    { value: RuralUrban.RURAL, label: 'Rural' },
+    { value: RuralUrban.URBAN, label: 'Urban' }
   ];
 
   return (
@@ -63,13 +63,13 @@ const OtherInputs: React.FC = () => {
             label="Rural or Urban?"
             name="rural_or_urban"
             type="select"
-            value={formData.other_inputs?.rural_or_urban || AerscreenRuralOrUrban.RURAL}
+            value={formData.other_inputs?.rural_or_urban || RuralUrban.RURAL}
             onChange={handleChange}
             options={ruralUrbanOptions}
             required
             tooltip="Select whether the source is in a rural or urban area"
           />
-          {formData.other_inputs?.rural_or_urban === AerscreenRuralOrUrban.URBAN ? (
+          {formData.other_inputs?.rural_or_urban === RuralUrban.URBAN ? (
             <FormField
               label="Urban Population"
               name="population"

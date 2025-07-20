@@ -4,8 +4,7 @@ import FormField from '../components/forms/FormField';
 import SectionContainer from '../components/SectionContainer';
 import { useRunContext } from '../context/RunContext';
 import { AerscreenTerrainData as TerrainDataType, TerrainInputFiles } from '../types/api';
-import { TerrainType, NADDatum, TerrainFileType, TerrainSource, DemFileResolution, DemFileUnits } from '../types/enums';
-import { DistanceUnit, UnitSystem } from '../types/api';
+import { TerrainType, NADDatum, TerrainFileType, TerrainSource, DemFileResolution, DemFileUnits, DistanceUnit } from '../types/enums';
 import InfoSection from 'components/InfoSection';
 
 const TerrainData: React.FC = () => {
@@ -27,6 +26,8 @@ const TerrainData: React.FC = () => {
       ...formData.terrain_data,
       [name]: processedValue
     });
+
+	console.log(formData)
   };
   
   const handleTerrainFilesChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -138,6 +139,7 @@ const TerrainData: React.FC = () => {
         {formData.terrain_data?.use_terrain && (
           <>
             <h3 className="text-lg font-semibold mt-6 mb-3">Location Inputs</h3>
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <FormField
                 label="UTM X Coordinate"

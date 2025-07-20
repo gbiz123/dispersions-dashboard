@@ -1,7 +1,8 @@
 import { runService } from '../services/runService';
 import { resultService } from '../services/resultService';
-import { AerscreenRequest, TemperatureUnit, VelocityUnit, DistanceUnit, SurfaceProfile, ClimateType, LandUseType, RuralUrban, TerrainSource, TerrainFileType, UnitSystem } from '../types/api';
-import { AerscreenOtherInputsUnits, AerscreenRuralOrUrban, DemFileResolution, DemFileUnits } from 'types/enums';
+import { VelocityUnit, DistanceUnit, ClimateType, LandUseType, RuralUrban, TerrainSource, TerrainFileType, UnitSystem } from '../types/enums';
+import { AerscreenOtherInputsUnits, DemFileResolution, DemFileUnits } from 'types/enums';
+import { AerscreenRequest } from 'types/api';
 
 // Sample data
 const sampleRequest: AerscreenRequest = {
@@ -61,7 +62,7 @@ const sampleRequest: AerscreenRequest = {
 	flagpole_height_m: 0,
 	use_flagpole_receptors: false,
     distance_to_amb_air: 100,
-	rural_or_urban: AerscreenRuralOrUrban.RURAL
+	rural_or_urban: RuralUrban.RURAL
   }
 };
 

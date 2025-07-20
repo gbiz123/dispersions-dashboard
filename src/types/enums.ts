@@ -16,11 +16,6 @@ export enum AerscreenOtherInputsUnits {
     METRIC = "METRIC",
 }
 
-export enum AerscreenRuralOrUrban {
-    RURAL = "RURAL",
-    URBAN = "URBAN"
-}
-
 export enum DemFileResolution {
 	NED_1_ARC_SECOND = "NED_1_ARC_SECOND",
     NED_1_3RD_ARC_SECOND = "NED_1_3RD_ARC_SECOND",
@@ -39,13 +34,13 @@ export enum DemFileUnits {
 }
 
 export enum TerrainSource {
-  UPLOAD_FILE   = 'upload_file',
-  NATIONAL_MAP  = 'national_map'
+  UPLOAD_FILE   = 'UPLOAD_FILE',
+  NATIONAL_MAP  = 'NATIONAL_MAP'
 }
 
 export enum RuralUrban {
-  RURAL = 'rural',
-  URBAN = 'urban'
+  RURAL = 'RURAL',
+  URBAN = 'URBAN'
 }
 
 export enum AerscreenSourceType {
@@ -59,8 +54,8 @@ export enum AerscreenSourceType {
 }
 
 export enum VelocityUnit {
-  METERS_PER_SECOND = 'm/s',
-  FEET_PER_SECOND = 'ft/min'
+  METERS_PER_SECOND = 'METERS_PER_SECOND',
+  FEET_PER_SECOND = 'FEET_PER_SECOND'
 }
 
 export enum FlowRateUnit {
@@ -69,8 +64,8 @@ export enum FlowRateUnit {
 }
 
 export enum TemperatureUnit {
-  KELVIN = 'K',
-  FAHRENHEIT = 'F'
+  KELVIN = 'KELVIN',
+  FAHRENHEIT = 'FAHRENHEIT'
 }
 
 export enum EmissionRateUnit {
@@ -78,17 +73,25 @@ export enum EmissionRateUnit {
   POUNDS_PER_HOUR = 'lb/hr'
 }
 
-// Surface profile enums
-export enum SurfaceProfile {
-  URBAN = 'urban',
-  RURAL = 'rural'
+export enum LandUseType {
+  USER_ENTERED_SURFACE_CHARACTERISTICS = "USER_ENTERED_SURFACE_CHARACTERISTICS",
+  WATER = "WATER",
+  DECIDUOUS_FOREST = "DECIDUOUS_FOREST",
+  CONIFEROUS_FOREST = "CONIFEROUS_FOREST",
+  SWAMP = "SWAMP",
+  CULTIVATED_LAND = "CULTIVATED_LAND",
+  GRASSLAND = "GRASSLAND",
+  URBAN = "URBAN",
+  DESERT_SHRUB_LAND = "DESERT_SHRUB_LAND",
+  USE_EXTERNAL_FILE_OF_SURFACE_CHARACTERISTICS = "USE_EXTERNAL_FILE_OF_SURFACE_CHARACTERISTICS",
+  USE_PREVIOUS_AERSURFACE_RUN = "USE_PREVIOUS_AERSURFACE_RUN" 
 }
 
-// Climate type enums
 export enum ClimateType {
-  AVERAGE = 'average',
-  ARID = 'arid',
-  MOIST = 'moist'
+  NONE = "NONE",
+  AVERAGE_MOISTURE = "AVERAGE_MOISTURE",
+  WET_CONDITIONS = "WET_CONDITIONS",
+  DRY_CONDITIONS = "DRY_CONDITIONS "
 }
 
 // Terrain type enums

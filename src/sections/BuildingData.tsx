@@ -182,7 +182,7 @@ const BuildingData: React.FC = () => {
                 onChange={handleChange}
                 className="checkbox checkbox-primary h-5 w-5"
               />
-              <span className="ml-3 text-base font-medium">Use Building Downwash</span>
+              <span className="ml-3 text-base ">Use Building Downwash</span>
             </label>
           </Tooltip>
         </div>

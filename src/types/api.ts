@@ -1,78 +1,5 @@
-import { DemFileResolution, AerscreenOtherInputsUnits, AerscreenRuralOrUrban, DemFileUnits, DiscreteReceptorsUnits } from "./enums";
+import { DemFileResolution, AerscreenOtherInputsUnits, RuralUrban, DemFileUnits, DiscreteReceptorsUnits, TemperatureUnit, ClimateType, LandUseType, DistanceUnit, TerrainSource, TerrainFileType } from "./enums";
 
-export enum TemperatureUnit {
-  FAHRENHEIT = 'F',
-  KELVIN = 'K'
-}
-
-export enum VelocityUnit {
-  METERS_PER_SECOND = 'm/s',
-  FEET_PER_SECOND = 'ft/s',
-  MILES_PER_HOUR = 'mph',
-  FEET_PER_MINUTE = 'ft/min',
-}
-
-export enum DistanceUnit {
-  METERS = 'm',
-  FEET = 'ft',
-  KILOMETERS = 'km',
-  MILES = 'mi'
-}
-
-export enum UnitSystem {
-  METRIC = 'metric',
-  IMPERIAL = 'imperial',
-  ENGLISH = 'english'
-}
-
-export enum SurfaceProfile {
-  URBAN = 'urban',
-  RURAL = 'rural'
-}
-
-export enum ClimateType {
-  NONE = "NONE",
-  AVERAGE_MOISTURE = "AVERAGE_MOISTURE",
-  WET_CONDITIONS = "WET_CONDITIONS",
-  DRY_CONDITIONS = "DRY_CONDITIONS "
-}
-
-export enum LandUseType {
-  USER_ENTERED_SURFACE_CHARACTERISTICS = "USER_ENTERED_SURFACE_CHARACTERISTICS",
-  WATER = "WATER",
-  DECIDUOUS_FOREST = "DECIDUOUS_FOREST",
-  CONIFEROUS_FOREST = "CONIFEROUS_FOREST",
-  SWAMP = "SWAMP",
-  CULTIVATED_LAND = "CULTIVATED_LAND",
-  GRASSLAND = "GRASSLAND",
-  URBAN = "URBAN",
-  DESERT_SHRUB_LAND = "DESERT_SHRUB_LAND",
-  USE_EXTERNAL_FILE_OF_SURFACE_CHARACTERISTICS = "USE_EXTERNAL_FILE_OF_SURFACE_CHARACTERISTICS",
-  USE_PREVIOUS_AERSURFACE_RUN = "USE_PREVIOUS_AERSURFACE_RUN" 
-}
-
-/**
- * Indicates whether dispersion calculations should follow rural or urban options.
- */
-export enum RuralUrban {
-  RURAL = 'rural',
-  URBAN = 'urban'
-}
-
-/**
- * Allowed file types for terrain input data.
- * Extend this enum as you add support for additional formats.
- */
-export enum TerrainFileType {
-  DEM = 'DEM',
-  NED = 'NED',
-}
-
-/* ───────────── Terrain source options (upload vs national map) ─────────── */
-export enum TerrainSource {
-  UPLOAD_FILE  = 'upload_file',
-  NATIONAL_MAP = 'national_map'
-}
 
 export interface RunInfo {
   run_id: string;
@@ -404,7 +331,7 @@ export interface AerscreenDiscreteReceptors {
 
 // Other Inputs
 export interface AerscreenOtherInputs {
-  rural_or_urban: AerscreenRuralOrUrban
+  rural_or_urban: RuralUrban
   population?: number
   distance_to_amb_air?: number
   use_flagpole_receptors: boolean

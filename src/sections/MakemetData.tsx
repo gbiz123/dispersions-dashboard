@@ -7,11 +7,11 @@ import { AerscreenMakemetData as MakemetDataType } from '../types/api';
 import { 
   DistanceUnit, 
   VelocityUnit, 
-  TemperatureUnit, 
-  SurfaceProfile, 
+  RuralUrban, 
   ClimateType,
-  LandUseType 
-} from '../types/api';
+  LandUseType,
+  TemperatureUnit
+} from '../types/enums';
 import { API_CONFIG } from '../config';
 import { useModule } from '../context/ModuleContext'; // Add this import
 import InfoSection from 'components/InfoSection';
@@ -115,22 +115,10 @@ const MakemetData: React.FC = () => {
     { value: TemperatureUnit.FAHRENHEIT, label: 'Fahrenheit (°F)' }
   ];
 
-  // Velocity units options
-  const velocityUnits = [
-    { value: VelocityUnit.METERS_PER_SECOND, label: 'Meters per second (m/s)' },
-    { value: VelocityUnit.FEET_PER_MINUTE, label: 'Feet per minute (ft/min)' }
-  ];
-
-  // Distance units options
-  const distanceUnits = [
-    { value: DistanceUnit.METERS, label: 'Meters (m)' },
-    { value: DistanceUnit.FEET, label: 'Feet (ft)' }
-  ];
-
   // Surface profile options
-  const surfaceProfileOptions = [
-    { value: SurfaceProfile.URBAN, label: 'Urban' },
-    { value: SurfaceProfile.RURAL, label: 'Rural' }
+  const ruralUrbanOptions = [
+    { value: RuralUrban.URBAN, label: 'Urban' },
+    { value: RuralUrban.RURAL, label: 'Rural' }
   ];
 
   // Climate type options

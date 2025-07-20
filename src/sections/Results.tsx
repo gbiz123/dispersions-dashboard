@@ -155,6 +155,7 @@ const Results: React.FC = () => {
 
   // Start a new run
   const handleStartRun = async () => {
+	  console.log(formData)
     if (!Object.keys(formData).length) {
       setError('Please complete the form sections before starting a run');
       return;

@@ -1,112 +1,104 @@
-# aerscreen-react-ui
+# Dispersions Dashboard
 
-A modern React-based web interface for the AERSCREEN air quality modeling tool. This application provides a user-friendly way to set up, run, and visualize AERSCREEN models.
+## Purpose
+This dashboard provides a clean user interface for dispersion modeling programs produced by the EPA.
+The programs are AERMOD, AERSCREEN, and AERSURFACE.
+Each module is accessible by clicking "AERMOD", "AERSCREEN", or "AERSURFACE" on the dashboard
+Other programs such as AERMET will be introduced gradually.
 
-## Features
+## Phases
+This project is separated into phase 1 and phase 2. 
+Phase 1 is mostly rework of the current UI, and getting the basic functionality working.
+Phase 2 involves introducing new functionality and building out the rest of the SaaS app.
 
-- **Complete AERSCREEN Form Interface**: Easily input all parameters required for AERSCREEN runs
-- **Interactive Sections**:
-  - Stack Data (source parameters)
-  - Building Data (downwash parameters)
-  - Meteorological Data (MAKEMET)
-  - Terrain Data
-  - Debug Options
-- **Results Visualization**: View model outputs in an easy-to-understand format
-- **Form Validation**: Ensures all inputs meet AERSCREEN requirements
-- **Responsive Design**: Works on desktop and tablet devices
+# Phase 1
+Phase 1 will consist mainly of fixing issues with the current implementation, and building a functional product.
 
-## Getting Started
+## Dispersions API
+- Dispersions API: The API that executes the programs and lets the user fetch their results
+- API is described in dispersions-api.openapi.json
+- TODO: Import the OpenAPI schema into https://wiremock.org/ to create a mock API
 
-### Prerequisites
+## User Details API
+- User Details API: The API that stores user details such as subscription plan, teammates, etc
+- API is described in user-details.openapi.json
+- TODO: Import the OpenAPI schema into https://wiremock.org/ to create a mock API
 
-- Node.js (v14 or newer)
-- npm (v6 or newer)
+## Problems with Dispersions API integration
+- Data model (POST bodies) do not reflect the information expected by the API
+- Information on dashboard is all dummy data, and does not pull from the API
+- TODO: Get dashboard data pulling from dispersions-api and user-details API
+- TODO: Properly integrate each module with dispersions-api to execute the programs
 
-### Installation
+## Problems with state
+- State and context is handled poorly, mixing useState with useContext
+- Improper handling of state causes user data to be lost when clicking between tabs with an module
+- This issue has already been fixed in the AERSCREEN module
+- Needs to be fixed in AERMOD and AERSURFACE modules as well
+- TODO: Stop using "useState" to manage the state of the formData - just use the formData provided by the custom "useRunContext" hook.
 
-1. Clone this repository :
-    git clone https://github.com/michaelzeboth/aerscreen-react-ui.git || cd aerscreen-app
+## Inconsistencies in UI design between modules
+- There are minor inconsistencies in UI layout switching from tab to tab, taking away from cohesiveness
+- This has already been fixed in AERSCREEN module.
+- TODO: Apply the same UI in the AERSCREEN module to the AERMOD and AERSURFACE modules.
 
-2. Install dependencies : 
-    npm install
+## No integration testing
+- Currently, there is no integration testing for the UI
+- TODO: Write integration tests in your preferred framework (puppeteer, playwright, etc)
 
-3. Start the development server :
-    npm start
+# Phase 2
+Phase 1 will consist of building around the functionality to create an entire SaaS platform.
 
-4. Open [http://localhost:3000](http://localhost:3000) to view the application
+## Developing requirements
+While you are working on Phase 1, I will be building the backend to prepare for Phase 2.
+We will revisit these requirements when Phase 1 is done and the backend is more built out.
 
-## Usage
+## Documentation
+- Will need a UI for documentation and how to use the product
+- Although their product is more built-out than outs, this site is good inspiration for our documentation: https://developers.arcgis.com/documentation/
+- TODO (GREG): I will need to write documentation for the modules
 
-1. Navigate through the form sections using the tabs at the top
-2. Fill in the required information for your AERSCREEN run
-3. Submit the form to process your AERSCREEN calculation
-4. View the results in the visualization section
+## Input visualization
+Air quality modeling is geospatial in nature. 
+Therefore, we need to visualize our inputs and outputs on maps and in 3d spaces.
+- TODO: Change AERSCREEN location inputs in Terrain section from UTM to Lat/Lon
+- TODO: AERSCREEN Terrain section - X/Y coordinates should be selectable on embedded Google Map in lat/long
+- TODO: Allow user to select a single point for emission source location
+- TODO: Allow user to select a bounding box for the entire study area
+- TODO (GREG): Auto-convert lat/lon coordinates to UTM on backend
+- TODO (GREG): Pass bounding box to API to pull all intersecting NED TIFF files into study
 
-## API Integration
+## AERMOD visualization
+- AERMOD makes heavy use of geospatial inputs which will need to be visualizad
+- Source locations
+- Receptor grids
+- Buildings
+- Terrain
 
-This application connects to an AERSCREEN backend API. By default, it's configured to use a mock API provided by WireMock for development and testing purposes.
+## Landing page and product pages
+- Need an overall landing page for Dispersions.net
+- It should link to individual product pages describing each module (AERMOD, AERSCREEN, AERSURFACE, etc)
+- Need individual product pages for each module
+- TODO (GREG): Get UI designs for landing and product pages
 
-## Available Scripts
+## Purchase flow
+- Pricing page
+- Purchase UI
+- Purchase API integration
+- User details API integration
+- TODO (GREG): Build purchase API
+- TODO (GREG): Find UI designs for purchase flow
 
-- `npm start` - Runs the app in development mode
-- `npm test` - Launches the test runner
-- `npm run build` - Builds the app for production
-- `npm run eject` - Ejects from Create React App configuration
+## Blog
+- Blog homepage
+- Blog pages
+- Blog API integration
+- TODO (GREG): Find UI designs for blog
 
-## Project Structure
+## Navbar
+- Need a navbar for all these pages
+- Should have logo, links, call to action, etc
 
-- `/src` - Source code
-  - `/components` - React components
- - `/charts` - Data visualization components
- - `/forms` - Form input components
- - `Layout.tsx` - Main application layout
- - `Navigation.tsx` - Navigation sidebar
- - `SectionContainer.tsx` - Container for form sections
-  - `/context` - React context providers
- - `RunContext.tsx` - Run state management
-  - `/hooks` - Custom React hooks
- - `usePolling.ts` - Data polling hook
- - `useRunState.ts` - Run state hook
-  - `/pages` - Page layouts
- - `TestPage.tsx` - API testing page
-  - `/sections` - Form sections
- - `StackData.tsx` - Stack parameters form
- - `BuildingData.tsx` - Building configuration form
- - `MakemetData.tsx` - Meteorological data form
- - `TerrainData.tsx` - Terrain analysis form
- - `DiscreteReceptors.tsx` - Receptor locations form
- - `OtherInputs.tsx` - Additional parameters form
- - `Fumigation.tsx` - Fumigation settings form
- - `Debug.tsx` - Debug options form
- - `Results.tsx` - Results visualization
-  - `/services` - API services
- - `api.ts` - API client
- - `resultService.ts` - Results handling
- - `runService.ts` - Run management
-  - `/types` - TypeScript type definitions
- - `api.ts` - API types
- - `enums.ts` - Enumeration types
- - `models.ts` - Data models
-  - `/utils` - Utility functions
-  - `App.tsx` - Main application component
-  - `config.ts` - Application configuration
-- `/public` - Static assets
-- `/sample-data` - Example JSON data for testing
-
-## Technologies Used
-
-- React
-- TypeScript
-- Tailwind CSS
-- React Hook Form
-- Axios
-
-## License
-
-[MIT License](LICENSE)
-
-## Acknowledgments
-
-- AERSCREEN is developed by the U.S. Environmental Protection Agency
-- This interface is designed to simplify access to AERSCREEN's capabilities
-
+## Dead links on dashboard
+- "Upgrade Plan" button in subscription section of dashboard does nothing
+- "Help & Documentation" link does nothing

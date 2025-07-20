@@ -4,7 +4,7 @@ import { CancelToken } from 'axios';
 
 export const runService = {
   startRun: async (request: AerscreenRequest, cancelToken?: CancelToken): Promise<{ run_id: string }> => {
-    const response = await api.post('/run/start', request, { cancelToken });
+    const response = await api.post('/execute/aerscreen', request, { cancelToken });
     return response.data;
   },
 
