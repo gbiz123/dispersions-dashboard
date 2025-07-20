@@ -49,6 +49,16 @@ Phase 1 will consist mainly of fixing issues with the current implementation, an
 # Phase 2
 Phase 1 will consist of building around the functionality to create an entire SaaS platform.
 
+## Go back and edit run from previous inputs
+- Users should be able to click the "edit run button"
+- The module form will be opened with the inputs populated to the previous run
+- TODO (GREG): Implement the api route to return inputs by run id
+
+## Parse messages
+- Each run mat have warning or error messages attached to it
+- Error message should show up red in the results section
+- Warning messages should show up yellow in the results section
+
 ## Developing requirements
 While you are working on Phase 1, I will be building the backend to prepare for Phase 2.
 We will revisit these requirements when Phase 1 is done and the backend is more built out.
@@ -86,6 +96,7 @@ Therefore, we need to visualize our inputs and outputs on maps and in 3d spaces.
 - Purchase UI
 - Purchase API integration
 - User details API integration
+- TODO (GREG): Develop pricing strategy
 - TODO (GREG): Build purchase API
 - TODO (GREG): Find UI designs for purchase flow
 
