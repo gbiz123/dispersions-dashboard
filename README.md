@@ -10,6 +10,7 @@ Other programs such as AERMET will be introduced gradually.
 - Dispersions API: The API that executes the programs and lets the user fetch their results
 - API is described in dispersions-api.openapi.json
 - TODO: Import the OpenAPI schema into https://wiremock.org/ to create a mock API
+- TODO: You might want to add a few routes to the wiremock API that contain more realistic data
 
 ## User Details API
 - User Details API: The API that stores user details such as subscription plan, teammates, etc
@@ -114,4 +115,8 @@ Therefore, we need to visualize our inputs and outputs on maps and in 3d spaces.
 - TODO (GREG): Create POST route to start a run that is in READY state
 - TODO: Add a "Submit for validation" button in the Run section, and a "Start run" button that call the aforementioned API routes
 - TODO: If error messages are present, fetch the errors and display them to the user. Do not allow to start the run
+
+## Results visualization
+- AERSCREEN - Show tables, max conc distance plot, max conc by sector plot
+- AERMOD - Show results in Google Earth plus charts
 - TODO: If warning messages are present, display them to the user.
