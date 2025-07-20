@@ -38,13 +38,6 @@ Other programs such as AERMET will be introduced gradually.
 - The "NO2 Chemistry" section is missing
 - TODO: Add section in AERSCREEN module for NO2 chemistry
 
-## After submitting run, there should be a server-side validation process
-- TODO (GREG): Add a "PENDING", "READY", "INVALID" state for RunStatus
-- TODO (GREG): When run data is initially submitted, validate by setting "RUNORNOT NOT"
-- TODO (GREG): "PENDING" is submitted but not yet validated. READY is submitted and validated. INVALID is submitted and resulted in fatal errors at setup.
-- TODO (GREG): Create POST route to start a run that is in READY state
-- TODO: Add a "Submit for validation" button in the Run section, and a "Start run" button that call the aforementioned API routes
-
 ## No integration testing
 - Currently, there is no integration testing for the UI
 - TODO: Write integration tests in your preferred framework (puppeteer, playwright, etc)
@@ -113,3 +106,12 @@ Therefore, we need to visualize our inputs and outputs on maps and in 3d spaces.
 ## Dead links on dashboard
 - "Upgrade Plan" button in subscription section of dashboard does nothing
 - "Help & Documentation" link does nothing
+
+## After submitting run, there should be a server-side validation process (Maybe nice to have but not critical)
+- TODO (GREG): Add a "PENDING", "READY", "INVALID" state for RunStatus
+- TODO (GREG): When run data is initially submitted, validate by setting "RUNORNOT NOT"
+- TODO (GREG): "PENDING" is submitted but not yet validated. READY is submitted and validated. INVALID is submitted and resulted in fatal errors at setup.
+- TODO (GREG): Create POST route to start a run that is in READY state
+- TODO: Add a "Submit for validation" button in the Run section, and a "Start run" button that call the aforementioned API routes
+- TODO: If error messages are present, fetch the errors and display them to the user. Do not allow to start the run
+- TODO: If warning messages are present, display them to the user.
