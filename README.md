@@ -6,14 +6,6 @@ The programs are AERMOD, AERSCREEN, and AERSURFACE.
 Each module is accessible by clicking "AERMOD", "AERSCREEN", or "AERSURFACE" on the dashboard
 Other programs such as AERMET will be introduced gradually.
 
-## Phases
-This project is separated into phase 1 and phase 2. 
-Phase 1 is mostly rework of the current UI, and getting the basic functionality working.
-Phase 2 involves introducing new functionality and building out the rest of the SaaS app.
-
-# Phase 1
-Phase 1 will consist mainly of fixing issues with the current implementation, and building a functional product.
-
 ## Dispersions API
 - Dispersions API: The API that executes the programs and lets the user fetch their results
 - API is described in dispersions-api.openapi.json
@@ -42,12 +34,20 @@ Phase 1 will consist mainly of fixing issues with the current implementation, an
 - This has already been fixed in AERSCREEN module.
 - TODO: Apply the same UI in the AERSCREEN module to the AERMOD and AERSURFACE modules.
 
+## Add input and form data for NO2 module
+- The "NO2 Chemistry" section is missing
+- TODO: Add section in AERSCREEN module for NO2 chemistry
+
+## After submitting run, there should be a server-side validation process
+- TODO (GREG): Add a "PENDING", "READY", "INVALID" state for RunStatus
+- TODO (GREG): When run data is initially submitted, validate by setting "RUNORNOT NOT"
+- TODO (GREG): "PENDING" is submitted but not yet validated. READY is submitted and validated. INVALID is submitted and resulted in fatal errors at setup.
+- TODO (GREG): Create POST route to start a run that is in READY state
+- TODO: Add a "Submit for validation" button in the Run section, and a "Start run" button that call the aforementioned API routes
+
 ## No integration testing
 - Currently, there is no integration testing for the UI
 - TODO: Write integration tests in your preferred framework (puppeteer, playwright, etc)
-
-# Phase 2
-Phase 1 will consist of building around the functionality to create an entire SaaS platform.
 
 ## Go back and edit run from previous inputs
 - Users should be able to click the "edit run button"
