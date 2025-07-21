@@ -115,3 +115,9 @@ Therefore, we need to visualize our inputs and outputs on maps and in 3d spaces.
 - TODO: Add a "Submit for validation" button in the Run section, and a "Start run" button that call the aforementioned API routes
 - TODO: If error messages are present, fetch the errors and display them to the user. Do not allow to start the run
 - TODO: If warning messages are present, display them to the user.
+
+## Bbox support in AERSCREEN terrain request
+- bbox parameter added to terrain section of post body
+- Should be selectable via rectangular select in leaflet js
+- Top left and botton right coordinates should populate the bbox
+- This should be part of a "Select study area" in the Terrain section
