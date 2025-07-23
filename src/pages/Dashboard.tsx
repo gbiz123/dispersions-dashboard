@@ -2,28 +2,21 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useModule } from '../context/ModuleContext';
 import { useTeam } from '../context/TeamContext';
+import dashboardService, { RunInfo } from '../services/dashboardService';
 import { 
-  ChartBarIcon, 
   CloudIcon, 
   MapIcon, 
   BeakerIcon,
-  PlayCircleIcon,
   CheckCircleIcon,
   XCircleIcon,
   ClockIcon,
-  UserIcon,
-  CheckBadgeIcon,
   ArrowRightIcon,
-  BoltIcon,
   GlobeAltIcon,
-  DocumentChartBarIcon,
   CogIcon,
-  ExclamationTriangleIcon,
   ArrowTrendingUpIcon,
   ArrowTrendingDownIcon,
   SparklesIcon,
   CalendarIcon,
-  CubeIcon,
   ServerIcon,
   ShieldCheckIcon
 } from '@heroicons/react/24/outline';
@@ -41,23 +34,7 @@ interface DashboardStats {
   storage_limit_gb: number;
 }
 
-interface RecentActivity {
-  id: string;
-  type: 'AERMOD' | 'AERSCREEN' | 'AERSURFACE';
-  title: string;
-  status: 'completed' | 'running' | 'failed';
-  timestamp: string;
-  duration?: string;
-}
 
-interface Run {
-  id: string;
-  name: string;
-  module: 'AERSCREEN' | 'AERSURFACE' | 'AERMOD';
-  status: string;
-  created_at: string;
-  description?: string;
-}
 
 const Dashboard: React.FC = () => {
   const navigate = useNavigate();
@@ -74,7 +51,7 @@ const Dashboard: React.FC = () => {
     storage_limit_gb: 100
   });
 
-  const [recentRuns, setRecentRuns] = useState<Run[]>([]);
+  const [recentRuns, setRecentRuns] = useState<RunInfo[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -84,63 +61,29 @@ const Dashboard: React.FC = () => {
   const fetchDashboardData = async () => {
     setLoading(true);
     try {
-      // Include team ID in API calls
-      const teamId = currentTeam?.id;
-      if (teamId) {
-        // Update API calls to include team context
-        // For example: 
-        // const response = await fetch(`${API_CONFIG.BASE_URL}/stats?team_id=${teamId}`);
-      }
+      // Fetch dashboard stats from API
+      const dashboardStats = await dashboardService.fetchDashboardStats();
       
-      // Simulate API calls for demo
-      await new Promise(resolve => setTimeout(resolve, 800));
+      // Calculate runs this month
+      const allRuns = await dashboardService.fetchAllRuns();
+      const runsThisMonth = dashboardService.getRunsThisMonth(allRuns);
       
       setStats({
-        runs_in_progress: 3,
-        runs_completed: 47,
-        runs_failed: 2,
-        subscription_status: 'active',
-        subscription_expires: '2024-12-31',
-        total_runs_this_month: 12,
-        storage_used_gb: 23.5,
-        storage_limit_gb: 100
+        runs_in_progress: dashboardStats.runs_in_progress,
+        runs_completed: dashboardStats.runs_completed,
+        runs_failed: dashboardStats.runs_failed,
+        subscription_status: 'active', // TODO: Get from user API when available
+        subscription_expires: '2024-12-31', // TODO: Get from user API when available
+        total_runs_this_month: runsThisMonth.length,
+        storage_used_gb: 23.5, // TODO: Get from user API when available
+        storage_limit_gb: 100 // TODO: Get from user API when available
       });
 
-	  // TODO: Implement with API
-      setRecentRuns([
-        {
-          id: '1',
-          name: 'Industrial Facility',
-          module: 'AERMOD',
-          status: 'completed',
-          created_at: '2024-01-15T10:30:00Z',
-          description: 'Quarterly assessment for industrial facility'
-        },
-        {
-          id: '2',
-          name: 'Stack Emission',
-          module: 'AERSCREEN',
-          status: 'running',
-          created_at: '2024-01-15T09:15:00Z'
-        },
-        {
-          id: '3',
-          name: 'Surface Characteristics',
-          module: 'AERSURFACE',
-          status: 'completed',
-          created_at: '2024-01-14T16:45:00Z',
-          description: 'Surface characteristics analysis for Site B'
-        },
-        {
-          id: '4',
-          name: 'Multi-source Dispersion',
-          module: 'AERMOD',
-          status: 'failed',
-          created_at: '2024-01-14T14:20:00Z'
-        }
-      ]);
+      // Set recent runs
+      setRecentRuns(dashboardStats.recent_runs);
     } catch (error) {
       console.error('Failed to fetch dashboard data:', error);
+      // Show error message to user if needed
     } finally {
       setLoading(false);
     }
@@ -169,9 +112,9 @@ const Dashboard: React.FC = () => {
     }
   };
 
-  const handleEditRun = (run: Run) => {
+  const handleEditRun = (run: RunInfo) => {
     // Set the module context
-    setModule(run.module);
+    setModule(run.run_type as 'AERSCREEN' | 'AERSURFACE' | 'AERMOD');
     
     // Navigate to the appropriate starting page with the run ID
     const startingPaths = {
@@ -180,8 +123,8 @@ const Dashboard: React.FC = () => {
       'AERMOD': '/aermod/run-info'
     };
     
-    const path = startingPaths[run.module];
-    navigate(`${path}?run_id=${run.id}`);
+    const path = startingPaths[run.run_type as 'AERSCREEN' | 'AERSURFACE' | 'AERMOD'];
+    navigate(`${path}?run_id=${run.run_id}`);
   };
 
   const tools = [
@@ -258,40 +201,10 @@ const Dashboard: React.FC = () => {
     }
   ];
 
-  // Mock recent runs for testing
-  const mockRecentRuns: Run[] = [
-    {
-      id: 'aerscreen-001',
-      name: 'Downtown Factory Stack Analysis',
-      module: 'AERSCREEN',
-      status: 'completed',
-      created_at: new Date(Date.now() - 86400000).toISOString(),
-      description: 'Stack emission analysis for permit renewal'
-    },
-    {
-      id: 'aersurface-001',
-      name: 'Industrial Zone Surface Study',
-      module: 'AERSURFACE',
-      status: 'completed',
-      created_at: new Date(Date.now() - 172800000).toISOString(),
-      description: 'Surface roughness calculation for urban area'
-    },
-    {
-      id: 'aermod-001',
-      name: 'Annual Dispersion Model',
-      module: 'AERMOD',
-      status: 'completed',
-      created_at: new Date(Date.now() - 259200000).toISOString(),
-      description: 'Full year dispersion modeling'
-    }
-  ];
 
+  // Re-fetch data when team changes
   useEffect(() => {
-    // For testing, use mock data
-    setRecentRuns(mockRecentRuns);
-    
-    // When backend is ready, replace with:
-    // fetchRecentRuns();
+    fetchDashboardData();
   }, [currentTeam]);
 
   if (loading) {
@@ -509,35 +422,35 @@ const Dashboard: React.FC = () => {
               </div>
             ) : (
               recentRuns.map((run) => (
-                <div key={run.id} className="px-6 py-4 hover:bg-slate-50 transition-colors">
+                <div key={run.run_id} className="px-6 py-4 hover:bg-slate-50 transition-colors">
                   <div className="flex items-center space-x-4">
                     <div className={`p-2.5 rounded-xl ${
-                      run.module === 'AERMOD' ? 'bg-blue-100 text-blue-600' :
-                      run.module === 'AERSCREEN' ? 'bg-amber-100 text-amber-600' :
+                      run.run_type === 'AERMOD' ? 'bg-blue-100 text-blue-600' :
+                      run.run_type === 'AERSCREEN' ? 'bg-amber-100 text-amber-600' :
                       'bg-emerald-100 text-emerald-600'
                     }`}>
-                      {run.module === 'AERMOD' && <CloudIcon className="h-5 w-5" />}
-                      {run.module === 'AERSCREEN' && <BeakerIcon className="h-5 w-5" />}
-                      {run.module === 'AERSURFACE' && <MapIcon className="h-5 w-5" />}
+                      {run.run_type === 'AERMOD' && <CloudIcon className="h-5 w-5" />}
+                      {run.run_type === 'AERSCREEN' && <BeakerIcon className="h-5 w-5" />}
+                      {run.run_type === 'AERSURFACE' && <MapIcon className="h-5 w-5" />}
                     </div>
                     
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between">
-                        <h4 className="font-medium text-slate-900 truncate">{run.name}</h4>
+                        <h4 className="font-medium text-slate-900 truncate">{run.title}</h4>
                         <div className="flex items-center space-x-2 ml-4">
                           <span className="px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800">
-                            {run.module}
+                            {run.run_type}
                           </span>
                           <span className={`inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-medium ${
-                            run.status === 'completed' ? 'bg-emerald-50 text-emerald-700' :
-                            run.status === 'running' ? 'bg-blue-50 text-blue-700' :
-                            run.status === 'failed' ? 'bg-red-50 text-red-700' :
+                            run.status === 'FINISHED' ? 'bg-emerald-50 text-emerald-700' :
+                            run.status === 'IN_PROGRESS' ? 'bg-blue-50 text-blue-700' :
+                            run.status === 'FAIL' ? 'bg-red-50 text-red-700' :
                             'bg-yellow-50 text-yellow-700'
                           }`}>
-                            {run.status === 'completed' && <CheckCircleIcon className="h-3.5 w-3.5 mr-1" />}
-                            {run.status === 'running' && <ClockIcon className="h-3.5 w-3.5 mr-1 animate-spin" />}
-                            {run.status === 'failed' && <XCircleIcon className="h-3.5 w-3.5 mr-1" />}
-                            {run.status.charAt(0).toUpperCase() + run.status.slice(1)}
+                            {run.status === 'FINISHED' && <CheckCircleIcon className="h-3.5 w-3.5 mr-1" />}
+                            {run.status === 'IN_PROGRESS' && <ClockIcon className="h-3.5 w-3.5 mr-1 animate-spin" />}
+                            {run.status === 'FAIL' && <XCircleIcon className="h-3.5 w-3.5 mr-1" />}
+                            {run.status}
                           </span>
                           <button
                             onClick={() => handleEditRun(run)}
@@ -549,13 +462,7 @@ const Dashboard: React.FC = () => {
                         </div>
                       </div>
                       <div className="flex items-center space-x-4 mt-1 text-sm text-slate-500">
-                        {run.description && (
-                          <>
-                            <span>{run.description}</span>
-                            <span>•</span>
-                          </>
-                        )}
-                        <span>{new Date(run.created_at).toLocaleString('en-US', { 
+                        <span>{new Date(run.created_on).toLocaleString('en-US', { 
                           month: 'short',
                           day: 'numeric',
                           hour: '2-digit',

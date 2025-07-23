@@ -9,13 +9,11 @@ Other programs such as AERMET will be introduced gradually.
 ## Dispersions API
 - Dispersions API: The API that executes the programs and lets the user fetch their results
 - API is described in dispersions-api.openapi.json
-- TODO: Import the OpenAPI schema into https://wiremock.org/ to create a mock API
 - TODO: You might want to add a few routes to the wiremock API that contain more realistic data
 
 ## User Details API
 - User Details API: The API that stores user details such as subscription plan, teammates, etc
 - API is described in user-details.openapi.json
-- TODO: Import the OpenAPI schema into https://wiremock.org/ to create a mock API
 
 ## Problems with Dispersions API integration
 - Data model (POST bodies) do not reflect the information expected by the API
@@ -63,7 +61,7 @@ We will revisit these requirements when Phase 1 is done and the backend is more 
 - TODO (GREG): I will need to write documentation for the modules
 
 ## Input visualization
-Air quality modeling is geospatial in nature. 
+Air quality modeling is geospatial in nature.
 Therefore, we need to visualize our inputs and outputs on maps and in 3d spaces.
 - TODO: Change AERSCREEN location inputs in Terrain section from UTM to Lat/Lon
 - TODO: AERSCREEN Terrain section - X/Y coordinates should be selectable on embedded Google Map in lat/long
