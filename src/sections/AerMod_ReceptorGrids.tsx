@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import FormField from '../components/forms/FormField';
 import SectionContainer from '../components/SectionContainer';
 import InfoSection from '../components/InfoSection';
-import { useAermod } from '../context/AermodContext';
+import { useRunContext } from '../context/RunContext';
 import { PlusIcon, TrashIcon } from '@heroicons/react/24/outline';
 
 interface ReceptorGrid {
@@ -25,14 +25,13 @@ interface ReceptorGridsData {
 }
 
 const ReceptorGrids: React.FC = () => {
-  const { formData, update } = useAermod();
+  const { formData, updateFormData } = useRunContext();
   const navigate = useNavigate();
 
-  const [gridsData, setGridsData] = useState<ReceptorGridsData>(
-    (formData.receptor_grids as ReceptorGridsData) ?? {
-      grids: []
-    }
-  );
+  // Get current receptor_grids data from global state
+  const gridsData = formData.receptor_grids || {
+    grids: []
+  };
 
   const addGrid = () => {
     if (gridsData.grids.length >= 3) {
@@ -54,23 +53,23 @@ const ReceptorGrids: React.FC = () => {
       height: 1.5
     };
 
-    setGridsData(prev => ({
-      grids: [...prev.grids, newGrid]
-    }));
+    updateFormData('receptor_grids', {
+      grids: [...gridsData.grids, newGrid]
+    });
   };
 
   const removeGrid = (id: string) => {
-    setGridsData(prev => ({
-      grids: prev.grids.filter(grid => grid.id !== id)
-    }));
+    updateFormData('receptor_grids', {
+      grids: gridsData.grids.filter((grid: any) => grid.id !== id)
+    });
   };
 
   const updateGrid = (id: string, field: keyof ReceptorGrid, value: any) => {
-    setGridsData(prev => ({
-      grids: prev.grids.map(grid => 
+    updateFormData('receptor_grids', {
+      grids: gridsData.grids.map((grid: any) => 
         grid.id === id ? { ...grid, [field]: value } : grid
       )
-    }));
+    });
   };
 
   const calculateReceptorCount = (grid: ReceptorGrid): number => {
@@ -82,13 +81,13 @@ const ReceptorGrids: React.FC = () => {
   };
 
   const getTotalReceptors = (): number => {
-    return gridsData.grids.reduce((total, grid) => total + calculateReceptorCount(grid), 0);
+    return gridsData.grids.reduce((total: number, grid: any) => total + calculateReceptorCount(grid), 0);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    const enabledGrids = gridsData.grids.filter(grid => grid.enabled);
+    const enabledGrids = gridsData.grids.filter((grid: any) => grid.enabled);
     if (enabledGrids.length === 0) {
       alert('Please enable at least one receptor grid.');
       return;
@@ -106,7 +105,7 @@ const ReceptorGrids: React.FC = () => {
       }
     }
 
-    update('receptor_grids', gridsData);
+    // Data is already saved to global context through addGrid, removeGrid, and updateGrid
     navigate('/aermod/climate');
   };
 
@@ -152,7 +151,7 @@ const ReceptorGrids: React.FC = () => {
           </div>
         ) : (
           <div className="space-y-4">
-            {gridsData.grids.map((grid, index) => (
+            {gridsData.grids.map((grid: any, index: number) => (
               <div key={grid.id} className="border border-gray-300 rounded-lg p-4 bg-gray-50">
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center space-x-3">

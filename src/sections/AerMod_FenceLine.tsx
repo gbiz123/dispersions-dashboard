@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import FormField from '../components/forms/FormField';
 import SectionContainer from '../components/SectionContainer';
 import InfoSection from '../components/InfoSection';
-import { useAermod } from '../context/AermodContext';
+import { useRunContext } from '../context/RunContext';
 import { PlusIcon, TrashIcon } from '@heroicons/react/24/outline';
 
 interface FenceLinePoint {
@@ -21,17 +21,15 @@ interface FenceLineData {
 }
 
 const FenceLine: React.FC = () => {
-  const { formData, update } = useAermod();
+  const { formData, updateFormData } = useRunContext();
   const navigate = useNavigate();
 
-  const [fenceLineData, setFenceLineData] = useState<FenceLineData>(
-    (formData.fence_line as FenceLineData) ?? {
-      enabled: false,
-      points: [],
-      receptor_height: 1.5,
-      spacing: 10
-    }
-  );
+  const fenceLineData = formData.fence_line || {
+    enabled: false,
+    points: [],
+    receptor_height: 1.5,
+    spacing: 10
+  };
 
   const addPoint = () => {
     const newPoint: FenceLinePoint = {
@@ -40,37 +38,36 @@ const FenceLine: React.FC = () => {
       y_coordinate: 0,
       elevation: 0
     };
-    setFenceLineData(prev => ({
-      ...prev,
-      points: [...prev.points, newPoint]
-    }));
+    updateFormData('fence_line', {
+      ...fenceLineData,
+      points: [...fenceLineData.points, newPoint]
+    });
   };
 
   const removePoint = (id: string) => {
-    setFenceLineData(prev => ({
-      ...prev,
-      points: prev.points.filter(point => point.id !== id)
-    }));
+    updateFormData('fence_line', {
+      ...fenceLineData,
+      points: fenceLineData.points.filter((point: FenceLinePoint) => point.id !== id)
+    });
   };
 
   const updatePoint = (id: string, field: keyof FenceLinePoint, value: any) => {
-    setFenceLineData(prev => ({
-      ...prev,
-      points: prev.points.map(point => 
+    updateFormData('fence_line', {
+      ...fenceLineData,
+      points: fenceLineData.points.map((point: FenceLinePoint) => 
         point.id === id ? { ...point, [field]: value } : point
       )
-    }));
+    });
   };
 
-  // Fix: Update handleChange to accept both HTMLInputElement and HTMLSelectElement
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
     const checked = (e.target as HTMLInputElement).checked;
     
-    setFenceLineData(prev => ({
-      ...prev,
+    updateFormData('fence_line', {
+      ...fenceLineData,
       [name]: type === 'checkbox' ? checked : parseFloat(value) || 0
-    }));
+    });
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -81,7 +78,7 @@ const FenceLine: React.FC = () => {
       return;
     }
 
-    update('fence_line', fenceLineData);
+    // Data is already saved to global context, just navigate
     navigate('/aermod/building-file');
   };
 
@@ -156,7 +153,7 @@ const FenceLine: React.FC = () => {
                 </div>
               ) : (
                 <div className="space-y-3">
-                  {fenceLineData.points.map((point, index) => (
+                  {fenceLineData.points.map((point: FenceLinePoint, index: number) => (
                     <div key={point.id} className="border border-gray-300 rounded-lg p-4 bg-gray-50">
                       <div className="flex items-center justify-between mb-3">
                         <h4 className="font-medium">Point {index + 1}</h4>

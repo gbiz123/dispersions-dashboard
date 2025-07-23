@@ -2,9 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import SectionContainer from '../components/SectionContainer';
 import InfoSection from '../components/InfoSection';
-import { useAermod } from '../context/AermodContext';
-// Remove this import
-// import { useRunContext } from '../context/RunContext';
+import { useRunContext } from '../context/RunContext';
 import { PlayCircleIcon, ClockIcon, CheckCircleIcon, XCircleIcon } from '@heroicons/react/24/outline';
 
 interface RunConfiguration {
@@ -24,26 +22,25 @@ interface RunConfiguration {
 }
 
 const AermodRun: React.FC = () => {
-  const { formData, update } = useAermod();
+  const { formData, updateFormData } = useRunContext();
   const navigate = useNavigate();
 
-  const [runConfig, setRunConfig] = useState<RunConfiguration>(
-    (formData.run_configuration as RunConfiguration) ?? {
-      run_title: '',
-      run_description: '',
-      output_options: {
-        include_summary: true,
-        include_detailed: false,
-        include_plots: true,
-        include_statistics: true
-      },
-      advanced_options: {
-        max_hours: 8760,
-        convergence_criteria: 0.01,
-        debug_mode: false
-      }
+  // Get current run_configuration data from global state
+  const runConfig = formData.run_configuration || {
+    run_title: '',
+    run_description: '',
+    output_options: {
+      include_summary: true,
+      include_detailed: false,
+      include_plots: true,
+      include_statistics: true
+    },
+    advanced_options: {
+      max_hours: 8760,
+      convergence_criteria: 0.01,
+      debug_mode: false
     }
-  );
+  };
 
   const [runStatus, setRunStatus] = useState<'idle' | 'running' | 'completed' | 'error'>('idle');
   const [runProgress, setRunProgress] = useState(0);
@@ -56,25 +53,25 @@ const AermodRun: React.FC = () => {
     
     if (name.includes('.')) {
       const [section, field] = name.split('.');
-      setRunConfig(prev => ({
-        ...prev,
+      updateFormData('run_configuration', {
+        ...runConfig,
         [section]: {
-          ...(prev[section as keyof RunConfiguration] as any),
+          ...(runConfig[section as keyof RunConfiguration] as any),
           [field]: type === 'checkbox' ? checked : type === 'number' ? parseFloat(value) : value
         }
-      }));
+      });
     } else {
-      setRunConfig(prev => ({
-        ...prev,
+      updateFormData('run_configuration', {
+        ...runConfig,
         [name]: type === 'checkbox' ? checked : type === 'number' ? parseFloat(value) : value
-      }));
+      });
     }
   };
 
   const validateInputs = (): boolean => {
     // Check if all required sections have data
     const requiredSections = ['run_info', 'sources'];
-    const missingSections = requiredSections.filter(section => {
+    const missingSections = requiredSections.filter((section: any) => {
       const sectionData = formData[section as keyof typeof formData];
       return !sectionData;
     });
@@ -102,8 +99,7 @@ const AermodRun: React.FC = () => {
       // Remove this line
       // startRun();
 
-      // Save run configuration
-      update('run_configuration', runConfig);
+      // Configuration is already saved to global context through handleChange
 
       // Use the wiremock API endpoint
       const response = await fetch('https://l47qj.wiremockapi.cloud/aermod/run/start', {
@@ -239,7 +235,7 @@ const AermodRun: React.FC = () => {
                 <input
                   type="checkbox"
                   name={`output_options.${key}`}
-                  checked={value}
+                  checked={value as boolean}
                   onChange={handleChange}
                   className="h-4 w-4 text-blue-600 rounded"
                 />

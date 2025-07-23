@@ -117,18 +117,20 @@ const AersurfaceRoutes = () => (
 );
 
 const AerModRoutes = () => (
-  <>
-    <Route path="/aermod/run-info" element={<AermodProvider><RunInfo /></AermodProvider>} />
-    <Route path="/aermod/sources" element={<AermodProvider><Sources /></AermodProvider>} />
-    <Route path="/aermod/fence-line" element={<AermodProvider><FenceLine /></AermodProvider>} />
-    <Route path="/aermod/building-file" element={<AermodProvider><BuildingFile /></AermodProvider>} />
-    <Route path="/aermod/receptor-grids" element={<AermodProvider><ReceptorGrids /></AermodProvider>} />
-    <Route path="/aermod/climate" element={<AermodProvider><Climate /></AermodProvider>} />
-    <Route path="/aermod/meteorology" element={<AermodProvider><Meteorology /></AermodProvider>} />
-    <Route path="/aermod/run" element={<AermodProvider><AermodRun /></AermodProvider>} />
-    <Route path="/aermod/results" element={<AermodProvider><AermodResults /></AermodProvider>} />
-    <Route path="*" element={<Navigate to="/aermod/run-info" replace />} />
-  </>
+  <AermodProvider>
+    <Routes>
+      <Route path="/aermod/run-info" element={<RunInfo />} />
+      <Route path="/aermod/sources" element={<Sources />} />
+      <Route path="/aermod/fence-line" element={<FenceLine />} />
+      <Route path="/aermod/building-file" element={<BuildingFile />} />
+      <Route path="/aermod/receptor-grids" element={<ReceptorGrids />} />
+      <Route path="/aermod/climate" element={<Climate />} />
+      <Route path="/aermod/meteorology" element={<Meteorology />} />
+      <Route path="/aermod/run" element={<AermodRun />} />
+      <Route path="/aermod/results" element={<AermodResults />} />
+      <Route path="*" element={<Navigate to="/aermod/run-info" replace />} />
+    </Routes>
+  </AermodProvider>
 );
 
 const RoutedApp = () => {
@@ -152,7 +154,9 @@ const RoutedApp = () => {
           )}
           
           {module === 'AERSURFACE' && AersurfaceRoutes()}
-          {module === 'AERMOD' && AerModRoutes()}
+          {module === 'AERMOD' && (
+            <Route path="/*" element={<AerModRoutes />} />
+          )}
           
           {/* Default redirect */}
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
