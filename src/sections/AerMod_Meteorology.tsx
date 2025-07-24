@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import FormField from '../components/forms/FormField';
 import SectionContainer from '../components/SectionContainer';
 import InfoSection from '../components/InfoSection';
-import { useAermod } from '../context/AermodContext';
+import { useRunContext } from '../context/RunContext';
 import { MapPinIcon, DocumentArrowUpIcon } from '@heroicons/react/24/outline';
 
 interface PreviousRun {
@@ -30,15 +30,14 @@ interface MeteorologicalData {
 }
 
 const Meteorology: React.FC = () => {
-  const { formData, update } = useAermod();
+  const { formData, updateFormData } = useRunContext();
   const navigate = useNavigate();
 
-  const [metData, setMetData] = useState<MeteorologicalData>(
-    (formData.meteorology as MeteorologicalData) ?? {
-      adj_u: false,
-      source_type: 'default_station'
-    }
-  );
+  // Get current meteorology data from global state
+  const metData = formData.meteorology || {
+    adj_u: false,
+    source_type: 'default_station'
+  };
 
   const [previousRuns, setPreviousRuns] = useState<PreviousRun[]>([]);
   const [isLoadingRuns, setIsLoadingRuns] = useState(false);
@@ -78,20 +77,20 @@ const Meteorology: React.FC = () => {
     const { name, value, type } = e.target;
     const checked = (e.target as HTMLInputElement).checked;
     
-    setMetData(prev => ({
-      ...prev,
+    updateFormData('meteorology', {
+      ...metData,
       [name]: type === 'checkbox' ? checked : value
-    }));
+    });
   };
 
   const handleOnsiteChange = (field: string, value: any) => {
-    setMetData(prev => ({
-      ...prev,
+    updateFormData('meteorology', {
+      ...metData,
       onsite_data: {
-        ...prev.onsite_data,
+        ...metData.onsite_data,
         [field]: value
       } as MeteorologicalData['onsite_data']
-    }));
+    });
   };
 
   const handleMapSelect = () => {
@@ -128,7 +127,7 @@ const Meteorology: React.FC = () => {
       }
     }
 
-    update('meteorology', metData);
+    // Data is already saved to global context through handleChange and other handlers
     navigate('/aermod/run');
   };
 
@@ -196,13 +195,13 @@ const Meteorology: React.FC = () => {
                 value={metData.default_station?.station_id || ''}
                 onChange={(e) => {
                   const selectedStation = defaultStations.find(s => s.value === e.target.value);
-                  setMetData(prev => ({
-                    ...prev,
+                  updateFormData('meteorology', {
+                    ...metData,
                     default_station: {
                       station_id: e.target.value,
                       station_name: selectedStation?.label || ''
                     }
-                  }));
+                  });
                 }}
                 options={defaultStations}
                 required
@@ -307,7 +306,7 @@ const Meteorology: React.FC = () => {
                             name="previous_run_id"
                             value={run.id}
                             checked={metData.previous_run_id === run.id}
-                            onChange={(e) => setMetData(prev => ({ ...prev, previous_run_id: e.target.value }))}
+                            onChange={(e) => updateFormData('meteorology', { ...metData, previous_run_id: e.target.value })}
                             className="h-4 w-4 text-blue-600"
                           />
                           <div className="flex-1">

@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import FormField from '../components/forms/FormField';
 import SectionContainer from '../components/SectionContainer';
 import InfoSection from '../components/InfoSection';
-import { useAermod } from '../context/AermodContext';
+import { useRunContext } from '../context/RunContext';
 
 interface ClimateData {
   seasonal_category: 'ANNUAL' | 'SPRING' | 'SUMMER' | 'AUTUMN' | 'WINTER' | 'CUSTOM';
@@ -21,41 +21,40 @@ interface ClimateData {
 }
 
 const Climate: React.FC = () => {
-  const { formData, update } = useAermod();
+  const { formData, updateFormData } = useRunContext();
   const navigate = useNavigate();
 
-  const [climateData, setClimateData] = useState<ClimateData>(
-    (formData.climate as ClimateData) ?? {
-      seasonal_category: 'ANNUAL',
-      precipitation_category: 'AVERAGE'
-    }
-  );
+  // Get current climate data from global state
+  const climateData = formData.climate || {
+    seasonal_category: 'ANNUAL',
+    precipitation_category: 'AVERAGE'
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setClimateData(prev => ({
-      ...prev,
+    updateFormData('climate', {
+      ...climateData,
       [name]: value
-    }));
+    });
   };
 
   const handleCustomChange = (field: string, value: number, category: 'seasons' | 'precipitation') => {
     if (category === 'seasons') {
-      setClimateData(prev => ({
-        ...prev,
+      updateFormData('climate', {
+        ...climateData,
         custom_seasons: {
-          ...prev.custom_seasons,
+          ...climateData.custom_seasons,
           [field]: value
         } as ClimateData['custom_seasons']
-      }));
+      });
     } else {
-      setClimateData(prev => ({
-        ...prev,
+      updateFormData('climate', {
+        ...climateData,
         custom_precipitation: {
-          ...prev.custom_precipitation,
+          ...climateData.custom_precipitation,
           [field]: value
         } as ClimateData['custom_precipitation']
-      }));
+      });
     }
   };
 
@@ -84,7 +83,7 @@ const Climate: React.FC = () => {
       }
     }
 
-    update('climate', climateData);
+    // Data is already saved to global context through handleChange and handleCustomChange
     navigate('/aermod/meteorology');
   };
 

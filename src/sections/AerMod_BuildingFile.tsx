@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import SectionContainer from '../components/SectionContainer';
 import InfoSection from '../components/InfoSection';
-import { useAermod } from '../context/AermodContext';
+import { useRunContext } from '../context/RunContext';
 import { DocumentArrowUpIcon, TrashIcon } from '@heroicons/react/24/outline';
 
 interface BuildingFileData {
@@ -14,45 +14,44 @@ interface BuildingFileData {
 }
 
 const BuildingFile: React.FC = () => {
-  const { formData, update } = useAermod();
+  const { formData, updateFormData } = useRunContext();
   const navigate = useNavigate();
 
-  const [buildingData, setBuildingData] = useState<BuildingFileData>(
-    (formData.building_file as BuildingFileData) ?? {
-      enabled: false,
-      file: undefined, // Changed from null to undefined
-      use_existing: false
-    }
-  );
+  // Get current building_file data from global state
+  const buildingData = formData.building_file || {
+    enabled: false,
+    file: undefined,
+    use_existing: false
+  };
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      setBuildingData(prev => ({
-        ...prev,
+      updateFormData('building_file', {
+        ...buildingData,
         file,
         filename: file.name,
         use_existing: false
-      }));
+      });
     }
   };
 
   const clearFile = () => {
-    setBuildingData(prev => ({
-      ...prev,
-      file: undefined, // Changed from null to undefined
+    updateFormData('building_file', {
+      ...buildingData,
+      file: undefined,
       filename: undefined
-    }));
+    });
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
     const checked = (e.target as HTMLInputElement).checked;
     
-    setBuildingData(prev => ({
-      ...prev,
+    updateFormData('building_file', {
+      ...buildingData,
       [name]: type === 'checkbox' ? checked : value
-    }));
+    });
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -63,7 +62,7 @@ const BuildingFile: React.FC = () => {
       return;
     }
 
-    update('building_file', buildingData);
+    // Data is already saved to global context through handleChange and other handlers
     navigate('/aermod/receptor-grids');
   };
 
@@ -95,7 +94,7 @@ const BuildingFile: React.FC = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <button
                 type="button"
-                onClick={() => setBuildingData(prev => ({ ...prev, use_existing: false }))}
+                onClick={() => updateFormData('building_file', { ...buildingData, use_existing: false })}
                 className={`p-4 border rounded-lg text-left transition-colors ${
                   !buildingData.use_existing
                     ? 'border-blue-500 bg-blue-50 text-blue-700'
@@ -108,7 +107,7 @@ const BuildingFile: React.FC = () => {
               
               <button
                 type="button"
-                onClick={() => setBuildingData(prev => ({ ...prev, use_existing: true }))}
+                onClick={() => updateFormData('building_file', { ...buildingData, use_existing: true })}
                 className={`p-4 border rounded-lg text-left transition-colors ${
                   buildingData.use_existing
                     ? 'border-blue-500 bg-blue-50 text-blue-700'

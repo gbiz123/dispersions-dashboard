@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { API_CONFIG } from '../config';
+import api from '../services/api';
 
 interface UseRunDataProps {
   runId?: string;
@@ -111,24 +111,20 @@ export const useRunData = ({ runId, module }: UseRunDataProps) => {
       setError(null);
 
       try {
-        // For testing, use mock data
-        // Comment this out and uncomment the fetch below when backend is ready
-        setTimeout(() => {
-          setRunData(mockRunData[module]);
-          setIsLoading(false);
-        }, 1000); // Simulate network delay
-
-        // Uncomment for real API:
-        // const response = await fetch(
-        //   `${API_CONFIG.BASE_URL}/run/request/fetch?run_id=${runId}&module=${module}`
-        // );
-        // if (!response.ok) {
-        //   throw new Error('Failed to fetch run data');
-        // }
-        // const data = await response.json();
-        // setRunData(data);
+        // Fetch run data from API
+        const response = await api.get(`/run/request/fetch?run_id=${runId}&module=${module}`);
+        setRunData(response.data);
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'An error occurred');
+        console.error('Failed to fetch run data:', err);
+        
+        // If API fails, fall back to mock data for development
+        if (process.env.NODE_ENV === 'development') {
+          console.log('Using mock data as fallback');
+          setRunData(mockRunData[module]);
+        } else {
+          setError(err instanceof Error ? err.message : 'An error occurred');
+        }
+      } finally {
         setIsLoading(false);
       }
     };

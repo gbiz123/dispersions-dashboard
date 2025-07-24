@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import InfoSection from '../components/InfoSection';
-import { useAermod } from '../context/AermodContext';
+import { useRunContext } from '../context/RunContext';
 import { 
   DocumentArrowDownIcon, 
   ChartBarIcon, 
@@ -35,7 +35,7 @@ interface ResultsData {
 }
 
 const AermodResults: React.FC = () => {
-  const { formData } = useAermod();
+  const { formData } = useRunContext();
   const [resultsData, setResultsData] = useState<ResultsData>({
     recent_runs: []
   });

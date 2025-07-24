@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import FormField from '../components/forms/FormField';
 import SectionContainer from '../components/SectionContainer';
 import InfoSection from '../components/InfoSection';
-import { useAermod } from '../context/AermodContext';
+import { useRunContext } from '../context/RunContext';
 import { PlusIcon, TrashIcon, DocumentArrowUpIcon } from '@heroicons/react/24/outline';
 
 interface SourceData {
@@ -29,25 +29,34 @@ interface PreviousRun {
 }
 
 const Sources: React.FC = () => {
-  const { formData, update } = useAermod();
+  const { formData, updateFormData } = useRunContext();
   const navigate = useNavigate();
 
-  // Fix 1: Access the sources data correctly
-  const [sources, setSources] = useState<SourceData[]>(
-    formData.sources?.data ?? []
-  );
-  
-  // Fix 2: Initialize sourceMethod from formData
-  const [sourceMethod, setSourceMethod] = useState<'manual' | 'upload' | 'previous'>(
-    formData.sources?.method ?? 'manual'
-  );
+  // Get current sources data from global state
+  const sourcesData = formData.sources || { method: 'manual', data: [] };
+  const sources = sourcesData.data || [];
+  const sourceMethod = sourcesData.method || 'manual';
+  const selectedPreviousRun = sourcesData.previous_run_id || '';
   
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [previousRuns, setPreviousRuns] = useState<PreviousRun[]>([]);
-  const [selectedPreviousRun, setSelectedPreviousRun] = useState<string>(
-    formData.sources?.previous_run_id ?? ''
-  );
   const [isLoadingRuns, setIsLoadingRuns] = useState(false);
+
+  // Helper function to update source method
+  const setSourceMethod = (method: 'manual' | 'upload' | 'previous') => {
+    updateFormData('sources', {
+      ...sourcesData,
+      method
+    });
+  };
+
+  // Helper function to update selected previous run
+  const setSelectedPreviousRun = (runId: string) => {
+    updateFormData('sources', {
+      ...sourcesData,
+      previous_run_id: runId
+    });
+  };
 
   // Fetch previous runs when user selects "previous run" option
   useEffect(() => {
@@ -94,17 +103,26 @@ const Sources: React.FC = () => {
       emission_rate: 0,
       pollutant: 'PM25'
     };
-    setSources([...sources, newSource]);
+    updateFormData('sources', {
+      ...sourcesData,
+      data: [...sources, newSource]
+    });
   };
 
   const removeSource = (id: string) => {
-    setSources(sources.filter(source => source.id !== id));
+    updateFormData('sources', {
+      ...sourcesData,
+      data: sources.filter((source: SourceData) => source.id !== id)
+    });
   };
 
   const updateSource = (id: string, field: keyof SourceData, value: any) => {
-    setSources(sources.map(source => 
-      source.id === id ? { ...source, [field]: value } : source
-    ));
+    updateFormData('sources', {
+      ...sourcesData,
+      data: sources.map((source: SourceData) => 
+        source.id === id ? { ...source, [field]: value } : source
+      )
+    });
   };
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -134,16 +152,8 @@ const Sources: React.FC = () => {
       return;
     }
 
-    // Fix 3: Create the proper sources object structure
-    const sourcesData = {
-      method: sourceMethod,
-      ...(sourceMethod === 'manual' && { data: sources }),
-      ...(sourceMethod === 'upload' && { uploaded_file: uploadedFile?.name }),
-      ...(sourceMethod === 'previous' && { previous_run_id: selectedPreviousRun })
-    };
-
-    update('sources', sourcesData);
-    navigate('/aermod/receptors'); // Navigate to next AERMOD section
+    // Data is already saved to global context, just navigate
+    navigate('/aermod/receptors');
   };
 
   const sourceTypeOptions = [
@@ -220,7 +230,7 @@ const Sources: React.FC = () => {
       {/* Manual Entry */}
       {sourceMethod === 'manual' && (
         <div className="space-y-6">
-          {sources.map((source, index) => (
+          {sources.map((source: SourceData, index: number) => (
             <div key={source.id} className="border border-gray-300 rounded-lg p-4 bg-gray-50">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-medium">Source {index + 1}</h3>

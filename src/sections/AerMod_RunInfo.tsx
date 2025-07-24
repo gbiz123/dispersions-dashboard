@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import FormField from '../components/forms/FormField';
 import SectionContainer from '../components/SectionContainer';
 import InfoSection from '../components/InfoSection';
 import MapSelector from '../components/MapSelector';
-import { useAermod } from '../context/AermodContext';
+import { useRunContext } from '../context/RunContext';
 
 interface RunInfoData {
   project_description: string;
@@ -26,29 +26,28 @@ interface RunInfoData {
 }
 
 const RunInfo: React.FC = () => {
-  const { formData, update } = useAermod();
+  const { formData, updateFormData } = useRunContext();
   const navigate = useNavigate();
 
-  const [runInfo, setRunInfo] = useState<RunInfoData>(
-    {
-      project_description: '',
-      run_option: 'CONC',
-      start_year: new Date().getFullYear(),
-      end_year: new Date().getFullYear(),
-      latitude: null,
-      longitude: null,
-      state: '',
-      pollutants: {
-        NO2: false,
-        SO2: false,
-        PM25: false,
-        PM10: false,
-        LEAD: false,
-        CO: false,
-        OTHER: false
-      }
+  // Get current run_info data or use defaults
+  const runInfo = formData.run_info || {
+    project_description: '',
+    run_option: 'CONC',
+    start_year: new Date().getFullYear(),
+    end_year: new Date().getFullYear(),
+    latitude: null,
+    longitude: null,
+    state: '',
+    pollutants: {
+      NO2: false,
+      SO2: false,
+      PM25: false,
+      PM10: false,
+      LEAD: false,
+      CO: false,
+      OTHER: false
     }
-  );
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target;
@@ -57,41 +56,41 @@ const RunInfo: React.FC = () => {
       const target = e.target as HTMLInputElement;
       if (name.startsWith('pollutant_')) {
         const pollutant = name.replace('pollutant_', '') as keyof RunInfoData['pollutants'];
-        setRunInfo(prev => ({
-          ...prev,
+        updateFormData('run_info', {
+          ...runInfo,
           pollutants: {
-            ...prev.pollutants,
+            ...runInfo.pollutants,
             [pollutant]: target.checked
           }
-        }));
+        });
       }
     } else if (name === 'start_year' || name === 'end_year') {
-      setRunInfo(prev => ({
-        ...prev,
+      updateFormData('run_info', {
+        ...runInfo,
         [name]: parseInt(value) || new Date().getFullYear()
-      }));
+      });
     } else {
-      setRunInfo(prev => ({
-        ...prev,
+      updateFormData('run_info', {
+        ...runInfo,
         [name]: value
-      }));
+      });
     }
   };
 
   const handlePositionChange = (lat: number, lng: number) => {
-    setRunInfo(prev => ({
-      ...prev,
+    updateFormData('run_info', {
+      ...runInfo,
       latitude: lat,
       longitude: lng
-    }));
+    });
   };
 
   const clearPin = () => {
-    setRunInfo(prev => ({
-      ...prev,
+    updateFormData('run_info', {
+      ...runInfo,
       latitude: null,
       longitude: null
-    }));
+    });
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -109,8 +108,8 @@ const RunInfo: React.FC = () => {
       return;
     }
 
-    update('run_info', runInfo);
-    navigate('/aermod/sources'); // Navigate to next AERMOD section
+    // Data is already saved to global context, just navigate
+    navigate('/aermod/sources');
   };
 
   // US States dropdown options
@@ -264,7 +263,7 @@ const RunInfo: React.FC = () => {
           onChange={(e) => {
             const lat = parseFloat(e.target.value);
             if (!isNaN(lat) && lat >= -90 && lat <= 90) {
-              setRunInfo(prev => ({ ...prev, latitude: lat }));
+              updateFormData('run_info', { ...runInfo, latitude: lat });
             }
           }}
           step={0.000001}
@@ -282,7 +281,7 @@ const RunInfo: React.FC = () => {
           onChange={(e) => {
             const lng = parseFloat(e.target.value);
             if (!isNaN(lng) && lng >= -180 && lng <= 180) {
-              setRunInfo(prev => ({ ...prev, longitude: lng }));
+              updateFormData('run_info', { ...runInfo, longitude: lng });
             }
           }}
           step={0.000001}
