@@ -1,3 +1,27 @@
+## Add input and form data for NO2 module
+- The "NO2 Chemistry" section is missing
+- TODO: Add section in AERSCREEN module for NO2 chemistry
+
+## Integration test 
+- Currently, there is no integration testing for the UI
+- TODO: Write integration tests in your preferred framework (puppeteer, playwright, etc)
+
+## UTM X, UTM Y in Terrain section
+- Should be able to select a single point on map
+- UTM X and Y should auto-populate
+- Reverse is also true, if they type a point it should show up on map
+
+## Bbox support in AERSCREEN terrain request
+- bbox parameter added to terrain section of post body
+- Should be selectable via rectangular select 
+- Top left and botton right coordinates should populate the bbox
+- This should be part of a "Select study area" in the Terrain section
+
+## Results visualization
+- AERSCREEN - Show tables, max conc distance plot, max conc by sector plot
+- AERMOD - Show results in Google Earth plus charts
+- TODO: If warning messages are present, display them to the user.
+
 # Dispersions Dashboard
 
 ## Purpose
@@ -32,14 +56,6 @@ Other programs such as AERMET will be introduced gradually.
 - There are minor inconsistencies in UI layout switching from tab to tab, taking away from cohesiveness
 - This has already been fixed in AERSCREEN module.
 - TODO: Apply the same UI in the AERSCREEN module to the AERMOD and AERSURFACE modules.
-
-## Add input and form data for NO2 module
-- The "NO2 Chemistry" section is missing
-- TODO: Add section in AERSCREEN module for NO2 chemistry
-
-## No integration testing
-- Currently, there is no integration testing for the UI
-- TODO: Write integration tests in your preferred framework (puppeteer, playwright, etc)
 
 ## Go back and edit run from previous inputs
 - Users should be able to click the "edit run button"
@@ -113,14 +129,3 @@ Therefore, we need to visualize our inputs and outputs on maps and in 3d spaces.
 - TODO (GREG): Create POST route to start a run that is in READY state
 - TODO: Add a "Submit for validation" button in the Run section, and a "Start run" button that call the aforementioned API routes
 - TODO: If error messages are present, fetch the errors and display them to the user. Do not allow to start the run
-
-## Results visualization
-- AERSCREEN - Show tables, max conc distance plot, max conc by sector plot
-- AERMOD - Show results in Google Earth plus charts
-- TODO: If warning messages are present, display them to the user.
-
-## Bbox support in AERSCREEN terrain request
-- bbox parameter added to terrain section of post body
-- Should be selectable via rectangular select in leaflet js
-- Top left and botton right coordinates should populate the bbox
-- This should be part of a "Select study area" in the Terrain section
