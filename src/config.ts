@@ -5,9 +5,9 @@ const isDevelopment = process.env.NODE_ENV === 'development';
 const MOCK_DISPERSIONS_API_URL = 'http://localhost:3001';
 const MOCK_USER_DETAILS_API_URL = 'http://localhost:3002';
 
-// Production API URLs
-const PROD_DISPERSIONS_API_URL = 'http://172.20.0.5:8080/api';
-const PROD_USER_DETAILS_API_URL = 'http://localhost:8080'; // Update this when user details API is deployed
+// Production API URLs - use relative paths for Kubernetes ingress routing
+const PROD_DISPERSIONS_API_URL = '/api';
+const PROD_USER_DETAILS_API_URL = '/user-details'; // Use ingress routing
 
 export const API_CONFIG = {
   // Use mock APIs in development, production APIs otherwise

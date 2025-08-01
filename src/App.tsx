@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { RunProvider, useRunContext } from './context/RunContext';
 import { AersurfaceProvider } from './context/AersurfaceContext';
 import { AermodProvider } from './context/AermodContext';
@@ -137,7 +137,7 @@ const RoutedApp = () => {
   const { module } = useModule();
   const { formData, updateFormData } = useRunContext()
   return (
-    <BrowserRouter basename="/dashboard">
+    <BrowserRouter basename={process.env.PUBLIC_URL}>
       <Layout>
         <Routes>
           {/* Global routes - these take precedence */}

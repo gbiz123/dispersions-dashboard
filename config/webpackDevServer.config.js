@@ -98,6 +98,10 @@ module.exports = function (proxy, allowedHost) {
       // See https://github.com/facebook/create-react-app/issues/387.
       disableDotRule: true,
       index: paths.publicUrlOrPath,
+      // Handle client-side routing by serving index.html for all routes
+      rewrites: [
+        { from: /^\/dashboard\/.*$/, to: '/' }
+      ]
     },
     // `proxy` is run between `before` and `after` `webpack-dev-server` hooks
     proxy,
