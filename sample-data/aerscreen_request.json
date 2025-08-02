@@ -1,0 +1,78 @@
+{
+  "source_data": {
+    "rate": 1.0,
+    "height": 61.0,
+    "temp_k": 415.0,
+    "diam": 5.0,
+    "velocity": 11.0,
+    "flow": 457647.0
+  },
+  "building_data": {
+    "use_building_downwash": true,
+    "use_existing_bpipprm_file": null,
+    "height": 34.0,
+    "max_horizontal_dim": 10.0,
+    "min_horizontal_dim": 7.0,
+    "deg_from_north_of_max_hor_dim": 0.0,
+    "deg_from_north_of_stack_rel_to_center": 90.0,
+    "dist_stack_to_center": 5.0
+  },
+  "makemet_data": {
+    "min_temp_k": 270.0,
+    "max_temp_k": 310.0,
+    "min_wind_speed_m_s": 0.5,
+    "anemometer_height_m": 10.0,
+    "land_use_type": 0,
+    "climatology_type": 0,
+    "albedo": 0.14,
+    "bowen_ratio": 0.63,
+    "surface_roughness": 0.165,
+    "surface_characteristics_filename": "season_3.out",
+    "adjust_friction_velocity": false
+  },
+  "terrain_data": {
+    "use_terrain": false,
+    "utm_x": 535145.7,
+    "utm_y": 3658512.5,
+    "utm_zone": "17",
+    "nad_datum": 1,
+    "probe_distance_m": 10000.0,
+    "elevation": 25.0,
+    "override_elevation_with_aermap_val": false
+  },
+  "terrain_input_files": {
+    "file_type": 0,
+    "nad_grids_path": ".\\",
+    "files": [
+      {
+        "units": 1,
+        "path": "NED_32948525\\NED_32948525.tif"
+      }
+    ]
+  },
+  "discrete_receptors": {
+    "include_discrete_receptors": false,
+    "receptor_file": "discrete_rec.txt",
+    "distance_units": 0,
+    "receptor_distances": [10, 20, 40]
+  },
+  "other_inputs": {
+    "units": 1,
+    "rural_or_urban": 0,
+    "population": 0,
+    "distance_to_amb_air": 50.0,
+    "use_flagpole_receptors": false,
+    "flagpole_height_m": 0.0
+  },
+  "fumigation": {
+    "inversion_break_up": true,
+    "shoreline_fumigation": true,
+    "distance_to_shoreline": 500.0,
+    "direction_to_shoreline_deg": 30.0,
+    "run_aerscreen": true
+  },
+  "debug": {
+    "debug": true
+  },
+  "output_file": "AERSCREEN.out"
+}
