@@ -41,21 +41,47 @@ const defaultAerscreenData = {
 	} 
 }
 
+// Helper function to determine module from URL path
+const getModuleFromPath = (): Module => {
+  const path = window.location.pathname;
+  
+  if (path.includes('/aermod/')) {
+    return 'AERMOD';
+  } else if (path.includes('/aerscreen/')) {
+    return 'AERSCREEN';
+  } else if (path.includes('/aersurface/')) {
+    return 'AERSURFACE';
+  }
+  
+  return 'Dashboard';
+};
+
 export const ModuleProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [module, setModule] = useState<Module>('Dashboard');
+  // Initialize module based on current URL path
+  const [module, setModule] = useState<Module>(() => getModuleFromPath());
   const { formData, updateFormData } = useRunContext();
+
+  // Update module when URL changes (for browser back/forward navigation)
+  useEffect(() => {
+    const handlePopState = () => {
+      setModule(getModuleFromPath());
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
 
   // Create default values for AERSCREEN
   useEffect(() => {
-	  if (module === "AERSCREEN") {
-		  if (formData.source_data === undefined) {
-			  updateFormData(
-				  'source_data',
-				  defaultAerscreenData
-			  )
-		  }
-	  }
-  })
+    if (module === "AERSCREEN") {
+      if (formData.source_data === undefined) {
+        updateFormData(
+          'source_data',
+          defaultAerscreenData
+        );
+      }
+    }
+  }, [module, formData.source_data, updateFormData]);
   
   const toggle = () => {
     setModule(m => {

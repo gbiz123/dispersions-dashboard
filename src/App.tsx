@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { RunProvider, useRunContext } from './context/RunContext';
 import { AersurfaceProvider } from './context/AersurfaceContext';
 import { AermodProvider } from './context/AermodContext';
@@ -40,129 +40,156 @@ import Results from './sections/Results';
 import TestPage from './pages/TestPage';
 import Dashboard from './pages/Dashboard';
 
-const AerscreenRoutes = () => (
-  <Routes>
-    <Route path="/stack-data" element={<StackData />} />
-    <Route path="/building-data" element={<BuildingData />} />
-    <Route path="/makemet-data" element={<MakemetData />} />
-    <Route path="/terrain-data" element={<TerrainData />} />
-    <Route path="/discrete-receptors" element={<DiscreteReceptors />} />
-    <Route path="/other-inputs" element={<StudyConfiguration />} />
-    <Route path="/fumigation" element={<Fumigation />} />
-    <Route path="/debug" element={<Debug />} />
-    <Route path="/results" element={<Results />} />
-    <Route path="/test" element={<TestPage />} />
-  </Routes>
-);
-
-const AersurfaceRoutes = () => (
-  <>
-    <Route
-      path="/aersurface/basic-info"
-      element={
-        <AersurfaceProvider>
-          <AerSurfaceBasicInfo />
-        </AersurfaceProvider>
-      }
-    />  
-    <Route
-      path="/aersurface/surface-roughness"
-      element={
-        <AersurfaceProvider>
-          <AerSurfaceRoughness />
-        </AersurfaceProvider>
-      }
-    />
-    <Route
-      path="/aersurface/meteorology"
-      element={
-        <AersurfaceProvider>
-          <AerSurfaceMeteorology />
-        </AersurfaceProvider>
-      }
-    />
-    <Route
-      path="/aersurface/land-cover"
-      element={
-        <AersurfaceProvider>
-          <AerSurfaceLandCover />
-        </AersurfaceProvider>
-      }
-    />
-    <Route
-      path="/aersurface/temporal-frequency"
-      element={
-        <AersurfaceProvider>
-          <AerSurfaceTemporalFrequency />
-        </AersurfaceProvider>
-      }
-    />
-    <Route
-      path="/aersurface/sectors"
-      element={
-        <AersurfaceProvider>
-          <AerSurfaceSectors />
-        </AersurfaceProvider>
-      }
-    />
-    <Route
-      path="/aersurface/run"
-      element={
-        <AersurfaceProvider>
-          <AerSurfaceRun />
-        </AersurfaceProvider>
-      }
-    />
-  </>
-);
-
-const AerModRoutes = () => (
-  <AermodProvider>
-    <Routes>
-      <Route path="/aermod/run-info" element={<RunInfo />} />
-      <Route path="/aermod/sources" element={<Sources />} />
-      <Route path="/aermod/fence-line" element={<FenceLine />} />
-      <Route path="/aermod/building-file" element={<BuildingFile />} />
-      <Route path="/aermod/receptor-grids" element={<ReceptorGrids />} />
-      <Route path="/aermod/climate" element={<Climate />} />
-      <Route path="/aermod/meteorology" element={<Meteorology />} />
-      <Route path="/aermod/run" element={<AermodRun />} />
-      <Route path="/aermod/results" element={<AermodResults />} />
-      <Route path="*" element={<Navigate to="/aermod/run-info" replace />} />
-    </Routes>
-  </AermodProvider>
-);
-
 const RoutedApp = () => {
   const { module } = useModule();
-  const { formData, updateFormData } = useRunContext()
+  const { formData, updateFormData } = useRunContext();
+
   return (
-    <BrowserRouter basename={process.env.PUBLIC_URL}>
+    <BrowserRouter>
       <Layout>
         <Routes>
-          {/* Global routes - these take precedence */}
+          {/* Dashboard route */}
           <Route path="/" element={<Dashboard />} />
           <Route path="/team-management" element={<TeamManagement />} />
-          
-          {/* Module-specific routes wrapped with providers */}
-          {module === 'AERSCREEN' && (
-            <Route path="/*" element={
-              <AerscreenProvider>
-                <AerscreenRoutes />
-              </AerscreenProvider>
-            } />
-          )}
-          
-          {module === 'AERSURFACE' && AersurfaceRoutes()}
-          {module === 'AERMOD' && (
-            <Route path="/*" element={<AerModRoutes />} />
-          )}
-          
-          {/* Default redirect */}
-          <Route path="/" element={<Navigate to="/dashboard" replace />} />
-          
-          {/* Catch-all redirect to dashboard */}
-          <Route path="*" element={<Navigate to="/dashboard" replace />} />
+
+          {/* AERSCREEN routes */}
+          <Route path="/aerscreen/stack-data" element={
+            <AerscreenProvider>
+              <StackData />
+            </AerscreenProvider>
+          } />
+          <Route path="/aerscreen/building-data" element={
+            <AerscreenProvider>
+              <BuildingData />
+            </AerscreenProvider>
+          } />
+          <Route path="/aerscreen/makemet-data" element={
+            <AerscreenProvider>
+              <MakemetData />
+            </AerscreenProvider>
+          } />
+          <Route path="/aerscreen/terrain-data" element={
+            <AerscreenProvider>
+              <TerrainData />
+            </AerscreenProvider>
+          } />
+          <Route path="/aerscreen/discrete-receptors" element={
+            <AerscreenProvider>
+              <DiscreteReceptors />
+            </AerscreenProvider>
+          } />
+          <Route path="/aerscreen/other-inputs" element={
+            <AerscreenProvider>
+              <StudyConfiguration />
+            </AerscreenProvider>
+          } />
+          <Route path="/aerscreen/fumigation" element={
+            <AerscreenProvider>
+              <Fumigation />
+            </AerscreenProvider>
+          } />
+          <Route path="/aerscreen/debug" element={
+            <AerscreenProvider>
+              <Debug />
+            </AerscreenProvider>
+          } />
+          <Route path="/aerscreen/results" element={
+            <AerscreenProvider>
+              <Results />
+            </AerscreenProvider>
+          } />
+          <Route path="/aerscreen/test" element={
+            <AerscreenProvider>
+              <TestPage />
+            </AerscreenProvider>
+          } />
+
+          {/* AERSURFACE routes */}
+          <Route path="/aersurface/basic-info" element={
+            <AersurfaceProvider>
+              <AerSurfaceBasicInfo />
+            </AersurfaceProvider>
+          } />
+          <Route path="/aersurface/surface-roughness" element={
+            <AersurfaceProvider>
+              <AerSurfaceRoughness />
+            </AersurfaceProvider>
+          } />
+          <Route path="/aersurface/meteorology" element={
+            <AersurfaceProvider>
+              <AerSurfaceMeteorology />
+            </AersurfaceProvider>
+          } />
+          <Route path="/aersurface/land-cover" element={
+            <AersurfaceProvider>
+              <AerSurfaceLandCover />
+            </AersurfaceProvider>
+          } />
+          <Route path="/aersurface/temporal-frequency" element={
+            <AersurfaceProvider>
+              <AerSurfaceTemporalFrequency />
+            </AersurfaceProvider>
+          } />
+          <Route path="/aersurface/sectors" element={
+            <AersurfaceProvider>
+              <AerSurfaceSectors />
+            </AersurfaceProvider>
+          } />
+          <Route path="/aersurface/run" element={
+            <AersurfaceProvider>
+              <AerSurfaceRun />
+            </AersurfaceProvider>
+          } />
+
+          {/* AERMOD routes */}
+          <Route path="/aermod/run-info" element={
+            <AermodProvider>
+              <RunInfo />
+            </AermodProvider>
+          } />
+          <Route path="/aermod/sources" element={
+            <AermodProvider>
+              <Sources />
+            </AermodProvider>
+          } />
+          <Route path="/aermod/fence-line" element={
+            <AermodProvider>
+              <FenceLine />
+            </AermodProvider>
+          } />
+          <Route path="/aermod/building-file" element={
+            <AermodProvider>
+              <BuildingFile />
+            </AermodProvider>
+          } />
+          <Route path="/aermod/receptor-grids" element={
+            <AermodProvider>
+              <ReceptorGrids />
+            </AermodProvider>
+          } />
+          <Route path="/aermod/climate" element={
+            <AermodProvider>
+              <Climate />
+            </AermodProvider>
+          } />
+          <Route path="/aermod/meteorology" element={
+            <AermodProvider>
+              <Meteorology />
+            </AermodProvider>
+          } />
+          <Route path="/aermod/run" element={
+            <AermodProvider>
+              <AermodRun />
+            </AermodProvider>
+          } />
+          <Route path="/aermod/results" element={
+            <AermodProvider>
+              <AermodResults />
+            </AermodProvider>
+          } />
+
+          {/* Catch-all redirect - ONLY redirect to root, not /dashboard */}
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </Layout>
     </BrowserRouter>
