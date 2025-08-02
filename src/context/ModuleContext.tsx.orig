@@ -41,6 +41,23 @@ const defaultAerscreenData = {
 	} 
 }
 
+<<<<<<< HEAD
+export const ModuleProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [module, setModule] = useState<Module>('Dashboard');
+  const { formData, updateFormData } = useRunContext();
+
+  // Create default values for AERSCREEN
+  useEffect(() => {
+	  if (module === "AERSCREEN") {
+		  if (formData.source_data === undefined) {
+			  updateFormData(
+				  'source_data',
+				  defaultAerscreenData
+			  )
+		  }
+	  }
+  })
+=======
 // Helper function to determine module from URL path
 const getModuleFromPath = (): Module => {
   const path = window.location.pathname;
@@ -82,6 +99,7 @@ export const ModuleProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       }
     }
   }, [module, formData.source_data, updateFormData]);
+>>>>>>> michael/new_main
   
   const toggle = () => {
     setModule(m => {
@@ -93,5 +111,8 @@ export const ModuleProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   };
   
   return <C.Provider value={{ module, toggle, setModule }}>{children}</C.Provider>;
+<<<<<<< HEAD
 };
-
+=======
+};
+>>>>>>> michael/new_main
