@@ -4,6 +4,7 @@ import { RunProvider, useRunContext } from './context/RunContext';
 import { AersurfaceProvider } from './context/AersurfaceContext';
 import { AermodProvider } from './context/AermodContext';
 import { AerscreenProvider } from './context/AerscreenContext';
+import AuthWrapper from './components/AuthWrapper';
 import Layout from './components/Layout';
 import AerSurfaceBasicInfo from './sections/AerSurface_BasicInfo';
 import AerSurfaceRoughness from './sections/AerSurface_SurfaceRoughness';
@@ -64,7 +65,7 @@ const AersurfaceRoutes = () => (
           <AerSurfaceBasicInfo />
         </AersurfaceProvider>
       }
-    />  
+    />
     <Route
       path="/aersurface/surface-roughness"
       element={
@@ -138,33 +139,41 @@ const RoutedApp = () => {
   const { formData, updateFormData } = useRunContext()
   return (
     <BrowserRouter basename={process.env.PUBLIC_URL}>
-      <Layout>
-        <Routes>
-          {/* Global routes - these take precedence */}
-          <Route path="/" element={<Dashboard />} />
-          <Route path="/team-management" element={<TeamManagement />} />
-          
-          {/* Module-specific routes wrapped with providers */}
-          {module === 'AERSCREEN' && (
-            <Route path="/*" element={
-              <AerscreenProvider>
-                <AerscreenRoutes />
-              </AerscreenProvider>
-            } />
-          )}
-          
-          {module === 'AERSURFACE' && AersurfaceRoutes()}
-          {module === 'AERMOD' && (
-            <Route path="/*" element={<AerModRoutes />} />
-          )}
-          
-          {/* Default redirect */}
-          <Route path="/" element={<Navigate to="/dashboard" replace />} />
-          
-          {/* Catch-all redirect to dashboard */}
-          <Route path="*" element={<Navigate to="/dashboard" replace />} />
-        </Routes>
-      </Layout>
+      <Routes>
+        <Route path="/login" element={<div style={{ padding: '50px', textAlign: 'center' }}>Login Page - 404 in development</div>} />
+
+        <Route path="/*" element={
+          <AuthWrapper>
+            <Layout>
+              <Routes>
+                {/* Global routes - these take precedence */}
+                <Route path="/" element={<Dashboard />} />
+                <Route path="/team-management" element={<TeamManagement />} />
+
+                {/* Module-specific routes wrapped with providers */}
+                {module === 'AERSCREEN' && (
+                  <Route path="/*" element={
+                    <AerscreenProvider>
+                      <AerscreenRoutes />
+                    </AerscreenProvider>
+                  } />
+                )}
+
+                {module === 'AERSURFACE' && AersurfaceRoutes()}
+                {module === 'AERMOD' && (
+                  <Route path="/*" element={<AerModRoutes />} />
+                )}
+
+                {/* Default redirect */}
+                <Route path="/dashboard" element={<Dashboard />} />
+
+                {/* Catch-all redirect to dashboard */}
+                <Route path="*" element={<Navigate to="/" replace />} />
+              </Routes>
+            </Layout>
+          </AuthWrapper>
+        } />
+      </Routes>
     </BrowserRouter>
   );
 };
